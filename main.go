@@ -33,6 +33,7 @@ type visitor struct {
 }
 
 type configuration struct {
+	Debug                 bool   `yaml:"debug"`                    // debug mode
 	Port                  int    `yaml:"port"`                     // server port
 	GlobalLimit           int    `yaml:"global_limit"`             // global refill limit per second
 	GlobalBurst           int    `yaml:"global_burst"`             // global burst maximum burst size
@@ -126,9 +127,9 @@ func isProxyPath(path string) bool {
 }
 
 func main() {
-	log.SetLevel(log.DebugLevel)
 	// default config
 	c := &configuration{
+		Debug:                 false,
 		Port:                  23333,
 		GlobalLimit:           8,
 		GlobalBurst:           4,
@@ -154,6 +155,10 @@ func main() {
 		if err != nil {
 			log.Panicln(err)
 		}
+	}
+
+	if c.Debug {
+		log.SetLevel(log.DebugLevel)
 	}
 
 	rdb := redis.NewClient(&redis.Options{

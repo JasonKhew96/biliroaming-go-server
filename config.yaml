@@ -1,0 +1,9 @@
+port: 23333
+global_limit: 8
+global_burst: 4
+ip_limit: 4
+ip_burst: 2
+redis_address: localhost:6379
+redis_password: ""
+accesskey_max_cache_time: 7
+playurl_cache_time: 60

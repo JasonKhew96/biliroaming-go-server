@@ -1,0 +1,64 @@
+package main
+
+import (
+	"time"
+)
+
+func (b *biliroamingGo) getMid(accessKey string) (string, error) {
+	return b.rdb.Get(b.ctx, "access_key_mid:"+accessKey).Result()
+}
+
+func (b *biliroamingGo) setAccessKey(accessKey, mid string) error {
+	// 1 week expired
+	return b.rdb.Set(b.ctx, "access_key_mid:"+accessKey, mid, time.Duration(b.config.AccessKeyMaxCacheTime)*24*time.Hour).Err()
+}
+
+func (b *biliroamingGo) getName(mid string) (string, error) {
+	return b.rdb.Get(b.ctx, "mid_name:"+mid).Result()
+}
+
+func (b *biliroamingGo) setName(mid, name string) error {
+	return b.rdb.Set(b.ctx, "mid_name:"+mid, name, 0).Err()
+}
+
+func (b *biliroamingGo) getVIP(mid string) (string, error) {
+	return b.rdb.Get(b.ctx, "vip_due:"+mid).Result()
+}
+
+func (b *biliroamingGo) setVIP(mid string, due time.Time) error {
+	if due.Before(time.Now()) {
+		return nil
+	}
+	diff := due.Sub(time.Now())
+	return b.rdb.Set(b.ctx, "vip_due:"+mid, due.Format(time.RFC3339), diff).Err()
+}
+
+func (b *biliroamingGo) getBanListKeys() ([]string, error) {
+	return b.rdb.Keys(b.ctx, "mid_banned:*").Result()
+}
+
+func (b *biliroamingGo) getBan(mid string) (map[string]string, error) {
+	return b.rdb.HGetAll(b.ctx, "mid_banned:"+mid).Result()
+}
+
+func (b *biliroamingGo) setBan(mid, reason string) error {
+	banTime := time.Now().Format(time.RFC3339)
+	return b.rdb.HSet(b.ctx, "mid_banned:"+mid, "time", banTime, "reason", reason).Err()
+}
+
+func (b *biliroamingGo) getBangumiReqCountKeys() ([]string, error) {
+	return b.rdb.Keys(b.ctx, "bangumi_req_count:*").Result()
+}
+
+func (b *biliroamingGo) incrBangumiReqCount(epID string) error {
+	return b.rdb.Incr(b.ctx, "bangumi_req_count:"+epID).Err()
+}
+
+func (b *biliroamingGo) getPlayURLCacheFrom(epID, isVip string) (string, error) {
+	return b.rdb.Get(b.ctx, "play_url_cache:"+epID+":"+isVip).Result()
+}
+
+func (b *biliroamingGo) setPlayURLCache(epID, isVip, resp string) error {
+	// maximum 2 hours cache
+	return b.rdb.Set(b.ctx, "play_url_cache:"+epID+":"+isVip, resp, time.Duration(b.config.PlayurlCacheTime)*time.Minute).Err()
+}

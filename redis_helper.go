@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -54,11 +55,14 @@ func (b *biliroamingGo) incrBangumiReqCount(cid string) error {
 	return b.rdb.Incr(b.ctx, "bangumi_req_count:"+cid).Err()
 }
 
-func (b *biliroamingGo) getPlayURLCacheFrom(cid, isVip string) (string, error) {
-	return b.rdb.Get(b.ctx, "play_url_cache:"+cid+":"+isVip).Result()
+func (b *biliroamingGo) getPlayURLCacheFrom(cid, fnval, qn, isVip string) (string, error) {
+	return b.rdb.Get(b.ctx, fmt.Sprintf("play_url_cache:%s:%s:%s:%s", cid, fnval, qn, isVip)).Result()
 }
 
-func (b *biliroamingGo) setPlayURLCache(cid, isVip, resp string) error {
+// novip sample
+// stream / download
+// fnval=16 qn=32 / fnval=0 qn=0
+func (b *biliroamingGo) setPlayURLCache(cid, fnval, qn, isVip, resp string) error {
 	// maximum 2 hours cache
-	return b.rdb.Set(b.ctx, "play_url_cache:"+cid+":"+isVip, resp, time.Duration(b.config.PlayurlCacheTime)*time.Minute).Err()
+	return b.rdb.Set(b.ctx, fmt.Sprintf("play_url_cache:%s:%s:%s:%s", cid, fnval, qn, isVip), resp, time.Duration(b.config.PlayurlCacheTime)*time.Minute).Err()
 }

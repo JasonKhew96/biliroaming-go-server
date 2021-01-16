@@ -286,7 +286,9 @@ func (b *biliroamingGo) modifyResponse(res *http.Response) error {
 	if !strings.HasPrefix(res.Request.URL.Path, apiBlueSubtitle) && !strings.HasPrefix(res.Request.URL.Path, apiBlueSearch) {
 		// statistics and cache
 		cid := res.Request.URL.Query().Get("cid")
-		if cid == "" {
+		fnval := res.Request.URL.Query().Get("fnval")
+		qn := res.Request.URL.Query().Get("qn")
+		if cid == "" || fnval == "" || qn == "" {
 			return nil
 		}
 		err := b.incrBangumiReqCount(cid)
@@ -328,11 +330,15 @@ func (b *biliroamingGo) modifyResponse(res *http.Response) error {
 			return nil
 		}
 		log.Debugln("Response:", string(body))
-		err = b.setPlayURLCache(cid, isVip, string(body))
-		if err != nil {
-			log.Errorln(errors.Wrap(err, "redis insertPlayURLCache"))
-			return nil
+
+		if gjson.Get(string(body), "code").Int() == 0 {
+			err = b.setPlayURLCache(cid, fnval, qn, isVip, string(body))
+			if err != nil {
+				log.Errorln(errors.Wrap(err, "redis insertPlayURLCache"))
+				return nil
+			}
 		}
+
 		res.Body = ioutil.NopCloser(bytes.NewReader(body))
 	}
 	return nil
@@ -472,7 +478,9 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 		// check playurl cache
 		if !strings.HasPrefix(r.URL.Path, apiBlueSubtitle) && !strings.HasPrefix(r.URL.Path, apiBlueSearch) {
 			cid := r.URL.Query().Get("cid")
-			if cid != "" {
+			fnval := r.URL.Query().Get("fnval")
+			qn := r.URL.Query().Get("qn")
+			if cid != "" || fnval != "" || qn != "" {
 				isVip := ""
 				_, err = b.getVIP(mid)
 				if err == redis.Nil {
@@ -486,7 +494,7 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 					return
 				}
 
-				data, err := b.getPlayURLCacheFrom(cid, isVip)
+				data, err := b.getPlayURLCacheFrom(cid, fnval, qn, isVip)
 				if err != redis.Nil {
 					// playurl cached
 					log.Debugln("Replay cache response:", data)

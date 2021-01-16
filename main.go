@@ -200,7 +200,7 @@ func (b *biliroamingGo) handleTopBangumi(w http.ResponseWriter, r *http.Request)
 	</head>
 	<body>
 	`
-	simpleList += "<table><tr><th>Episode ID</th><th>Counter</th></tr>"
+	simpleList += "<table><tr><th>cid</th><th>Counter</th></tr>"
 	keys, err := b.getBangumiReqCountKeys()
 	if err != nil {
 		log.Errorln(err)

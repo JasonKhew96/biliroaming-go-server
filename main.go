@@ -285,11 +285,11 @@ func (b *biliroamingGo) modifyResponse(res *http.Response) error {
 	}
 	if !strings.HasPrefix(res.Request.URL.Path, apiBlueSubtitle) && !strings.HasPrefix(res.Request.URL.Path, apiBlueSearch) {
 		// statistics and cache
-		epID := res.Request.URL.Query().Get("ep_id")
-		if epID == "" {
+		cid := res.Request.URL.Query().Get("cid")
+		if cid == "" {
 			return nil
 		}
-		err := b.incrBangumiReqCount(epID)
+		err := b.incrBangumiReqCount(cid)
 		if err != nil {
 			log.Errorln(errors.Wrap(err, "redis increment bangumi"))
 		}
@@ -328,7 +328,7 @@ func (b *biliroamingGo) modifyResponse(res *http.Response) error {
 			return nil
 		}
 		log.Debugln("Response:", string(body))
-		err = b.setPlayURLCache(epID, isVip, string(body))
+		err = b.setPlayURLCache(cid, isVip, string(body))
 		if err != nil {
 			log.Errorln(errors.Wrap(err, "redis insertPlayURLCache"))
 			return nil
@@ -471,8 +471,8 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 
 		// check playurl cache
 		if !strings.HasPrefix(r.URL.Path, apiBlueSubtitle) && !strings.HasPrefix(r.URL.Path, apiBlueSearch) {
-			epID := r.URL.Query().Get("ep_id")
-			if epID != "" {
+			cid := r.URL.Query().Get("cid")
+			if cid != "" {
 				isVip := ""
 				_, err = b.getVIP(mid)
 				if err == redis.Nil {
@@ -486,7 +486,7 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 					return
 				}
 
-				data, err := b.getPlayURLCacheFrom(epID, isVip)
+				data, err := b.getPlayURLCacheFrom(cid, isVip)
 				if err != redis.Nil {
 					// playurl cached
 					log.Debugln("Replay cache response:", data)

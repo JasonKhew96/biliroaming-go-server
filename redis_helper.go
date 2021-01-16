@@ -50,15 +50,15 @@ func (b *biliroamingGo) getBangumiReqCountKeys() ([]string, error) {
 	return b.rdb.Keys(b.ctx, "bangumi_req_count:*").Result()
 }
 
-func (b *biliroamingGo) incrBangumiReqCount(epID string) error {
-	return b.rdb.Incr(b.ctx, "bangumi_req_count:"+epID).Err()
+func (b *biliroamingGo) incrBangumiReqCount(cid string) error {
+	return b.rdb.Incr(b.ctx, "bangumi_req_count:"+cid).Err()
 }
 
-func (b *biliroamingGo) getPlayURLCacheFrom(epID, isVip string) (string, error) {
-	return b.rdb.Get(b.ctx, "play_url_cache:"+epID+":"+isVip).Result()
+func (b *biliroamingGo) getPlayURLCacheFrom(cid, isVip string) (string, error) {
+	return b.rdb.Get(b.ctx, "play_url_cache:"+cid+":"+isVip).Result()
 }
 
-func (b *biliroamingGo) setPlayURLCache(epID, isVip, resp string) error {
+func (b *biliroamingGo) setPlayURLCache(cid, isVip, resp string) error {
 	// maximum 2 hours cache
-	return b.rdb.Set(b.ctx, "play_url_cache:"+epID+":"+isVip, resp, time.Duration(b.config.PlayurlCacheTime)*time.Minute).Err()
+	return b.rdb.Set(b.ctx, "play_url_cache:"+cid+":"+isVip, resp, time.Duration(b.config.PlayurlCacheTime)*time.Minute).Err()
 }

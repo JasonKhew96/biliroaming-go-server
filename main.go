@@ -375,6 +375,15 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 		// access key not found
 		if err != nil {
 			// no cache, fetching...
+
+			// check global limit
+			if b.globalLimiter.Allow() == false {
+				log.Debugln("Blocked %s due to global limit", ip)
+				http.Error(w, `{"code":-412,"message":"请求被拦截"}`, http.StatusTooManyRequests)
+				return
+			}
+
+			// fetching new user info
 			data, err := getMyInfo(accessKey)
 			if err != nil {
 				log.Errorln(ip, r.URL.String())
@@ -511,12 +520,6 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 			http.Error(w, `{"code":-412,"message":"请求被拦截"}`, http.StatusTooManyRequests)
 			return
 		}
-	}
-	// check global limit
-	if b.globalLimiter.Allow() == false {
-		log.Debugln("Blocked %s due to global limit", ip)
-		http.Error(w, `{"code":-412,"message":"请求被拦截"}`, http.StatusTooManyRequests)
-		return
 	}
 
 	// finally

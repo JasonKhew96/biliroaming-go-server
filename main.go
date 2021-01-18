@@ -43,6 +43,7 @@ type configuration struct {
 	RedisPwd              string `yaml:"redis_password"`           // redis password
 	AccessKeyMaxCacheTime int    `yaml:"accesskey_max_cache_time"` // accesskey max cache time (day)
 	PlayurlCacheTime      int    `yaml:"playurl_cache_time"`       // playurl max cache time (minute)
+	Area                  string `yaml:"area"`                     // area
 }
 
 type biliroamingGo struct {
@@ -139,6 +140,7 @@ func main() {
 		RedisPwd:              "",
 		AccessKeyMaxCacheTime: 7,
 		PlayurlCacheTime:      60,
+		Area:                  "",
 	}
 	data, err := ioutil.ReadFile("config.yaml")
 	if err != nil {
@@ -349,6 +351,12 @@ func (b *biliroamingGo) modifyResponse(res *http.Response) error {
 func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Request) {
 	if !isProxyPath(r.URL.Path) {
 		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		return
+	}
+
+	area := r.Header.Get("area")
+	if area != "" && area != b.config.Area {
+		http.Error(w, `{"code":-10403,"message":"抱歉您所在地区不可观看！"}`, http.StatusForbidden)
 		return
 	}
 

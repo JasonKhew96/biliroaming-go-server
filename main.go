@@ -331,7 +331,9 @@ func (b *biliroamingGo) modifyResponse(res *http.Response) error {
 		}
 		log.Debugln("Response:", string(body))
 
-		if gjson.Get(string(body), "code").Int() == 0 {
+		code := gjson.Get(string(body), "code").Int()
+		// status ok || status area restricted
+		if code == 0 || code == -10403 {
 			err = b.setPlayURLCache(cid, fnval, qn, isVip, string(body))
 			if err != nil {
 				log.Errorln(errors.Wrap(err, "redis insertPlayURLCache"))

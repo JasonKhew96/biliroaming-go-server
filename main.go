@@ -354,6 +354,7 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	// check area
 	area := r.Header.Get("area")
 	if area != "" && area != b.config.Area {
 		http.Error(w, `{"code":-10403,"message":"抱歉您所在地区不可观看！"}`, http.StatusForbidden)
@@ -388,6 +389,7 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 
 			// check global limit
 			if b.globalLimiter.Allow() == false {
+				// allow to retry
 				log.Debugln("Blocked %s due to global limit", ip)
 				http.Error(w, `{"code":-412,"message":"请求被拦截"}`, http.StatusTooManyRequests)
 				return
@@ -398,7 +400,7 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 			if err != nil {
 				log.Errorln(ip, r.URL.String())
 				log.Errorln(errors.Wrap(err, "getMyInfo"))
-				http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				return
 			}
 			log.Debugln("myInfo:", data)
@@ -406,7 +408,7 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 			if gjson.Get(data, "code").String() != "0" {
 				log.Errorln(ip, r.URL.String())
 				log.Errorln("getMyInfo: " + data)
-				http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				return
 			}
 			name = gjson.Get(data, "data.name").String()
@@ -415,7 +417,7 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 			if mid == "" {
 				log.Errorln(ip, r.URL.String())
 				log.Errorln("getMyInfo malformed json: " + data)
-				http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				return
 			}
 
@@ -475,7 +477,7 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 			// is banned
 			if len(bans) > 0 {
 				log.Debugf("Blocked %s with mid %s and name %s (time: %s, reason: %s)", ip, mid, name, bans["time"], bans["reason"])
-				http.Error(w, `{"code":-412,"message":"请求被拦截"}`, http.StatusTooManyRequests)
+				writeErrorJSON(w)
 				return
 			}
 		}
@@ -490,7 +492,7 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				return
 			}
-			http.Error(w, `{"code":-412,"message":"请求被拦截"}`, http.StatusTooManyRequests)
+			writeErrorJSON(w)
 			return
 		}
 
@@ -527,7 +529,7 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 		uLimiter := b.getVisitor(ip)
 		if uLimiter.Allow() == false {
 			log.Debugln("Blocked %s due to ip rate limit", ip)
-			http.Error(w, `{"code":-412,"message":"请求被拦截"}`, http.StatusTooManyRequests)
+			writeErrorJSON(w)
 			return
 		}
 	}
@@ -539,6 +541,11 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 	}
 	proxy.ServeHTTP(w, r)
 	// fmt.Fprintf(w, "OK")
+}
+
+func writeErrorJSON(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"accept_format":"mp4","code":0,"seek_param":"start","is_preview":0,"fnval":1,"video_project":true,"fnver":0,"type":"MP4","bp":0,"result":"suee","seek_type":"offset","qn_extras":[{"attribute":0,"icon":"","icon2":"","need_login":false,"need_vip":false,"qn":16}],"accept_watermark":[false,false,false,false,false],"from":"local","video_codecid":7,"durl":[{"order":1,"length":16740,"size":172775,"ahead":"","vhead":"","url":"https://s1.hdslb.com/bfs/static/player/media/error.mp4","backup_url":[]}],"no_rexcode":0,"format":"mp4","support_formats":[{"display_desc":"360P","superscript":"","format":"mp4","description":"流畅 360P","quality":16,"new_description":"360P 流畅"}],"message":"","accept_quality":[16],"quality":16,"timelength":16740,"has_paid":false,"accept_description":["流畅 360P"],"status":2}`))
 }
 
 func getMyInfo(accessKey string) (string, error) {

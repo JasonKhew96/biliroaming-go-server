@@ -1,10 +1,25 @@
+# debug 模式
 debug: false
+# 端口
 port: 23333
-global_limit: 8
-global_burst: 4
-ip_limit: 4
-ip_burst: 2
+
+# 每秒全局限制次数
+global_limit: 4
+# 每秒全局突发次数
+global_burst: 8
+# 每秒限制次数
+ip_limit: 2
+# 每秒突发次数
+ip_burst: 4
+
+# redis 地址:端口
 redis_address: localhost:6379
+# redis 密码
 redis_password: ""
+
+# accessKey 缓存（天）
 accesskey_max_cache_time: 7
+# 播放链接缓存（分钟）
 playurl_cache_time: 60
+# 自定义地区（th/tw/hk），留空表示不启用
+Area: th

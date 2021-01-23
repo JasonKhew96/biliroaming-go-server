@@ -3,13 +3,12 @@ name: Go
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
 
   build:
     runs-on: ubuntu-latest
+    if: ${{ !startsWith(github.event.head_commit.message, '[skip ci]') }}
     steps:
     - uses: actions/checkout@v2
 

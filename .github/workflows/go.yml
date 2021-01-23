@@ -27,5 +27,5 @@ jobs:
     - name: Upload Build Artifact
       uses: actions/upload-artifact@v2.2.2
       with:
-        name: server-${{ github.run_id }}
+        name: server-${{ github.run_number }}
         path: ./biliroaming-go-server

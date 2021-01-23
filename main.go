@@ -310,6 +310,9 @@ func (b *biliroamingGo) modifyResponse(res *http.Response) error {
 		switch res.Header.Get("Content-Encoding") {
 		case "gzip":
 			reader, err = gzip.NewReader(res.Body)
+			if err != nil {
+				log.Errorln(errors.Wrap(err, "Read response failed"))
+			}
 			defer reader.Close()
 		default:
 			reader = res.Body

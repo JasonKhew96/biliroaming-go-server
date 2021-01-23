@@ -1,4 +1,4 @@
-# biliroaming-go-server ![workflows](https://github.com/JasonKhew96/biliroaming-go-server/workflows/Go/badge.svg)
+# biliroaming-go-server ![go report](https://goreportcard.com/badge/github.com/JasonKhew96/biliroaming-go-server) ![workflows](https://github.com/JasonKhew96/biliroaming-go-server/workflows/Go/badge.svg)
 
 
 ## 需求

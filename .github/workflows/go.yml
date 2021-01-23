@@ -27,4 +27,6 @@ jobs:
       uses: actions/upload-artifact@v2.2.2
       with:
         name: biliroaming-go-server-${{ github.run_number }}
-        path: ./biliroaming-go-server
+        path: |
+          ./biliroaming-go-server
+          ./config.yaml

@@ -23,3 +23,9 @@ jobs:
 
     # - name: Test
       # run: go test -v ./...
+
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v2.2.2
+      with:
+        name: server-${{ github.run_id }}
+        path: ./biliroaming-go-server

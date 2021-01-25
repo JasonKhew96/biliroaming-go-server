@@ -13,6 +13,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -339,7 +340,11 @@ func (b *biliroamingGo) modifyResponse(res *http.Response) error {
 		code := gjson.Get(string(body), "code").Int()
 		// status ok || status area restricted
 		if code == 0 || code == -10403 {
-			err = b.setPlayURLCache(cid, fnval, qn, isVip, string(body))
+			data := string(body)
+			m1 := regexp.MustCompile(`\&mid=\d+`)
+			newBody := m1.ReplaceAllString(data, "")
+			body = []byte(newBody)
+			err = b.setPlayURLCache(cid, fnval, qn, isVip, newBody)
 			if err != nil {
 				log.Errorln(errors.Wrap(err, "redis insertPlayURLCache"))
 				return nil

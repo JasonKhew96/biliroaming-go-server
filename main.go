@@ -344,7 +344,11 @@ func (b *biliroamingGo) modifyResponse(res *http.Response) error {
 			m1 := regexp.MustCompile(`\&mid=\d+`)
 			newBody := m1.ReplaceAllString(data, "")
 			body = []byte(newBody)
-			err = b.setPlayURLCache(cid, fnval, qn, isVip, newBody)
+			if strings.HasPrefix(res.Request.URL.Path, apiWebPlayURL) {
+				err = b.setPlayURLWebCache(cid, fnval, qn, isVip, newBody)
+			} else {
+				err = b.setPlayURLCache(cid, fnval, qn, isVip, newBody)
+			}
 			if err != nil {
 				log.Errorln(errors.Wrap(err, "redis insertPlayURLCache"))
 				return nil
@@ -531,20 +535,30 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 					return
 				}
 
-				data, err := b.getPlayURLCacheFrom(cid, fnval, qn, isVip)
-				if err != redis.Nil {
-					// playurl cached
-					log.Debugln("Replay cache response:", data)
+				if strings.HasPrefix(r.URL.Path, apiWebPlayURL) {
+					data, err := b.getPlayURLWebCacheFrom(cid, fnval, qn, isVip)
+					if err != redis.Nil {
+						// playurl cached
+						log.Debugln("Replay cache response:", data)
 
-					// CORS
-					if strings.HasPrefix(r.URL.Path, apiWebPlayURL) {
+						// CORS
 						w.Header().Set("Access-Control-Allow-Origin", "https://www.bilibili.com")
 						w.Header().Set("Access-Control-Allow-Credentials", "true")
-					}
 
-					fmt.Fprintf(w, "%s", data)
-					return
+						fmt.Fprintf(w, "%s", data)
+						return
+					}
+				} else {
+					data, err := b.getPlayURLCacheFrom(cid, fnval, qn, isVip)
+					if err != redis.Nil {
+						// playurl cached
+						log.Debugln("Replay cache response:", data)
+
+						fmt.Fprintf(w, "%s", data)
+						return
+					}
 				}
+
 			}
 		}
 	} else {

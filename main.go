@@ -84,7 +84,7 @@ var validReqPaths = []string{
 	// pink
 	apiPinkPlayURL,
 	// web
-	// apiWebPlayURL,
+	apiWebPlayURL,
 }
 
 // get visitor limiter
@@ -346,8 +346,16 @@ func (b *biliroamingGo) modifyResponse(res *http.Response) error {
 			}
 		}
 
+		res.Header.Del("Content-Encoding")
 		res.Body = ioutil.NopCloser(bytes.NewReader(body))
 	}
+
+	// CORS
+	if strings.HasPrefix(res.Request.URL.Path, apiWebPlayURL) {
+		res.Header.Set("Access-Control-Allow-Origin", "https://www.bilibili.com")
+		res.Header.Set("Access-Control-Allow-Credentials", "true")
+	}
+
 	return nil
 }
 
@@ -522,6 +530,13 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 				if err != redis.Nil {
 					// playurl cached
 					log.Debugln("Replay cache response:", data)
+
+					// CORS
+					if strings.HasPrefix(r.URL.Path, apiWebPlayURL) {
+						w.Header().Set("Access-Control-Allow-Origin", "https://www.bilibili.com")
+						w.Header().Set("Access-Control-Allow-Credentials", "true")
+					}
+
 					fmt.Fprintf(w, "%s", data)
 					return
 				}

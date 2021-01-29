@@ -433,7 +433,7 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 			}
 			name = gjson.Get(data, "data.name").String()
 			mid = gjson.Get(data, "data.mid").String()
-			vipDueDate := gjson.Get(data, "data.vip.due_date").String()
+			vipDueUnix := gjson.Get(data, "data.vip.due_date").Int() / 1000
 			if mid == "" {
 				log.Errorln(ip, r.URL.String())
 				log.Errorln("getMyInfo malformed json: " + data)
@@ -441,7 +441,7 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 				return
 			}
 
-			log.Debugf("access_key %s %s %s %s", accessKey, mid, name, vipDueDate)
+			log.Debugf("access_key %s %s %s %s", accessKey, mid, name, vipDueUnix)
 			err = b.setAccessKey(accessKey, mid)
 			if err != nil {
 				log.Errorln(ip, r.URL.String())
@@ -460,15 +460,8 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 			}
 
 			// save vip data
-			if vipDueDate != "" {
-				vipDue, err := strconv.ParseInt(vipDueDate, 10, 64)
-				if err != nil {
-					log.Errorln(ip, r.URL.String())
-					log.Errorln(errors.Wrap(err, "parse vipDueDate"))
-					http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-					return
-				}
-				err = b.setVIP(mid, time.Unix(0, vipDue))
+			if vipDueUnix != 0 {
+				err = b.setVIP(mid, time.Unix(vipDueUnix, 0))
 				if err != nil {
 					log.Errorln(ip, r.URL.String())
 					log.Errorln(errors.Wrap(err, "redis insertVIP"))

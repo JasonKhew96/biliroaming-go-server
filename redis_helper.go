@@ -78,3 +78,15 @@ func (b *biliroamingGo) setPlayURLWebCache(cid, fnval, qn, isVip, resp string) e
 	// maximum 2 hours cache
 	return b.rdb.Set(b.ctx, fmt.Sprintf("play_url_web_cache:%s:%s:%s:%s", cid, fnval, qn, isVip), resp, time.Duration(b.config.PlayurlCacheTime)*time.Minute).Err()
 }
+
+func (b *biliroamingGo) getPlayURLBstarCacheFrom(cid, fnval, qn, isVip string) (string, error) {
+	return b.rdb.Get(b.ctx, fmt.Sprintf("play_url_bstar_cache:%s:%s:%s:%s", cid, fnval, qn, isVip)).Result()
+}
+
+// novip sample
+// stream / download
+// fnval=16 qn=32 / fnval=0 qn=0
+func (b *biliroamingGo) setPlayURLBstarCache(cid, fnval, qn, isVip, resp string) error {
+	// maximum 2 hours cache
+	return b.rdb.Set(b.ctx, fmt.Sprintf("play_url_bstar_cache:%s:%s:%s:%s", cid, fnval, qn, isVip), resp, time.Duration(b.config.PlayurlCacheTime)*time.Minute).Err()
+}

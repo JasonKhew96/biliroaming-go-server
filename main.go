@@ -62,10 +62,10 @@ const (
 	localBanlistURL    = "/public/banlist"
 
 	// api url
-	// blue
-	apiBluePlayURL  = "/intl/gateway/v2/ogv/playurl"
-	apiBlueSubtitle = "/intl/gateway/v2/app/subtitle"
-	apiBlueSearch   = "/intl/gateway/v2/app/search/type"
+	// bstar
+	apiBstarPlayURL  = "/intl/gateway/v2/ogv/playurl"
+	apiBstarSubtitle = "/intl/gateway/v2/app/subtitle"
+	apiBstarSearch   = "/intl/gateway/v2/app/search/type"
 	// pink
 	apiPinkPlayURL = "/pgc/player/api/playurl"
 	// web
@@ -79,9 +79,9 @@ const (
 
 var validReqPaths = []string{
 	// blue
-	apiBluePlayURL,
-	apiBlueSubtitle,
-	apiBlueSearch,
+	apiBstarPlayURL,
+	apiBstarSubtitle,
+	apiBstarSearch,
 	// pink
 	apiPinkPlayURL,
 	// web
@@ -266,10 +266,10 @@ func (b *biliroamingGo) handleBanList(w http.ResponseWriter, r *http.Request) {
 // swap host
 func (b *biliroamingGo) directorFunc(req *http.Request) {
 	req.URL.Scheme = "https"
-	if strings.HasPrefix(req.URL.Path, apiBluePlayURL) {
+	if strings.HasPrefix(req.URL.Path, apiBstarPlayURL) {
 		req.URL.Host = hostBlueAPIURL
 		req.Host = hostBlueAPIURL
-	} else if strings.HasPrefix(req.URL.Path, apiBlueSubtitle) || strings.HasPrefix(req.URL.Path, apiBlueSearch) {
+	} else if strings.HasPrefix(req.URL.Path, apiBstarSubtitle) || strings.HasPrefix(req.URL.Path, apiBstarSearch) {
 		req.URL.Host = hostBlueAppURL
 		req.Host = hostBlueAppURL
 	} else if strings.HasPrefix(req.URL.Path, apiPinkPlayURL) || strings.HasPrefix(req.URL.Path, apiWebPlayURL) {
@@ -286,7 +286,7 @@ func (b *biliroamingGo) modifyResponse(res *http.Response) error {
 	if res.StatusCode != http.StatusOK {
 		return nil
 	}
-	if !strings.HasPrefix(res.Request.URL.Path, apiBlueSubtitle) && !strings.HasPrefix(res.Request.URL.Path, apiBlueSearch) {
+	if !strings.HasPrefix(res.Request.URL.Path, apiBstarSubtitle) && !strings.HasPrefix(res.Request.URL.Path, apiBstarSearch) {
 		// statistics and cache
 		cid := res.Request.URL.Query().Get("cid")
 		fnval := res.Request.URL.Query().Get("fnval")
@@ -346,6 +346,8 @@ func (b *biliroamingGo) modifyResponse(res *http.Response) error {
 			body = []byte(newBody)
 			if strings.HasPrefix(res.Request.URL.Path, apiWebPlayURL) {
 				err = b.setPlayURLWebCache(cid, fnval, qn, isVip, newBody)
+			} else if strings.HasPrefix(res.Request.URL.Path, apiBstarPlayURL) {
+				err = b.setPlayURLBstarCache(cid, fnval, qn, isVip, newBody)
 			} else {
 				err = b.setPlayURLCache(cid, fnval, qn, isVip, newBody)
 			}
@@ -360,7 +362,7 @@ func (b *biliroamingGo) modifyResponse(res *http.Response) error {
 	}
 
 	// CORS
-	if strings.HasPrefix(res.Request.URL.Path, apiWebPlayURL) {
+	if strings.HasPrefix(res.Request.URL.Path, apiWebPlayURL) || strings.HasPrefix(res.Request.URL.Path, apiBstarPlayURL) {
 		res.Header.Set("Access-Control-Allow-Origin", "https://www.bilibili.com")
 		res.Header.Set("Access-Control-Allow-Credentials", "true")
 	}
@@ -510,7 +512,7 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 		}
 
 		// check playurl cache
-		if !strings.HasPrefix(r.URL.Path, apiBlueSubtitle) && !strings.HasPrefix(r.URL.Path, apiBlueSearch) {
+		if !strings.HasPrefix(r.URL.Path, apiBstarSubtitle) && !strings.HasPrefix(r.URL.Path, apiBstarSearch) {
 			cid := r.URL.Query().Get("cid")
 			fnval := r.URL.Query().Get("fnval")
 			qn := r.URL.Query().Get("qn")
@@ -530,6 +532,19 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 
 				if strings.HasPrefix(r.URL.Path, apiWebPlayURL) {
 					data, err := b.getPlayURLWebCacheFrom(cid, fnval, qn, isVip)
+					if err != redis.Nil {
+						// playurl cached
+						log.Debugln("Replay cache response:", data)
+
+						// CORS
+						w.Header().Set("Access-Control-Allow-Origin", "https://www.bilibili.com")
+						w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+						fmt.Fprintf(w, "%s", data)
+						return
+					}
+				} else if strings.HasPrefix(r.URL.Path, apiBstarPlayURL) {
+					data, err := b.getPlayURLBstarCacheFrom(cid, fnval, qn, isVip)
 					if err != redis.Nil {
 						// playurl cached
 						log.Debugln("Replay cache response:", data)

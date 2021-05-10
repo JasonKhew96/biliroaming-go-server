@@ -21,5 +21,3 @@ redis_password: ""
 accesskey_max_cache_time: 7
 # 播放链接缓存（分钟）
 playurl_cache_time: 60
-# 自定义地区（th/tw/hk），留空表示不启用
-Area: th

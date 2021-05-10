@@ -397,7 +397,11 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 	}
 
 	accessKey := r.URL.Query().Get("access_key")
-	if accessKey != "" && len(accessKey) == 32 {
+	if accessKey == "" {
+		http.Error(w, `{"code":-10403,"message":"抱歉您所在地区不可观看！"}`, http.StatusForbidden)
+		return
+	}
+	if len(accessKey) == 32 {
 		// with access_key
 		log.Debugf("%s %s", ip, accessKey)
 		var name string
@@ -567,15 +571,16 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 
 			}
 		}
-	} else {
-		// without access_key
-		uLimiter := b.getVisitor(ip)
-		if uLimiter.Allow() == false {
-			log.Debugln("Blocked %s due to ip rate limit", ip)
-			writeErrorJSON(w)
-			return
-		}
 	}
+	// } else {
+	// 	// without access_key
+	// 	uLimiter := b.getVisitor(ip)
+	// 	if uLimiter.Allow() == false {
+	// 		log.Debugln("Blocked %s due to ip rate limit", ip)
+	// 		writeErrorJSON(w)
+	// 		return
+	// 	}
+	// }
 
 	// finally
 	proxy := &httputil.ReverseProxy{

@@ -33,32 +33,37 @@ const (
 // AccessKeys key 缓存
 type AccessKeys struct {
 	// gorm.Model
-	Key       string         `gorm:"primarykey"` // key
-	CreatedAt time.Time      // 创建时间
-	UpdatedAt time.Time      // 更新时间
-	DeletedAt gorm.DeletedAt `gorm:"index"` // 删除时间
-	UID       int            // 用户 ID
-	DueDate   time.Time      // key 到期时间
+	Key       string    `gorm:"primarykey"` // key
+	UID       int       // 用户 ID
+	DueDate   time.Time // key 到期时间
+	CreatedAt time.Time // 创建时间
+	UpdatedAt time.Time // 更新时间
 }
 
 // Users 用户资料
 type Users struct {
-	gorm.Model
-	UID        int       // 用户 ID
+	UID        int       `gorm:"primarykey"` // 用户 ID
 	VIPDueDate time.Time // VIP 到期时间
 	Name       string    // 用户暱称
+	CreatedAt  time.Time // 创建时间
+	UpdatedAt  time.Time // 更新时间
 }
 
 // PlayURLCache 播放链接缓存
 type PlayURLCache struct {
-	gorm.Model
+	ID         uint       `gorm:"primarykey"` // ...
+	CID        uint       // ...
 	Area       Area       // 地区
 	DeviceType DeviceType // 装置种类
 	EpisodeID  int        // 剧集 ID
 	Data       string     // 内容
+	CreatedAt  time.Time  // 创建时间
+	UpdatedAt  time.Time  // 更新时间
 }
 
-// type History struct {
-// 	gorm.Model
-// 	EpisodeID int
-// }
+// History 历史记录(统计)
+type History struct {
+	gorm.Model
+	EpisodeID int
+	Area      Area
+}

@@ -183,7 +183,7 @@ func main() {
 	mux.HandleFunc(localTopBangumiURL, b.handleTopBangumi)
 	mux.HandleFunc(localBanlistURL, b.handleBanList)
 	mux.HandleFunc("/", b.handleReverseProxy)
-	log.Printf("Listening on :%d ...", c.Port)
+	log.Infoln("Listening on :%d ...", c.Port)
 	err = http.ListenAndServe(":"+strconv.Itoa(c.Port), mux)
 	if err != nil {
 		log.Panicln(err)

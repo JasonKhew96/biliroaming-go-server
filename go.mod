@@ -14,6 +14,8 @@ require (
 	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/tidwall/gjson v1.7.5
 	go.opentelemetry.io/otel v0.20.0 // indirect
+	go.uber.org/multierr v1.7.0 // indirect
+	go.uber.org/zap v1.16.0 // indirect
 	golang.org/x/crypto v0.0.0-20210506145944-38f3c27a63bf // indirect
 	golang.org/x/net v0.0.0-20210510120150-4163338589ed // indirect
 	golang.org/x/sys v0.0.0-20210510120138-977fb7262007 // indirect

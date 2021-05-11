@@ -21,8 +21,8 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
+	"go.uber.org/zap"
 	"golang.org/x/time/rate"
 	"gopkg.in/yaml.v2"
 )
@@ -63,6 +63,8 @@ type biliroamingGo struct {
 	vMu           sync.RWMutex
 	ctx           context.Context
 	rdb           *redis.Client
+	logger        *zap.Logger
+	sugar         *zap.SugaredLogger
 }
 
 const (
@@ -155,22 +157,32 @@ func main() {
 	if err != nil {
 		data, err = yaml.Marshal(c)
 		if err != nil {
-			log.Panicln(err)
+			panic(err)
 		}
 		err = ioutil.WriteFile("config.yaml", data, os.ModePerm)
 		if err != nil {
-			log.Panicln(err)
+			panic(err)
 		}
 	} else {
 		err = yaml.Unmarshal(data, c)
 		if err != nil {
-			log.Panicln(err)
+			panic(err)
 		}
 	}
 
+	var logger *zap.Logger
 	if c.Debug {
-		log.SetLevel(log.DebugLevel)
+		logger, err = zap.NewDevelopment()
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		logger, err = zap.NewProduction()
+		if err != nil {
+			panic(err)
+		}
 	}
+	sugar := logger.Sugar()
 
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     c.RedisAddr,
@@ -184,6 +196,8 @@ func main() {
 		visitors:      make(map[string]*visitor),
 		ctx:           context.Background(),
 		rdb:           rdb,
+		logger:        logger,
+		sugar:         sugar,
 	}
 
 	go b.cleanupVisitors()
@@ -193,10 +207,10 @@ func main() {
 	mux.HandleFunc(localTopBangumiURL, b.handleTopBangumi)
 	mux.HandleFunc(localBanlistURL, b.handleBanList)
 	mux.HandleFunc("/", b.handleReverseProxy)
-	log.Infoln("Listening on :%d ...", c.Port)
+	sugar.Infof("Listening on :%d ...", c.Port)
 	err = http.ListenAndServe(":"+strconv.Itoa(c.Port), mux)
 	if err != nil {
-		log.Panicln(err)
+		sugar.Panic(err)
 	}
 }
 
@@ -214,14 +228,14 @@ func (b *biliroamingGo) handleTopBangumi(w http.ResponseWriter, r *http.Request)
 	simpleList += "<table><tr><th>cid</th><th>Counter</th></tr>"
 	keys, err := b.getBangumiReqCountKeys()
 	if err != nil {
-		log.Errorln(err)
+		b.sugar.Error(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 	for _, key := range keys {
 		count, err := b.rdb.Get(b.ctx, key).Result()
 		if err != nil {
-			log.Errorln(err)
+			b.sugar.Error(err)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
@@ -247,21 +261,21 @@ func (b *biliroamingGo) handleBanList(w http.ResponseWriter, r *http.Request) {
 	simpleList += "<table><tr><th>Banned time</th><th>User ID</th><th>Name</th><th>Reason</th></tr>"
 	keys, err := b.getBanListKeys()
 	if err != nil {
-		log.Errorln(err)
+		b.sugar.Error(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 	for _, key := range keys {
 		data, err := b.rdb.HGetAll(b.ctx, key).Result()
 		if err != nil {
-			log.Errorln(err)
+			b.sugar.Error(err)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
 		mid := strings.Split(key, ":")[1]
 		name, err := b.getName(mid)
 		if err != nil {
-			log.Errorln(err)
+			b.sugar.Error(err)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
@@ -284,10 +298,10 @@ func (b *biliroamingGo) directorFunc(req *http.Request) {
 		req.URL.Host = hostPinkURL
 		req.Host = hostPinkURL
 	} else {
-		log.Panicln("Unknown path:", req.URL.Path)
+		b.sugar.Debug("Unknown path:", req.URL.Path)
 	}
 
-	log.Debugln("Proxy URL: " + req.URL.String())
+	b.sugar.Debug("Proxy URL: " + req.URL.String())
 }
 
 func (b *biliroamingGo) modifyResponse(res *http.Response) error {
@@ -304,7 +318,7 @@ func (b *biliroamingGo) modifyResponse(res *http.Response) error {
 		}
 		err := b.incrBangumiReqCount(cid)
 		if err != nil {
-			log.Errorln(errors.Wrap(err, "redis increment bangumi"))
+			b.sugar.Error(errors.Wrap(err, "redis increment bangumi"))
 		}
 		accessKey := res.Request.URL.Query().Get("access_key")
 		if accessKey == "" {
@@ -320,7 +334,7 @@ func (b *biliroamingGo) modifyResponse(res *http.Response) error {
 		case "gzip":
 			reader, err = gzip.NewReader(res.Body)
 			if err != nil {
-				log.Errorln(errors.Wrap(err, "Read response failed"))
+				b.sugar.Error(errors.Wrap(err, "Read response failed"))
 			}
 			defer reader.Close()
 		default:
@@ -340,10 +354,10 @@ func (b *biliroamingGo) modifyResponse(res *http.Response) error {
 		} else if err == nil {
 			isVip = "1"
 		} else {
-			log.Errorln(errors.Wrap(err, "redis getVIP unknown error"))
+			b.sugar.Error(errors.Wrap(err, "redis getVIP unknown error"))
 			return nil
 		}
-		log.Debugln("Response:", string(body))
+		b.sugar.Debug("Response:", string(body))
 
 		code := gjson.Get(string(body), "code").Int()
 		// status ok || status area restricted
@@ -360,7 +374,7 @@ func (b *biliroamingGo) modifyResponse(res *http.Response) error {
 				err = b.setPlayURLCache(cid, fnval, qn, isVip, newBody)
 			}
 			if err != nil {
-				log.Errorln(errors.Wrap(err, "redis insertPlayURLCache"))
+				b.sugar.Error(errors.Wrap(err, "redis insertPlayURLCache"))
 				return nil
 			}
 		}
@@ -400,7 +414,7 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 	if ip == "" {
 		ip, _, err = net.SplitHostPort(r.RemoteAddr)
 		if err != nil {
-			log.Errorln(errors.Wrap(err, "SplitHostPort"))
+			b.sugar.Error(errors.Wrap(err, "SplitHostPort"))
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
@@ -413,7 +427,7 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 	}
 	if len(accessKey) == 32 {
 		// with access_key
-		log.Debugf("%s %s", ip, accessKey)
+		b.sugar.Debugf("%s %s", ip, accessKey)
 		var name string
 		// get mid from access key
 		mid, err := b.getMid(accessKey)
@@ -424,24 +438,24 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 			// check global limit
 			if b.globalLimiter.Allow() == false {
 				// allow to retry
-				log.Debugln("Blocked %s due to global limit", ip)
+				b.sugar.Debug("Blocked %s due to global limit", ip)
 				http.Error(w, `{"code":-412,"message":"请求被拦截"}`, http.StatusTooManyRequests)
 				return
 			}
 
 			// fetching new user info
-			data, err := getMyInfo(accessKey)
+			data, err := b.getMyInfo(accessKey)
 			if err != nil {
-				log.Errorln(ip, r.URL.String())
-				log.Errorln(errors.Wrap(err, "getMyInfo"))
+				b.sugar.Error(ip, r.URL.String())
+				b.sugar.Error(errors.Wrap(err, "getMyInfo"))
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				return
 			}
-			log.Debugln("myInfo:", data)
+			b.sugar.Debug("myInfo:", data)
 
 			if gjson.Get(data, "code").String() != "0" {
-				log.Errorln(ip, r.URL.String())
-				log.Errorln("getMyInfo: " + data)
+				b.sugar.Error(ip, r.URL.String())
+				b.sugar.Error("getMyInfo: " + data)
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				return
 			}
@@ -449,26 +463,26 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 			mid = gjson.Get(data, "data.mid").String()
 			vipDueUnix := gjson.Get(data, "data.vip.due_date").Int() / 1000
 			if mid == "" {
-				log.Errorln(ip, r.URL.String())
-				log.Errorln("getMyInfo malformed json: " + data)
+				b.sugar.Error(ip, r.URL.String())
+				b.sugar.Error("getMyInfo malformed json: " + data)
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				return
 			}
 
-			log.Debugf("access_key %s %s %s %s", accessKey, mid, name, vipDueUnix)
+			b.sugar.Debugf("access_key %s %s %s %s", accessKey, mid, name, vipDueUnix)
 			err = b.setAccessKey(accessKey, mid)
 			if err != nil {
-				log.Errorln(ip, r.URL.String())
-				log.Errorln(errors.Wrap(err, "redis insertAccessKey"))
+				b.sugar.Error(ip, r.URL.String())
+				b.sugar.Error(errors.Wrap(err, "redis insertAccessKey"))
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				return
 			}
 
 			err = b.setName(mid, name)
 			if err != nil {
-				log.Errorln(ip, r.URL.String())
-				log.Errorln(err)
-				log.Errorln(errors.Wrap(err, "redis insertName"))
+				b.sugar.Error(ip, r.URL.String())
+				b.sugar.Error(err)
+				b.sugar.Error(errors.Wrap(err, "redis insertName"))
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				return
 			}
@@ -477,8 +491,8 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 			if vipDueUnix != 0 {
 				err = b.setVIP(mid, time.Unix(vipDueUnix, 0))
 				if err != nil {
-					log.Errorln(ip, r.URL.String())
-					log.Errorln(errors.Wrap(err, "redis insertVIP"))
+					b.sugar.Error(ip, r.URL.String())
+					b.sugar.Error(errors.Wrap(err, "redis insertVIP"))
 					http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 					return
 				}
@@ -487,23 +501,23 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 			// cached
 			name, err = b.getName(mid)
 			if err != nil {
-				log.Errorln(ip, r.URL.String())
-				log.Errorln(errors.Wrap(err, "redis getName"))
+				b.sugar.Error(ip, r.URL.String())
+				b.sugar.Error(errors.Wrap(err, "redis getName"))
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				return
 			}
 
 			bans, err := b.getBan(mid)
 			if err != nil {
-				log.Errorln(ip, r.URL.String())
-				log.Errorln(errors.Wrap(err, "redis getBan"))
+				b.sugar.Error(ip, r.URL.String())
+				b.sugar.Error(errors.Wrap(err, "redis getBan"))
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				return
 			}
 
 			// is banned
 			if len(bans) > 0 {
-				log.Debugf("Blocked %s with mid %s and name %s (time: %s, reason: %s)", ip, mid, name, bans["time"], bans["reason"])
+				b.sugar.Debugf("Blocked %s with mid %s and name %s (time: %s, reason: %s)", ip, mid, name, bans["time"], bans["reason"])
 				writeErrorJSON(w)
 				return
 			}
@@ -511,11 +525,11 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 		// ban if request too many
 		uLimiter := b.getVisitor(ip)
 		if uLimiter.Allow() == false {
-			log.Warnf("Banned %s with mid %s and name %s (autoban)", ip, mid, name)
+			b.sugar.Debugf("Banned %s with mid %s and name %s (autoban)", ip, mid, name)
 			err = b.setBan(mid, "autoban")
 			if err != nil {
-				log.Errorln(ip, r.URL.String())
-				log.Errorln(errors.Wrap(err, "redis insertBan"))
+				b.sugar.Error(ip, r.URL.String())
+				b.sugar.Error(errors.Wrap(err, "redis insertBan"))
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				return
 			}
@@ -536,8 +550,8 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 				} else if err == nil {
 					isVip = "1"
 				} else {
-					log.Errorln(ip, r.URL.String())
-					log.Errorln(errors.Wrap(err, "redis getVIP unknown error"))
+					b.sugar.Error(ip, r.URL.String())
+					b.sugar.Error(errors.Wrap(err, "redis getVIP unknown error"))
 					http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 					return
 				}
@@ -546,7 +560,7 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 					data, err := b.getPlayURLWebCacheFrom(cid, fnval, qn, isVip)
 					if err != redis.Nil {
 						// playurl cached
-						log.Debugln("Replay cache response:", data)
+						b.sugar.Debug("Replay cache response:", data)
 
 						// CORS
 						w.Header().Set("Access-Control-Allow-Origin", "https://www.bilibili.com")
@@ -559,7 +573,7 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 					data, err := b.getPlayURLBstarCacheFrom(cid, fnval, qn, isVip)
 					if err != redis.Nil {
 						// playurl cached
-						log.Debugln("Replay cache response:", data)
+						b.sugar.Debug("Replay cache response:", data)
 
 						// CORS
 						w.Header().Set("Access-Control-Allow-Origin", "https://www.bilibili.com")
@@ -572,7 +586,7 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 					data, err := b.getPlayURLCacheFrom(cid, fnval, qn, isVip)
 					if err != redis.Nil {
 						// playurl cached
-						log.Debugln("Replay cache response:", data)
+						b.sugar.Debug("Replay cache response:", data)
 
 						fmt.Fprintf(w, "%s", data)
 						return
@@ -586,7 +600,7 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 	// 	// without access_key
 	// 	uLimiter := b.getVisitor(ip)
 	// 	if uLimiter.Allow() == false {
-	// 		log.Debugln("Blocked %s due to ip rate limit", ip)
+	// 		b.sugar.Debug("Blocked %s due to ip rate limit", ip)
 	// 		writeErrorJSON(w)
 	// 		return
 	// 	}
@@ -606,7 +620,7 @@ func writeErrorJSON(w http.ResponseWriter) {
 	w.Write([]byte(`{"accept_format":"mp4","code":0,"seek_param":"start","is_preview":0,"fnval":1,"video_project":true,"fnver":0,"type":"MP4","bp":0,"result":"suee","seek_type":"offset","qn_extras":[{"attribute":0,"icon":"http://i0.hdslb.com/bfs/app/81dab3a04370aafa93525053c4e760ac834fcc2f.png","icon2":"http://i0.hdslb.com/bfs/app/4e6f14c2806f7cc508d8b6f5f1d8306f94a71ecc.png","need_login":true,"need_vip":true,"qn":112},{"attribute":0,"icon":"","icon2":"","need_login":false,"need_vip":false,"qn":80},{"attribute":0,"icon":"","icon2":"","need_login":false,"need_vip":false,"qn":64},{"attribute":0,"icon":"","icon2":"","need_login":false,"need_vip":false,"qn":32},{"attribute":0,"icon":"","icon2":"","need_login":false,"need_vip":false,"qn":16}],"accept_watermark":[false,false,false,false,false],"from":"local","video_codecid":7,"durl":[{"order":1,"length":16740,"size":172775,"ahead":"","vhead":"","url":"https://s1.hdslb.com/bfs/static/player/media/error.mp4","backup_url":[]}],"no_rexcode":0,"format":"mp4","support_formats":[{"display_desc":"360P","superscript":"","format":"mp4","description":"流畅 360P","quality":16,"new_description":"360P 流畅"}],"message":"","accept_quality":[16],"quality":16,"timelength":16740,"has_paid":false,"accept_description":["流畅 360P"],"status":2}`))
 }
 
-func getMyInfo(accessKey string) (string, error) {
+func (b *biliroamingGo) getMyInfo(accessKey string) (string, error) {
 	apiURL := "https://app.bilibili.com/x/v2/account/myinfo"
 
 	v := url.Values{}
@@ -618,7 +632,7 @@ func getMyInfo(accessKey string) (string, error) {
 
 	apiURL += "?" + v.Encode()
 
-	log.Debugln(apiURL)
+	b.sugar.Debug(apiURL)
 
 	res, err := http.Get(apiURL)
 	if err != nil {

@@ -34,16 +34,26 @@ type visitor struct {
 }
 
 type configuration struct {
-	Debug                 bool   `yaml:"debug"`                    // debug mode
-	Port                  int    `yaml:"port"`                     // server port
-	GlobalLimit           int    `yaml:"global_limit"`             // global refill limit per second
-	GlobalBurst           int    `yaml:"global_burst"`             // global burst maximum burst size
-	IPLimit               int    `yaml:"ip_limit"`                 // ip refill limit per second
-	IPBurst               int    `yaml:"ip_burst"`                 // ip burst maximum burst size
-	RedisAddr             string `yaml:"redis_address"`            // redis address:port
-	RedisPwd              string `yaml:"redis_password"`           // redis password
-	AccessKeyMaxCacheTime int    `yaml:"accesskey_max_cache_time"` // accesskey max cache time (day)
-	PlayurlCacheTime      int    `yaml:"playurl_cache_time"`       // playurl max cache time (minute)
+	Debug                 bool   `yaml:"debug"`                    // 调试模式
+	Port                  int    `yaml:"port"`                     // 端口
+	GlobalLimit           int    `yaml:"global_limit"`             // 每秒全局限制次数
+	GlobalBurst           int    `yaml:"global_burst"`             // 每秒全局突发次数
+	IPLimit               int    `yaml:"ip_limit"`                 // 每秒限制次数
+	IPBurst               int    `yaml:"ip_burst"`                 // 每秒突发次数
+	RedisAddr             string `yaml:"redis_address"`            // redis 地址
+	RedisPwd              string `yaml:"redis_password"`           // redis 密码
+	AccessKeyMaxCacheTime int    `yaml:"accesskey_max_cache_time"` // accessKey 缓存（天）
+	PlayurlCacheTime      int    `yaml:"playurl_cache_time"`       // 播放链接缓存（分钟）
+	// 代理(留空禁用)(优先)
+	ProxyCN string `yaml:"proxy_cn"`
+	ProxyHK string `yaml:"proxy_hk"`
+	ProxyTW string `yaml:"proxy_tw"`
+	ProxyTH string `yaml:"proxy_th"`
+	// 反代(留空禁用)
+	ReverseCN string `yaml:"reverse_cn"`
+	ReverseHK string `yaml:"reverse_hk"`
+	ReverseTW string `yaml:"reverse_tw"`
+	ReverseTH string `yaml:"reverse_th"`
 }
 
 type biliroamingGo struct {

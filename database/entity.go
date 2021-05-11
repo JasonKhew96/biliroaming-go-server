@@ -54,13 +54,11 @@ type PlayURLCache struct {
 	gorm.Model
 	Area       Area       // 地区
 	DeviceType DeviceType // 装置种类
-	CID        int        // ...
 	EpisodeID  int        // 剧集 ID
 	Data       string     // 内容
 }
 
 // type History struct {
 // 	gorm.Model
-// 	CID       int
 // 	EpisodeID int
 // }

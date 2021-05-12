@@ -1,19 +1,13 @@
 package main
 
 import (
-	"bytes"
-	"compress/gzip"
 	"context"
 	"crypto/md5"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net"
-	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -22,6 +16,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/pkg/errors"
 	"github.com/tidwall/gjson"
+	"github.com/valyala/fasthttp"
 	"go.uber.org/zap"
 	"golang.org/x/time/rate"
 	"gopkg.in/yaml.v2"
@@ -202,19 +197,25 @@ func main() {
 
 	go b.cleanupVisitors()
 
-	mux := http.NewServeMux()
+	mux := func(ctx *fasthttp.RequestCtx) {
+		switch string(ctx.Path()) {
+		case "/":
+			b.handleReverseProxy(ctx)
+		default:
+			ctx.Error("Not Found", fasthttp.StatusNotFound)
+		}
+	}
 
-	mux.HandleFunc(localTopBangumiURL, b.handleTopBangumi)
-	mux.HandleFunc(localBanlistURL, b.handleBanList)
-	mux.HandleFunc("/", b.handleReverseProxy)
+	// mux.HandleFunc(localTopBangumiURL, b.handleTopBangumi)
+	// mux.HandleFunc(localBanlistURL, b.handleBanList)
 	sugar.Infof("Listening on :%d ...", c.Port)
-	err = http.ListenAndServe(":"+strconv.Itoa(c.Port), mux)
+	err = fasthttp.ListenAndServe(":"+strconv.Itoa(c.Port), mux)
 	if err != nil {
 		sugar.Panic(err)
 	}
 }
 
-func (b *biliroamingGo) handleTopBangumi(w http.ResponseWriter, r *http.Request) {
+func (b *biliroamingGo) handleTopBangumi(ctx *fasthttp.RequestCtx) {
 	simpleList := `
 	<head>
 	<style>
@@ -229,14 +230,14 @@ func (b *biliroamingGo) handleTopBangumi(w http.ResponseWriter, r *http.Request)
 	keys, err := b.getBangumiReqCountKeys()
 	if err != nil {
 		b.sugar.Error(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		ctx.Error("Internal Server Error", fasthttp.StatusInternalServerError)
 		return
 	}
 	for _, key := range keys {
 		count, err := b.rdb.Get(b.ctx, key).Result()
 		if err != nil {
 			b.sugar.Error(err)
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			ctx.Error("Internal Server Error", fasthttp.StatusInternalServerError)
 			return
 		}
 		datas := strings.Split(key, ":")
@@ -244,10 +245,10 @@ func (b *biliroamingGo) handleTopBangumi(w http.ResponseWriter, r *http.Request)
 		simpleList += fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>", epID, count)
 	}
 	simpleList += "</table></body>"
-	fmt.Fprintf(w, simpleList)
+	fmt.Fprintf(ctx, simpleList)
 }
 
-func (b *biliroamingGo) handleBanList(w http.ResponseWriter, r *http.Request) {
+func (b *biliroamingGo) handleBanList(ctx *fasthttp.RequestCtx) {
 	simpleList := `
 	<head>
 	<style>
@@ -262,167 +263,167 @@ func (b *biliroamingGo) handleBanList(w http.ResponseWriter, r *http.Request) {
 	keys, err := b.getBanListKeys()
 	if err != nil {
 		b.sugar.Error(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		ctx.Error("Internal Server Error", fasthttp.StatusInternalServerError)
 		return
 	}
 	for _, key := range keys {
 		data, err := b.rdb.HGetAll(b.ctx, key).Result()
 		if err != nil {
 			b.sugar.Error(err)
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			ctx.Error("Internal Server Error", fasthttp.StatusInternalServerError)
 			return
 		}
 		mid := strings.Split(key, ":")[1]
 		name, err := b.getName(mid)
 		if err != nil {
 			b.sugar.Error(err)
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			ctx.Error("Internal Server Error", fasthttp.StatusInternalServerError)
 			return
 		}
 		simpleList += fmt.Sprintf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>", data["time"], mid, name, data["reason"])
 	}
 	simpleList += "</table></body>"
-	fmt.Fprintf(w, simpleList)
+	fmt.Fprintf(ctx, simpleList)
 }
 
 // swap host
-func (b *biliroamingGo) directorFunc(req *http.Request) {
-	req.URL.Scheme = "https"
-	if strings.HasPrefix(req.URL.Path, apiBstarPlayURL) {
-		req.URL.Host = hostBlueAPIURL
-		req.Host = hostBlueAPIURL
-	} else if strings.HasPrefix(req.URL.Path, apiBstarSubtitle) || strings.HasPrefix(req.URL.Path, apiBstarSearch) {
-		req.URL.Host = hostBlueAppURL
-		req.Host = hostBlueAppURL
-	} else if strings.HasPrefix(req.URL.Path, apiPinkPlayURL) || strings.HasPrefix(req.URL.Path, apiWebPlayURL) {
-		req.URL.Host = hostPinkURL
-		req.Host = hostPinkURL
-	} else {
-		b.sugar.Debug("Unknown path:", req.URL.Path)
-	}
+// func (b *biliroamingGo) directorFunc(ctx *fasthttp.RequestCtx) {
+// 	req.URL.Scheme = "https"
+// 	if strings.HasPrefix(req.URL.Path, apiBstarPlayURL) {
+// 		req.URL.Host = hostBlueAPIURL
+// 		req.Host = hostBlueAPIURL
+// 	} else if strings.HasPrefix(req.URL.Path, apiBstarSubtitle) || strings.HasPrefix(req.URL.Path, apiBstarSearch) {
+// 		req.URL.Host = hostBlueAppURL
+// 		req.Host = hostBlueAppURL
+// 	} else if strings.HasPrefix(req.URL.Path, apiPinkPlayURL) || strings.HasPrefix(req.URL.Path, apiWebPlayURL) {
+// 		req.URL.Host = hostPinkURL
+// 		req.Host = hostPinkURL
+// 	} else {
+// 		b.sugar.Debug("Unknown path:", req.URL.Path)
+// 	}
 
-	b.sugar.Debug("Proxy URL: " + req.URL.String())
-}
+// 	b.sugar.Debug("Proxy URL: " + req.URL.String())
+// }
 
-func (b *biliroamingGo) modifyResponse(res *http.Response) error {
-	if res.StatusCode != http.StatusOK {
-		return nil
-	}
-	if !strings.HasPrefix(res.Request.URL.Path, apiBstarSubtitle) && !strings.HasPrefix(res.Request.URL.Path, apiBstarSearch) {
-		// statistics and cache
-		cid := res.Request.URL.Query().Get("cid")
-		fnval := res.Request.URL.Query().Get("fnval")
-		qn := res.Request.URL.Query().Get("qn")
-		if cid == "" || fnval == "" || qn == "" {
-			return nil
-		}
-		err := b.incrBangumiReqCount(cid)
-		if err != nil {
-			b.sugar.Error(errors.Wrap(err, "redis increment bangumi"))
-		}
-		accessKey := res.Request.URL.Query().Get("access_key")
-		if accessKey == "" {
-			return nil
-		}
-		mid, err := b.getMid(accessKey)
-		if err != nil {
-			return nil
-		}
+// func (b *biliroamingGo) modifyResponse(res *http.Response) error {
+// 	if res.StatusCode != http.StatusOK {
+// 		return nil
+// 	}
+// 	if !strings.HasPrefix(res.Request.URL.Path, apiBstarSubtitle) && !strings.HasPrefix(res.Request.URL.Path, apiBstarSearch) {
+// 		// statistics and cache
+// 		cid := res.Request.URL.Query().Get("cid")
+// 		fnval := res.Request.URL.Query().Get("fnval")
+// 		qn := res.Request.URL.Query().Get("qn")
+// 		if cid == "" || fnval == "" || qn == "" {
+// 			return nil
+// 		}
+// 		err := b.incrBangumiReqCount(cid)
+// 		if err != nil {
+// 			b.sugar.Error(errors.Wrap(err, "redis increment bangumi"))
+// 		}
+// 		accessKey := res.Request.URL.Query().Get("access_key")
+// 		if accessKey == "" {
+// 			return nil
+// 		}
+// 		mid, err := b.getMid(accessKey)
+// 		if err != nil {
+// 			return nil
+// 		}
 
-		var reader io.ReadCloser
-		switch res.Header.Get("Content-Encoding") {
-		case "gzip":
-			reader, err = gzip.NewReader(res.Body)
-			if err != nil {
-				b.sugar.Error(errors.Wrap(err, "Read response failed"))
-			}
-			defer reader.Close()
-		default:
-			reader = res.Body
-		}
+// 		var reader io.ReadCloser
+// 		switch res.Header.Get("Content-Encoding") {
+// 		case "gzip":
+// 			reader, err = gzip.NewReader(res.Body)
+// 			if err != nil {
+// 				b.sugar.Error(errors.Wrap(err, "Read response failed"))
+// 			}
+// 			defer reader.Close()
+// 		default:
+// 			reader = res.Body
+// 		}
 
-		body, err := ioutil.ReadAll(reader)
-		if err != nil {
-			return err
-		}
-		res.Body.Close()
+// 		body, err := ioutil.ReadAll(reader)
+// 		if err != nil {
+// 			return err
+// 		}
+// 		res.Body.Close()
 
-		isVip := ""
-		_, err = b.getVIP(mid)
-		if err == redis.Nil {
-			isVip = "0"
-		} else if err == nil {
-			isVip = "1"
-		} else {
-			b.sugar.Error(errors.Wrap(err, "redis getVIP unknown error"))
-			return nil
-		}
-		b.sugar.Debug("Response:", string(body))
+// 		isVip := ""
+// 		_, err = b.getVIP(mid)
+// 		if err == redis.Nil {
+// 			isVip = "0"
+// 		} else if err == nil {
+// 			isVip = "1"
+// 		} else {
+// 			b.sugar.Error(errors.Wrap(err, "redis getVIP unknown error"))
+// 			return nil
+// 		}
+// 		b.sugar.Debug("Response:", string(body))
 
-		code := gjson.Get(string(body), "code").Int()
-		// status ok || status area restricted
-		if code == 0 || code == -10403 {
-			data := string(body)
-			m1 := regexp.MustCompile(`\&mid=\d+`)
-			newBody := m1.ReplaceAllString(data, "")
-			body = []byte(newBody)
-			if strings.HasPrefix(res.Request.URL.Path, apiWebPlayURL) {
-				err = b.setPlayURLWebCache(cid, fnval, qn, isVip, newBody)
-			} else if strings.HasPrefix(res.Request.URL.Path, apiBstarPlayURL) {
-				err = b.setPlayURLBstarCache(cid, fnval, qn, isVip, newBody)
-			} else {
-				err = b.setPlayURLCache(cid, fnval, qn, isVip, newBody)
-			}
-			if err != nil {
-				b.sugar.Error(errors.Wrap(err, "redis insertPlayURLCache"))
-				return nil
-			}
-		}
+// 		code := gjson.Get(string(body), "code").Int()
+// 		// status ok || status area restricted
+// 		if code == 0 || code == -10403 {
+// 			data := string(body)
+// 			m1 := regexp.MustCompile(`\&mid=\d+`)
+// 			newBody := m1.ReplaceAllString(data, "")
+// 			body = []byte(newBody)
+// 			if strings.HasPrefix(res.Request.URL.Path, apiWebPlayURL) {
+// 				err = b.setPlayURLWebCache(cid, fnval, qn, isVip, newBody)
+// 			} else if strings.HasPrefix(res.Request.URL.Path, apiBstarPlayURL) {
+// 				err = b.setPlayURLBstarCache(cid, fnval, qn, isVip, newBody)
+// 			} else {
+// 				err = b.setPlayURLCache(cid, fnval, qn, isVip, newBody)
+// 			}
+// 			if err != nil {
+// 				b.sugar.Error(errors.Wrap(err, "redis insertPlayURLCache"))
+// 				return nil
+// 			}
+// 		}
 
-		res.Header.Del("Content-Encoding")
-		res.Body = ioutil.NopCloser(bytes.NewReader(body))
-	}
+// 		res.Header.Del("Content-Encoding")
+// 		res.Body = ioutil.NopCloser(bytes.NewReader(body))
+// 	}
 
-	// CORS
-	if strings.HasPrefix(res.Request.URL.Path, apiWebPlayURL) || strings.HasPrefix(res.Request.URL.Path, apiBstarPlayURL) {
-		res.Header.Set("Access-Control-Allow-Origin", "https://www.bilibili.com")
-		res.Header.Set("Access-Control-Allow-Credentials", "true")
-	}
+// 	// CORS
+// 	if strings.HasPrefix(res.Request.URL.Path, apiWebPlayURL) || strings.HasPrefix(res.Request.URL.Path, apiBstarPlayURL) {
+// 		res.Header.Set("Access-Control-Allow-Origin", "https://www.bilibili.com")
+// 		res.Header.Set("Access-Control-Allow-Credentials", "true")
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
-func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Request) {
-	if !isProxyPath(r.URL.Path) {
-		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+func (b *biliroamingGo) handleReverseProxy(ctx *fasthttp.RequestCtx) {
+	if !isProxyPath(string(ctx.Path())) {
+		ctx.Error("Forbidden", fasthttp.StatusForbidden)
 		return
 	}
 
 	// check area
-	area := r.Header.Get("area")
-	if area == "" {
-		http.Error(w, `{"code":-10403,"message":"抱歉您所在地区不可观看！"}`, http.StatusForbidden)
-		return
-	}
+	// area := r.Header.Get("area")
+	// if area == "" {
+	// 	ctx.Error(`{"code":-10403,"message":"抱歉您所在地区不可观看！"}`, fasthttp.StatusForbidden)
+	// 	return
+	// }
 
 	// get ip
 	var err error
-	ip := r.Header.Get("X-Forwarded-For")
-	if ip == "" {
-		ip = r.Header.Get("X-Real-IP")
+	ip := string(ctx.Request.Header.Peek("X-Forwarded-For"))
+	if len(ip) == 0 {
+		ip = string(ctx.Request.Header.Peek("X-Real-IP"))
 	}
-	if ip == "" {
-		ip, _, err = net.SplitHostPort(r.RemoteAddr)
+	if len(ip) == 0 {
+		ip, _, err = net.SplitHostPort(ctx.RemoteAddr().String())
 		if err != nil {
 			b.sugar.Error(errors.Wrap(err, "SplitHostPort"))
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			ctx.Error("Internal Server Error", fasthttp.StatusInternalServerError)
 			return
 		}
 	}
 
-	accessKey := r.URL.Query().Get("access_key")
-	if accessKey == "" {
-		http.Error(w, `{"code":-10403,"message":"抱歉您所在地区不可观看！"}`, http.StatusForbidden)
+	accessKey := string(ctx.Request.URI().QueryArgs().Peek("access_key"))
+	if len(accessKey) == 0 {
+		ctx.Error(`{"code":-10403,"message":"抱歉您所在地区不可观看！"}`, fasthttp.StatusForbidden)
 		return
 	}
 	if len(accessKey) == 32 {
@@ -439,51 +440,51 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 			if b.globalLimiter.Allow() == false {
 				// allow to retry
 				b.sugar.Debug("Blocked %s due to global limit", ip)
-				http.Error(w, `{"code":-412,"message":"请求被拦截"}`, http.StatusTooManyRequests)
+				ctx.Error(`{"code":-412,"message":"请求被拦截"}`, fasthttp.StatusTooManyRequests)
 				return
 			}
 
 			// fetching new user info
 			data, err := b.getMyInfo(accessKey)
 			if err != nil {
-				b.sugar.Error(ip, r.URL.String())
+				b.sugar.Error(ip, ctx.Request.URI())
 				b.sugar.Error(errors.Wrap(err, "getMyInfo"))
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				ctx.Error("Internal Server Error", fasthttp.StatusInternalServerError)
 				return
 			}
 			b.sugar.Debug("myInfo:", data)
 
 			if gjson.Get(data, "code").String() != "0" {
-				b.sugar.Error(ip, r.URL.String())
+				b.sugar.Error(ip, ctx.Request.URI())
 				b.sugar.Error("getMyInfo: " + data)
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				ctx.Error("Internal Server Error", fasthttp.StatusInternalServerError)
 				return
 			}
 			name = gjson.Get(data, "data.name").String()
 			mid = gjson.Get(data, "data.mid").String()
 			vipDueUnix := gjson.Get(data, "data.vip.due_date").Int() / 1000
 			if mid == "" {
-				b.sugar.Error(ip, r.URL.String())
+				b.sugar.Error(ip, ctx.Request.URI())
 				b.sugar.Error("getMyInfo malformed json: " + data)
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				ctx.Error("Internal Server Error", fasthttp.StatusInternalServerError)
 				return
 			}
 
 			b.sugar.Debugf("access_key %s %s %s %s", accessKey, mid, name, vipDueUnix)
 			err = b.setAccessKey(accessKey, mid)
 			if err != nil {
-				b.sugar.Error(ip, r.URL.String())
+				b.sugar.Error(ip, ctx.Request.URI())
 				b.sugar.Error(errors.Wrap(err, "redis insertAccessKey"))
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				ctx.Error("Internal Server Error", fasthttp.StatusInternalServerError)
 				return
 			}
 
 			err = b.setName(mid, name)
 			if err != nil {
-				b.sugar.Error(ip, r.URL.String())
+				b.sugar.Error(ip, ctx.Request.URI())
 				b.sugar.Error(err)
 				b.sugar.Error(errors.Wrap(err, "redis insertName"))
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				ctx.Error("Internal Server Error", fasthttp.StatusInternalServerError)
 				return
 			}
 
@@ -491,9 +492,9 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 			if vipDueUnix != 0 {
 				err = b.setVIP(mid, time.Unix(vipDueUnix, 0))
 				if err != nil {
-					b.sugar.Error(ip, r.URL.String())
+					b.sugar.Error(ip, ctx.Request.URI())
 					b.sugar.Error(errors.Wrap(err, "redis insertVIP"))
-					http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+					ctx.Error("Internal Server Error", fasthttp.StatusInternalServerError)
 					return
 				}
 			}
@@ -501,24 +502,24 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 			// cached
 			name, err = b.getName(mid)
 			if err != nil {
-				b.sugar.Error(ip, r.URL.String())
+				b.sugar.Error(ip, ctx.Request.URI())
 				b.sugar.Error(errors.Wrap(err, "redis getName"))
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				ctx.Error("Internal Server Error", fasthttp.StatusInternalServerError)
 				return
 			}
 
 			bans, err := b.getBan(mid)
 			if err != nil {
-				b.sugar.Error(ip, r.URL.String())
+				b.sugar.Error(ip, ctx.Request.URI())
 				b.sugar.Error(errors.Wrap(err, "redis getBan"))
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				ctx.Error("Internal Server Error", fasthttp.StatusInternalServerError)
 				return
 			}
 
 			// is banned
 			if len(bans) > 0 {
 				b.sugar.Debugf("Blocked %s with mid %s and name %s (time: %s, reason: %s)", ip, mid, name, bans["time"], bans["reason"])
-				writeErrorJSON(w)
+				writeErrorJSON(ctx)
 				return
 			}
 		}
@@ -528,20 +529,20 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 			b.sugar.Debugf("Banned %s with mid %s and name %s (autoban)", ip, mid, name)
 			err = b.setBan(mid, "autoban")
 			if err != nil {
-				b.sugar.Error(ip, r.URL.String())
+				b.sugar.Error(ip, ctx.Request.URI())
 				b.sugar.Error(errors.Wrap(err, "redis insertBan"))
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				ctx.Error("Internal Server Error", fasthttp.StatusInternalServerError)
 				return
 			}
-			writeErrorJSON(w)
+			writeErrorJSON(ctx)
 			return
 		}
 
 		// check playurl cache
-		if !strings.HasPrefix(r.URL.Path, apiBstarSubtitle) && !strings.HasPrefix(r.URL.Path, apiBstarSearch) {
-			cid := r.URL.Query().Get("cid")
-			fnval := r.URL.Query().Get("fnval")
-			qn := r.URL.Query().Get("qn")
+		if !strings.HasPrefix(ctx.Request.URI().String(), apiBstarSubtitle) && !strings.HasPrefix(string(ctx.Request.URI().Path()), apiBstarSearch) {
+			cid := string(ctx.Request.URI().QueryArgs().Peek("cid"))
+			fnval := string(ctx.Request.URI().QueryArgs().Peek("fnval"))
+			qn := string(ctx.Request.URI().QueryArgs().Peek("qn"))
 			if cid != "" || fnval != "" || qn != "" {
 				isVip := ""
 				_, err = b.getVIP(mid)
@@ -550,36 +551,36 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 				} else if err == nil {
 					isVip = "1"
 				} else {
-					b.sugar.Error(ip, r.URL.String())
+					b.sugar.Error(ip, ctx.Request.URI())
 					b.sugar.Error(errors.Wrap(err, "redis getVIP unknown error"))
-					http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+					ctx.Error("Internal Server Error", fasthttp.StatusInternalServerError)
 					return
 				}
 
-				if strings.HasPrefix(r.URL.Path, apiWebPlayURL) {
+				if strings.HasPrefix(ctx.Request.URI().String(), apiWebPlayURL) {
 					data, err := b.getPlayURLWebCacheFrom(cid, fnval, qn, isVip)
 					if err != redis.Nil {
 						// playurl cached
 						b.sugar.Debug("Replay cache response:", data)
 
 						// CORS
-						w.Header().Set("Access-Control-Allow-Origin", "https://www.bilibili.com")
-						w.Header().Set("Access-Control-Allow-Credentials", "true")
+						ctx.Response.Header.Set("Access-Control-Allow-Origin", "https://www.bilibili.com")
+						ctx.Response.Header.Set("Access-Control-Allow-Credentials", "true")
 
-						fmt.Fprintf(w, "%s", data)
+						fmt.Fprintf(ctx, "%s", data)
 						return
 					}
-				} else if strings.HasPrefix(r.URL.Path, apiBstarPlayURL) {
+				} else if strings.HasPrefix(string(ctx.Request.URI().Path()), apiBstarPlayURL) {
 					data, err := b.getPlayURLBstarCacheFrom(cid, fnval, qn, isVip)
 					if err != redis.Nil {
 						// playurl cached
 						b.sugar.Debug("Replay cache response:", data)
 
 						// CORS
-						w.Header().Set("Access-Control-Allow-Origin", "https://www.bilibili.com")
-						w.Header().Set("Access-Control-Allow-Credentials", "true")
+						ctx.Response.Header.Set("Access-Control-Allow-Origin", "https://www.bilibili.com")
+						ctx.Response.Header.Set("Access-Control-Allow-Credentials", "true")
 
-						fmt.Fprintf(w, "%s", data)
+						fmt.Fprintf(ctx, "%s", data)
 						return
 					}
 				} else {
@@ -588,7 +589,7 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 						// playurl cached
 						b.sugar.Debug("Replay cache response:", data)
 
-						fmt.Fprintf(w, "%s", data)
+						fmt.Fprintf(ctx, "%s", data)
 						return
 					}
 				}
@@ -607,17 +608,19 @@ func (b *biliroamingGo) handleReverseProxy(w http.ResponseWriter, r *http.Reques
 	// }
 
 	// finally
-	proxy := &httputil.ReverseProxy{
-		Director:       b.directorFunc,
-		ModifyResponse: b.modifyResponse,
-	}
-	proxy.ServeHTTP(w, r)
-	// fmt.Fprintf(w, "OK")
+	// proxyServer := proxy.NewReverseProxy(":" + strconv.Itoa(b.config.Port))
+	// proxyServer.ServeHTTP(ctx)
+	// proxy := &httputil.ReverseProxy{
+	// 	Director:       b.directorFunc,
+	// 	ModifyResponse: b.modifyResponse,
+	// }
+	// proxy.ServeHTTP(w, r)
+	fmt.Fprintf(ctx, "OK")
 }
 
-func writeErrorJSON(w http.ResponseWriter) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"accept_format":"mp4","code":0,"seek_param":"start","is_preview":0,"fnval":1,"video_project":true,"fnver":0,"type":"MP4","bp":0,"result":"suee","seek_type":"offset","qn_extras":[{"attribute":0,"icon":"http://i0.hdslb.com/bfs/app/81dab3a04370aafa93525053c4e760ac834fcc2f.png","icon2":"http://i0.hdslb.com/bfs/app/4e6f14c2806f7cc508d8b6f5f1d8306f94a71ecc.png","need_login":true,"need_vip":true,"qn":112},{"attribute":0,"icon":"","icon2":"","need_login":false,"need_vip":false,"qn":80},{"attribute":0,"icon":"","icon2":"","need_login":false,"need_vip":false,"qn":64},{"attribute":0,"icon":"","icon2":"","need_login":false,"need_vip":false,"qn":32},{"attribute":0,"icon":"","icon2":"","need_login":false,"need_vip":false,"qn":16}],"accept_watermark":[false,false,false,false,false],"from":"local","video_codecid":7,"durl":[{"order":1,"length":16740,"size":172775,"ahead":"","vhead":"","url":"https://s1.hdslb.com/bfs/static/player/media/error.mp4","backup_url":[]}],"no_rexcode":0,"format":"mp4","support_formats":[{"display_desc":"360P","superscript":"","format":"mp4","description":"流畅 360P","quality":16,"new_description":"360P 流畅"}],"message":"","accept_quality":[16],"quality":16,"timelength":16740,"has_paid":false,"accept_description":["流畅 360P"],"status":2}`))
+func writeErrorJSON(ctx *fasthttp.RequestCtx) {
+	ctx.SetStatusCode(fasthttp.StatusOK)
+	ctx.Write([]byte(`{"accept_format":"mp4","code":0,"seek_param":"start","is_preview":0,"fnval":1,"video_project":true,"fnver":0,"type":"MP4","bp":0,"result":"suee","seek_type":"offset","qn_extras":[{"attribute":0,"icon":"http://i0.hdslb.com/bfs/app/81dab3a04370aafa93525053c4e760ac834fcc2f.png","icon2":"http://i0.hdslb.com/bfs/app/4e6f14c2806f7cc508d8b6f5f1d8306f94a71ecc.png","need_login":true,"need_vip":true,"qn":112},{"attribute":0,"icon":"","icon2":"","need_login":false,"need_vip":false,"qn":80},{"attribute":0,"icon":"","icon2":"","need_login":false,"need_vip":false,"qn":64},{"attribute":0,"icon":"","icon2":"","need_login":false,"need_vip":false,"qn":32},{"attribute":0,"icon":"","icon2":"","need_login":false,"need_vip":false,"qn":16}],"accept_watermark":[false,false,false,false,false],"from":"local","video_codecid":7,"durl":[{"order":1,"length":16740,"size":172775,"ahead":"","vhead":"","url":"https://s1.hdslb.com/bfs/static/player/media/error.mp4","backup_url":[]}],"no_rexcode":0,"format":"mp4","support_formats":[{"display_desc":"360P","superscript":"","format":"mp4","description":"流畅 360P","quality":16,"new_description":"360P 流畅"}],"message":"","accept_quality":[16],"quality":16,"timelength":16740,"has_paid":false,"accept_description":["流畅 360P"],"status":2}`))
 }
 
 func (b *biliroamingGo) getMyInfo(accessKey string) (string, error) {
@@ -634,17 +637,12 @@ func (b *biliroamingGo) getMyInfo(accessKey string) (string, error) {
 
 	b.sugar.Debug(apiURL)
 
-	res, err := http.Get(apiURL)
+	statusCode, body, err := fasthttp.Get(nil, apiURL)
 	if err != nil {
 		return "", err
 	}
-	if res.StatusCode != 200 {
-		return "", fmt.Errorf("Get info failed with status code %d", res.StatusCode)
-	}
-	defer res.Body.Close()
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return "", err
+	if statusCode != 200 {
+		return "", fmt.Errorf("Get info failed with status code %d", statusCode)
 	}
 	return string(body), nil
 }

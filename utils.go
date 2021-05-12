@@ -9,10 +9,13 @@ import (
 	"time"
 )
 
-// client type
+// ClientType ...
+type ClientType int
+
+// ClientType
 const (
-	ClientTypeAndroid = "android"
-	ClientTypeBstarA  = "bstar_a"
+	ClientTypeAndroid ClientType = iota
+	ClientTypeBstarA
 )
 
 // appkey
@@ -28,11 +31,11 @@ const (
 )
 
 // SignParams sign params according to client type
-func SignParams(values url.Values, clientType string) (string, error) {
+func SignParams(values url.Values, clientType ClientType) (string, error) {
 	return signParams(values, clientType, time.Now().Unix())
 }
 
-func signParams(values url.Values, clientType string, timestamp int64) (string, error) {
+func signParams(values url.Values, clientType ClientType, timestamp int64) (string, error) {
 	appkey, appsec, err := getSecrets(clientType)
 	if err != nil {
 		return "", err
@@ -47,7 +50,7 @@ func signParams(values url.Values, clientType string, timestamp int64) (string, 
 	return values.Encode(), nil
 }
 
-func getSecrets(clientType string) (appkey, appsec string, err error) {
+func getSecrets(clientType ClientType) (appkey, appsec string, err error) {
 	switch clientType {
 	case ClientTypeAndroid:
 		return appkeyAndroid, appsecAndroid, nil

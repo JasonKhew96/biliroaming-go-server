@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"crypto/md5"
 	"fmt"
 	"io/ioutil"
 	"net"
@@ -629,11 +628,12 @@ func (b *biliroamingGo) getMyInfo(accessKey string) (string, error) {
 	v := url.Values{}
 
 	v.Add("access_key", accessKey)
-	v.Add("appkey", "1d8b6e7d45233436")
-	v.Add("ts", strconv.FormatInt(time.Now().Unix(), 10))
-	v.Add("sign", getSign(v.Encode()))
 
-	apiURL += "?" + v.Encode()
+	params, err := SignParams(v, ClientTypeAndroid)
+	if err != nil {
+		return "", err
+	}
+	apiURL += "?" + params
 
 	b.sugar.Debug(apiURL)
 
@@ -645,10 +645,4 @@ func (b *biliroamingGo) getMyInfo(accessKey string) (string, error) {
 		return "", fmt.Errorf("Get info failed with status code %d", statusCode)
 	}
 	return string(body), nil
-}
-
-func getSign(params string) string {
-	toEncode := params + "560c52ccd288fed045859ed18bffd973"
-	data := []byte(toEncode)
-	return fmt.Sprintf("%x", md5.Sum(data))
 }

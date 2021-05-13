@@ -67,38 +67,6 @@ type BiliroamingGo struct {
 	defaultClient *fasthttp.Client
 }
 
-const (
-	// local url
-	localTopBangumiURL = "/public/bangumi"
-	localBanlistURL    = "/public/banlist"
-
-	// api url
-	// bstar
-	apiBstarPlayURL  = "/intl/gateway/v2/ogv/playurl"
-	apiBstarSubtitle = "/intl/gateway/v2/app/subtitle"
-	apiBstarSearch   = "/intl/gateway/v2/app/search/type"
-	// pink
-	apiPinkPlayURL = "/pgc/player/api/playurl"
-	// web
-	apiWebPlayURL = "/pgc/player/web/playurl"
-
-	// host
-	hostPinkURL    = "api.bilibili.com"
-	hostBlueAPIURL = "api.global.bilibili.com"
-	hostBlueAppURL = "app.global.bilibili.com"
-)
-
-var validReqPaths = []string{
-	// blue
-	apiBstarPlayURL,
-	apiBstarSubtitle,
-	apiBstarSearch,
-	// pink
-	apiPinkPlayURL,
-	// web
-	apiWebPlayURL,
-}
-
 var reMid = regexp.MustCompile(`(&|\\u0026)mid=\d+`)
 
 // get visitor limiter
@@ -130,15 +98,6 @@ func (b *BiliroamingGo) cleanupVisitors() {
 		}
 		b.vMu.Unlock()
 	}
-}
-
-func isProxyPath(path string) bool {
-	for _, validPath := range validReqPaths {
-		if strings.HasPrefix(path, validPath) {
-			return true
-		}
-	}
-	return false
 }
 
 func main() {

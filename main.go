@@ -112,6 +112,15 @@ func (b *BiliroamingGo) cleanupVisitors() {
 	}
 }
 
+// func (b *BiliroamingGo) cleanupDatabase() {
+// 	for {
+// 		time.Sleep(15 * time.Minute)
+// 		b.vMu.Lock()
+
+// 		b.vMu.Unlock()
+// 	}
+// }
+
 func main() {
 	// default config
 	c := &Config{
@@ -277,7 +286,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 			return
 		}
 		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeWeb, getAreaCode(area), isVIP, cidInt, epidInt)
-		if err == nil && playurlCache.JSONData != "" {
+		if err == nil && playurlCache.JSONData != "" && playurlCache.UpdatedAt.Before(time.Now().Add(time.Hour)) {
 			b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
 			setDefaultHeaders(ctx)
 			ctx.Write([]byte(playurlCache.JSONData))
@@ -351,7 +360,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		}
 
 		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeAndroid, getAreaCode(area), isVIP, cidInt, epidInt)
-		if err == nil && playurlCache.JSONData != "" {
+		if err == nil && playurlCache.JSONData != "" && playurlCache.UpdatedAt.Before(time.Now().Add(time.Hour)) {
 			b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
 			setDefaultHeaders(ctx)
 			ctx.Write([]byte(playurlCache.JSONData))
@@ -424,7 +433,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 			return
 		}
 		seasonCache, err := b.db.GetTHSeasonCache(seasonIDInt)
-		if err == nil && seasonCache.JSONData != "" {
+		if err == nil && seasonCache.JSONData != "" && seasonCache.UpdatedAt.Before(time.Now().Add(15*time.Minute)) {
 			b.sugar.Debug("Replay from cache: ", seasonCache.JSONData)
 			setDefaultHeaders(ctx)
 			ctx.Write([]byte(seasonCache.JSONData))
@@ -498,7 +507,7 @@ func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 			return
 		}
 		subtitelCache, err := b.db.GetTHSubtitleCache(episodeIDInt)
-		if err == nil && subtitelCache.JSONData != "" {
+		if err == nil && subtitelCache.JSONData != "" && subtitelCache.UpdatedAt.Before(time.Now().Add(15*time.Minute)) {
 			b.sugar.Debug("Replay from cache: ", subtitelCache.JSONData)
 			setDefaultHeaders(ctx)
 			ctx.Write([]byte(subtitelCache.JSONData))
@@ -575,7 +584,7 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		}
 
 		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeAndroid, getAreaCode(area), isVIP, cidInt, epidInt)
-		if err == nil && playurlCache.JSONData != "" {
+		if err == nil && playurlCache.JSONData != "" && playurlCache.UpdatedAt.Before(time.Now().Add(time.Hour)) {
 			b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
 			setDefaultHeaders(ctx)
 			ctx.Write([]byte(playurlCache.JSONData))

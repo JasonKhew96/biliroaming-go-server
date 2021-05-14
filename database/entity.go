@@ -56,6 +56,22 @@ type PlayURLCache struct {
 	UpdatedAt  time.Time  // 更新时间
 }
 
+// THSeasonCache season 缓存
+type THSeasonCache struct {
+	SeasonID  int       `gorm:"primarykey"` // ...
+	JSONData  string    // 内容
+	CreatedAt time.Time // 创建时间
+	UpdatedAt time.Time // 更新时间
+}
+
+// THSubtitleCache 字幕缓存
+type THSubtitleCache struct {
+	EpisodeID int       `gorm:"primarykey"` // ...
+	JSONData  string    // 内容
+	CreatedAt time.Time // 创建时间
+	UpdatedAt time.Time // 更新时间
+}
+
 // History 历史记录(统计)
 // type History struct {
 // 	gorm.Model

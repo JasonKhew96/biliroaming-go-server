@@ -38,6 +38,8 @@ func NewDBConnection(c *Config) (*Database, error) {
 		&AccessKeys{},
 		&Users{},
 		&PlayURLCache{},
+		&THSeasonCache{},
+		&THSubtitleCache{},
 	)
 
 	return &Database{db}, err
@@ -119,5 +121,45 @@ func (db *Database) InsertOrUpdatePlayURLCache(deviceType DeviceType, area Area,
 		EpisodeID:  episodeID,
 		JSONData:   jsonData,
 	})
+	return result.RowsAffected, result.Error
+}
+
+// GetTHSeasonCache get season api cache from season id
+func (db *Database) GetTHSeasonCache(seasonID int) (*THSeasonCache, error) {
+	var data THSeasonCache
+	err := db.Where(&THSeasonCache{SeasonID: seasonID}).First(&data).Error
+	return &data, err
+}
+
+// InsertOrUpdateTHSeasonCache insert or update season api cache
+func (db *Database) InsertOrUpdateTHSeasonCache(seasonID int, jsonData string) (int64, error) {
+	data, err := db.GetTHSeasonCache(seasonID)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		result := db.Create(&THSeasonCache{SeasonID: seasonID, JSONData: jsonData})
+		return result.RowsAffected, result.Error
+	} else if err != nil {
+		return 0, err
+	}
+	result := db.Model(data).Updates(THSeasonCache{SeasonID: seasonID, JSONData: jsonData})
+	return result.RowsAffected, result.Error
+}
+
+// GetTHSubtitleCache get th subtitle api cache from season id
+func (db *Database) GetTHSubtitleCache(episodeID int) (*THSubtitleCache, error) {
+	var data THSubtitleCache
+	err := db.Where(&THSubtitleCache{EpisodeID: episodeID}).First(&data).Error
+	return &data, err
+}
+
+// InsertOrUpdateTHSubtitleCache insert or update th subtitle api cache
+func (db *Database) InsertOrUpdateTHSubtitleCache(episodeID int, jsonData string) (int64, error) {
+	data, err := db.GetTHSubtitleCache(episodeID)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		result := db.Create(&THSubtitleCache{EpisodeID: episodeID, JSONData: jsonData})
+		return result.RowsAffected, result.Error
+	} else if err != nil {
+		return 0, err
+	}
+	result := db.Model(data).Updates(THSubtitleCache{EpisodeID: episodeID, JSONData: jsonData})
 	return result.RowsAffected, result.Error
 }

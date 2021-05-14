@@ -277,13 +277,11 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 			return
 		}
 		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeWeb, getAreaCode(area), isVIP, cidInt, epidInt)
-		if err == nil {
-			if playurlCache.JSONData != "" {
-				b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
-				setDefaultHeaders(ctx)
-				ctx.Write([]byte(playurlCache.JSONData))
-				return
-			}
+		if err == nil && playurlCache.JSONData != "" {
+			b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
+			setDefaultHeaders(ctx)
+			ctx.Write([]byte(playurlCache.JSONData))
+			return
 		}
 	}
 
@@ -353,13 +351,11 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		}
 
 		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeAndroid, getAreaCode(area), isVIP, cidInt, epidInt)
-		if err == nil {
-			if playurlCache.JSONData != "" {
-				b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
-				setDefaultHeaders(ctx)
-				ctx.Write([]byte(playurlCache.JSONData))
-				return
-			}
+		if err == nil && playurlCache.JSONData != "" {
+			b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
+			setDefaultHeaders(ctx)
+			ctx.Write([]byte(playurlCache.JSONData))
+			return
 		}
 	}
 
@@ -417,8 +413,21 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	seasonIDInt, err := strconv.Atoi(seasonID)
+	if err != nil {
+		b.processError(ctx, err)
+		return
+	}
+
 	if b.getAuthByArea(area) {
 		if ok, _ := b.doAuth(ctx, accessKey, area); !ok {
+			return
+		}
+		seasonCache, err := b.db.GetTHSeasonCache(seasonIDInt)
+		if err == nil && seasonCache.JSONData != "" {
+			b.sugar.Debug("Replay from cache: ", seasonCache.JSONData)
+			setDefaultHeaders(ctx)
+			ctx.Write([]byte(seasonCache.JSONData))
 			return
 		}
 	}
@@ -462,7 +471,10 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/intl/gateway/v2/ogv/view/app/season?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	b.doRequest(ctx, client, url)
+	data := b.doRequest(ctx, client, url)
+	if data != nil && b.getAuthByArea(area) {
+		b.db.InsertOrUpdateTHSeasonCache(seasonIDInt, string(data))
+	}
 }
 
 func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
@@ -475,8 +487,21 @@ func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	episodeIDInt, err := strconv.Atoi(epID)
+	if err != nil {
+		b.processError(ctx, err)
+		return
+	}
+
 	if b.getAuthByArea(area) {
 		if ok, _ := b.doAuth(ctx, accessKey, area); !ok {
+			return
+		}
+		subtitelCache, err := b.db.GetTHSubtitleCache(episodeIDInt)
+		if err == nil && subtitelCache.JSONData != "" {
+			b.sugar.Debug("Replay from cache: ", subtitelCache.JSONData)
+			setDefaultHeaders(ctx)
+			ctx.Write([]byte(subtitelCache.JSONData))
 			return
 		}
 	}
@@ -515,7 +540,10 @@ func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/intl/gateway/v2/app/subtitle?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	b.doRequest(ctx, client, url)
+	data := b.doRequest(ctx, client, url)
+	if data != nil && b.getAuthByArea(area) {
+		b.db.InsertOrUpdateTHSubtitleCache(episodeIDInt, string(data))
+	}
 }
 
 func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
@@ -547,13 +575,11 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		}
 
 		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeAndroid, getAreaCode(area), isVIP, cidInt, epidInt)
-		if err == nil {
-			if playurlCache.JSONData != "" {
-				b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
-				setDefaultHeaders(ctx)
-				ctx.Write([]byte(playurlCache.JSONData))
-				return
-			}
+		if err == nil && playurlCache.JSONData != "" {
+			b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
+			setDefaultHeaders(ctx)
+			ctx.Write([]byte(playurlCache.JSONData))
+			return
 		}
 	}
 

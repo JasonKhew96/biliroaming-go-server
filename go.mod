@@ -1,4 +1,4 @@
-module biliroaming-go-server
+module github.com/JasonKhew96/biliroaming-go-server
 
 go 1.15
 
@@ -8,6 +8,7 @@ require (
 	github.com/klauspost/compress v1.12.2 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/lib/pq v1.6.0 // indirect
+	github.com/mailru/easyjson v0.7.7
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/valyala/fasthttp v1.24.0
 	go.uber.org/multierr v1.7.0 // indirect

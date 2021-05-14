@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
-	"github.com/valyala/fasthttp"
+	"github.com/JasonKhew96/biliroaming-go-server/database"
 )
 
 // ClientType ...
@@ -63,27 +64,17 @@ func getSecrets(clientType ClientType) (appkey, appsec string, err error) {
 	}
 }
 
-func (b *BiliroamingGo) getMyInfo(accessKey string) (string, error) {
-	apiURL := "https://app.bilibili.com/x/v2/account/myinfo"
-
-	v := url.Values{}
-
-	v.Add("access_key", accessKey)
-
-	params, err := SignParams(v, ClientTypeAndroid)
-	if err != nil {
-		return "", err
+func getAreaCode(area string) database.Area {
+	switch strings.ToLower(area) {
+	case "cn":
+		return database.AreaCN
+	case "hk":
+		return database.AreaHK
+	case "tw":
+		return database.AreaTW
+	case "th":
+		return database.AreaTH
+	default:
+		return database.AreaNone
 	}
-	apiURL += "?" + params
-
-	b.sugar.Debug(apiURL)
-
-	statusCode, body, err := fasthttp.Get(nil, apiURL)
-	if err != nil {
-		return "", err
-	}
-	if statusCode != 200 {
-		return "", fmt.Errorf("Get info failed with status code %d", statusCode)
-	}
-	return string(body), nil
 }

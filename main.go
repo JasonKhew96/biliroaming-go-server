@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/JasonKhew96/biliroaming-go-server/database"
 	"github.com/valyala/fasthttp"
 	"go.uber.org/zap"
 	"golang.org/x/net/idna"
@@ -46,6 +47,17 @@ type Config struct {
 	ReverseHK string `yaml:"reverse_hk"`
 	ReverseTW string `yaml:"reverse_tw"`
 	ReverseTH string `yaml:"reverse_th"`
+	// Authentications
+	AuthCN bool `yaml:"auth_cn"`
+	AuthHK bool `yaml:"auth_hk"`
+	AuthTW bool `yaml:"auth_tw"`
+	AuthTH bool `yaml:"auth_th"`
+	// Postgres
+	PGHost     string `yaml:"pg_host"`
+	PGUser     string `yaml:"pg_user"`
+	PGPassword string `yaml:"pg_password"`
+	PGDBName   string `yaml:"pg_dbname"`
+	PGPort     int    `yaml:"pg_port"`
 }
 
 // BiliroamingGo ...
@@ -63,6 +75,8 @@ type BiliroamingGo struct {
 	twClient      *fasthttp.Client
 	thClient      *fasthttp.Client
 	defaultClient *fasthttp.Client
+
+	db *database.Database
 }
 
 var reMid = regexp.MustCompile(`(&|\\u0026)mid=\d+`)
@@ -157,7 +171,18 @@ func main() {
 	b.thClient = thClient
 	b.defaultClient = defaultClient
 
-	go b.cleanupVisitors()
+	b.db, err = database.NewDBConnection(&database.Config{
+		Host:     c.PGHost,
+		User:     c.PGUser,
+		Password: c.PGPassword,
+		DBName:   c.PGDBName,
+		Port:     c.PGPort,
+	})
+	if err != nil {
+		b.sugar.Fatal(err)
+	}
+
+	// go b.cleanupVisitors()
 
 	mux := func(ctx *fasthttp.RequestCtx) {
 		switch string(ctx.Path()) {
@@ -206,9 +231,62 @@ func (b *BiliroamingGo) processArgs(args *fasthttp.Args) (string, string, string
 	return string(bAccessKey), string(bArea), string(bCID), string(bEpID), string(bSeasonID)
 }
 
+func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string) (bool, bool) {
+	if len(accessKey) != 32 {
+		writeErrorJSON(ctx, -2, []byte("Access Key错误"))
+		return false, false
+	}
+
+	isAuth, isVIP, err := b.isAuth(ctx.Request.Header.UserAgent(), accessKey)
+	if err != nil {
+		b.sugar.Error(err)
+		writeErrorJSON(ctx, -500, []byte("服务器错误"))
+		return false, false
+	}
+	if !isAuth {
+		writeErrorJSON(ctx, -101, []byte("账号未登录"))
+		return false, false
+	}
+	return true, isVIP
+}
+
 func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	queryArgs := ctx.URI().QueryArgs()
 	accessKey, area, cid, epid, _ := b.processArgs(queryArgs)
+
+	if area == "" {
+		writeErrorJSON(ctx, -688, []byte("地理区域限制"))
+		return
+	}
+
+	cidInt, err := strconv.Atoi(cid)
+	if err != nil {
+		b.processError(ctx, err)
+		return
+	}
+	epidInt, err := strconv.Atoi(epid)
+	if err != nil {
+		b.processError(ctx, err)
+		return
+	}
+
+	var isVIP bool
+	if b.getAuthByArea(area) {
+		var ok bool
+		if ok, isVIP = b.doAuth(ctx, accessKey, area); !ok {
+			return
+		}
+		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeWeb, getAreaCode(area), isVIP, cidInt, epidInt)
+		if err == nil {
+			if playurlCache.JSONData != "" {
+				b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
+				setDefaultHeaders(ctx)
+				ctx.Write([]byte(playurlCache.JSONData))
+				return
+			}
+		}
+	}
+
 	client := b.getClientByArea(area)
 
 	v := url.Values{}
@@ -223,11 +301,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 
 	params, err := SignParams(v, ClientTypeAndroid)
 	if err != nil {
-		b.sugar.Error(err)
-		ctx.Error(
-			fasthttp.StatusMessage(fasthttp.StatusInternalServerError),
-			fasthttp.StatusInternalServerError,
-		)
+		b.processError(ctx, err)
 		return
 	}
 
@@ -237,24 +311,57 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	}
 	domain, err := idna.New().ToASCII(reverseProxy)
 	if err != nil {
-		b.sugar.Error(err)
-		ctx.Error(
-			fasthttp.StatusMessage(fasthttp.StatusInternalServerError),
-			fasthttp.StatusInternalServerError,
-		)
+		b.processError(ctx, err)
 		return
 	}
 
 	url := fmt.Sprintf("https://%s/pgc/player/web/playurl?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	b.doRequest(ctx, client, url)
+	data := b.doRequest(ctx, client, url)
+	if data != nil && b.getAuthByArea(area) {
+		b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeWeb, getAreaCode(area), isVIP, cidInt, epidInt, string(data))
+	}
 }
 
 func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	queryArgs := ctx.URI().QueryArgs()
 	accessKey, area, cid, epid, _ := b.processArgs(queryArgs)
 	client := b.getClientByArea(area)
+
+	if area == "" {
+		writeErrorJSON(ctx, -688, []byte("地理区域限制"))
+		return
+	}
+
+	cidInt, err := strconv.Atoi(cid)
+	if err != nil {
+		b.processError(ctx, err)
+		return
+	}
+	epidInt, err := strconv.Atoi(epid)
+	if err != nil {
+		b.processError(ctx, err)
+		return
+	}
+
+	var isVIP bool
+	if b.getAuthByArea(area) {
+		var ok bool
+		if ok, isVIP = b.doAuth(ctx, accessKey, area); !ok {
+			return
+		}
+
+		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeAndroid, getAreaCode(area), isVIP, cidInt, epidInt)
+		if err == nil {
+			if playurlCache.JSONData != "" {
+				b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
+				setDefaultHeaders(ctx)
+				ctx.Write([]byte(playurlCache.JSONData))
+				return
+			}
+		}
+	}
 
 	v := url.Values{}
 	v.Set("access_key", accessKey)
@@ -294,13 +401,27 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/pgc/player/api/playurl?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	b.doRequest(ctx, client, url)
+	data := b.doRequest(ctx, client, url)
+	if data != nil && b.getAuthByArea(area) {
+		b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeAndroid, getAreaCode(area), isVIP, cidInt, epidInt, string(data))
+	}
 }
 
 func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 	queryArgs := ctx.URI().QueryArgs()
 	accessKey, area, _, epID, seasonID := b.processArgs(queryArgs)
 	client := b.getClientByArea(area)
+
+	if area == "" {
+		writeErrorJSON(ctx, -688, []byte("地理区域限制"))
+		return
+	}
+
+	if b.getAuthByArea(area) {
+		if ok, _ := b.doAuth(ctx, accessKey, area); !ok {
+			return
+		}
+	}
 
 	v := url.Values{}
 	v.Set("access_key", accessKey)
@@ -349,6 +470,17 @@ func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 	accessKey, area, _, epID, _ := b.processArgs(queryArgs)
 	client := b.getClientByArea(area)
 
+	if area == "" {
+		writeErrorJSON(ctx, -688, []byte("地理区域限制"))
+		return
+	}
+
+	if b.getAuthByArea(area) {
+		if ok, _ := b.doAuth(ctx, accessKey, area); !ok {
+			return
+		}
+	}
+
 	v := url.Values{}
 	v.Set("access_key", accessKey)
 	v.Set("area", area)
@@ -391,6 +523,40 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	accessKey, area, cid, epid, _ := b.processArgs(queryArgs)
 	client := b.getClientByArea(area)
 
+	if area == "" {
+		writeErrorJSON(ctx, -688, []byte("地理区域限制"))
+		return
+	}
+
+	cidInt, err := strconv.Atoi(cid)
+	if err != nil {
+		b.processError(ctx, err)
+		return
+	}
+	epidInt, err := strconv.Atoi(epid)
+	if err != nil {
+		b.processError(ctx, err)
+		return
+	}
+
+	var isVIP bool
+	if b.getAuthByArea(area) {
+		var ok bool
+		if ok, isVIP = b.doAuth(ctx, accessKey, area); !ok {
+			return
+		}
+
+		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeAndroid, getAreaCode(area), isVIP, cidInt, epidInt)
+		if err == nil {
+			if playurlCache.JSONData != "" {
+				b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
+				setDefaultHeaders(ctx)
+				ctx.Write([]byte(playurlCache.JSONData))
+				return
+			}
+		}
+	}
+
 	v := url.Values{}
 	v.Set("access_key", accessKey)
 	v.Set("area", area)
@@ -430,5 +596,8 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/intl/gateway/v2/ogv/playurl?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	b.doRequest(ctx, client, url)
+	data := b.doRequest(ctx, client, url)
+	if data != nil && b.getAuthByArea(area) {
+		b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeAndroid, getAreaCode(area), isVIP, cidInt, epidInt, string(data))
+	}
 }

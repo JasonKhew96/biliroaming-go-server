@@ -2,31 +2,26 @@ package database
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 // Area 地区
 type Area int
 
+// Area
 const (
-	// AreaCN ...
-	AreaCN Area = iota
-	// AreaHK ...
+	AreaNone Area = iota
+	AreaCN
 	AreaHK
-	// AreaTW ...
 	AreaTW
-	// AreaTH ...
 	AreaTH
 )
 
 // DeviceType 装置种类
 type DeviceType int
 
+// DeviceType
 const (
-	// DeviceTypeWeb ...
 	DeviceTypeWeb DeviceType = iota
-	// DeviceTypeAndroid ...
 	DeviceTypeAndroid
 )
 
@@ -35,7 +30,6 @@ type AccessKeys struct {
 	// gorm.Model
 	Key       string    `gorm:"primarykey"` // key
 	UID       int       // 用户 ID
-	DueDate   time.Time // key 到期时间
 	CreatedAt time.Time // 创建时间
 	UpdatedAt time.Time // 更新时间
 }
@@ -52,18 +46,19 @@ type Users struct {
 // PlayURLCache 播放链接缓存
 type PlayURLCache struct {
 	ID         uint       `gorm:"primarykey"` // ...
-	CID        uint       // ...
+	IsVip      bool       // 大会员
+	CID        int        // ...
 	Area       Area       // 地区
 	DeviceType DeviceType // 装置种类
 	EpisodeID  int        // 剧集 ID
-	Data       string     // 内容
+	JSONData   string     // 内容
 	CreatedAt  time.Time  // 创建时间
 	UpdatedAt  time.Time  // 更新时间
 }
 
 // History 历史记录(统计)
-type History struct {
-	gorm.Model
-	EpisodeID int
-	Area      Area
-}
+// type History struct {
+// 	gorm.Model
+// 	EpisodeID int
+// 	Area      Area
+// }

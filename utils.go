@@ -7,6 +7,8 @@ import (
 	"net/url"
 	"strconv"
 	"time"
+
+	"github.com/valyala/fasthttp"
 )
 
 // ClientType ...
@@ -59,4 +61,29 @@ func getSecrets(clientType ClientType) (appkey, appsec string, err error) {
 	default:
 		return "", "", errors.New("Unknown client type")
 	}
+}
+
+func (b *BiliroamingGo) getMyInfo(accessKey string) (string, error) {
+	apiURL := "https://app.bilibili.com/x/v2/account/myinfo"
+
+	v := url.Values{}
+
+	v.Add("access_key", accessKey)
+
+	params, err := SignParams(v, ClientTypeAndroid)
+	if err != nil {
+		return "", err
+	}
+	apiURL += "?" + params
+
+	b.sugar.Debug(apiURL)
+
+	statusCode, body, err := fasthttp.Get(nil, apiURL)
+	if err != nil {
+		return "", err
+	}
+	if statusCode != 200 {
+		return "", fmt.Errorf("Get info failed with status code %d", statusCode)
+	}
+	return string(body), nil
 }

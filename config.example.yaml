@@ -28,3 +28,16 @@ reverse_cn: api.bilibili.com
 reverse_hk: api.bilibili.com
 reverse_tw: api.bilibili.com
 reverse_th: api.bilibili.com
+
+# 鉴权
+auth_cn: true
+auth_hk: true
+auth_tw: true
+auth_th: true
+
+# Postgres 数据库
+pg_host: test-postgres
+pg_user: postgres
+pg_password: test-password
+pg_dbname: postgres
+pg_port: 5432

@@ -108,3 +108,6 @@ server {
 ### nohup
 - 程序路径执行 `nohup ./biliroaming-go-server &`
 - 停止程序 `kill -9 1234`，1234 替换程序为 PID
+
+## TODO
+- 支持 Docker

@@ -3,11 +3,11 @@
 
 ## 需求
 - 脑子
-- Redis
+- PostgreSQL
 - Nginx (可选)
 
 ## 使用方式
-1. 安装并启用 Redis (https://redis.io/download)
+1. 安装并启用 [PostgreSQL](https://www.postgresql.org/)
 2. 修改设置文件 `config.yaml`
 3. 修改 Nginx 设置文件
 4. 启用程序 (systemd/screen/nohup)

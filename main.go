@@ -221,6 +221,17 @@ func main() {
 	go b.cleanupDatabase()
 	// go b.cleanupVisitors()
 
+	fs := &fasthttp.FS{
+		Root:               "html",
+		IndexNames:         []string{"index.html"},
+		GenerateIndexPages: true,
+		Compress:           true,
+		AcceptByteRange:    false,
+		PathNotFound:       processNotFound,
+		// PathRewrite:        fasthttp.NewVHostPathRewriter(0),
+	}
+	fsHandler := fs.NewRequestHandler()
+
 	mux := func(ctx *fasthttp.RequestCtx) {
 		clientIP := realip.FromRequest(ctx)
 		limiter := b.getVisitor(clientIP)
@@ -242,7 +253,8 @@ func main() {
 		case "/intl/gateway/v2/ogv/playurl": // bstar android
 			b.handleBstarAndroidPlayURL(ctx)
 		default:
-			ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
+			fsHandler(ctx)
+			// ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
 		}
 	}
 
@@ -251,6 +263,10 @@ func main() {
 	if err != nil {
 		sugar.Panic(err)
 	}
+}
+
+func processNotFound(ctx *fasthttp.RequestCtx) {
+	ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
 }
 
 func (b *BiliroamingGo) processError(ctx *fasthttp.RequestCtx, err error) {

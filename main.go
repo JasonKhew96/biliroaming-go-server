@@ -261,7 +261,7 @@ func (b *BiliroamingGo) processArgs(args *fasthttp.Args) (string, string, string
 	bCID := args.Peek("cid")
 	bEpID := args.Peek("ep_id")
 	bSeasonID := args.Peek("season_id")
-	b.sugar.Debug("Request args", args.String())
+	b.sugar.Debug("Request args ", args.String())
 	b.sugar.Debugf(
 		"Parsed request args: access_key: %s, area: %s, cid: %s, ep_id: %s, season_id: %s",
 		string(bAccessKey), string(bArea), string(bCID), string(bEpID), string(bSeasonID),
@@ -443,11 +443,16 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 
 func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 	queryArgs := ctx.URI().QueryArgs()
-	accessKey, area, _, epID, seasonID := b.processArgs(queryArgs)
+	accessKey, area, _, _, seasonID := b.processArgs(queryArgs)
 	client := b.getClientByArea(area)
 
 	if area == "" {
 		writeErrorJSON(ctx, -688, []byte("地理区域限制"))
+		return
+	}
+
+	if seasonID == "" {
+		writeErrorJSON(ctx, -400, []byte("请求错误"))
 		return
 	}
 
@@ -474,12 +479,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 	v.Set("access_key", accessKey)
 	v.Set("area", area)
 	v.Set("s_locale", "zh_SG")
-	if epID != "" {
-		v.Set("ep_id", string(epID))
-	}
-	if seasonID != "" {
-		v.Set("season_id", string(seasonID))
-	}
+	v.Set("season_id", string(seasonID))
 	v.Set("mobi_app", "bstar_a")
 
 	params, err := SignParams(v, ClientTypeBstarA)

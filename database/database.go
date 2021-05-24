@@ -7,6 +7,7 @@ import (
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 // Config database configurations
@@ -29,7 +30,9 @@ func NewDBConnection(c *Config) (*Database, error) {
 		"host=%s user=%s password=%s dbname=%s port=%d",
 		c.Host, c.User, c.Password, c.DBName, c.Port,
 	)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
 	if err != nil {
 		return nil, err
 	}

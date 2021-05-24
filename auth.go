@@ -27,6 +27,7 @@ func (b *BiliroamingGo) getAuthByArea(area string) bool {
 }
 
 func (b *BiliroamingGo) isAuth(userAgent []byte, accessKey string) (bool, bool, error) {
+	// isAuth, isVIP, error
 	keyData, err := b.db.GetKey(accessKey)
 	if err == nil {
 		b.sugar.Debug("Get vip status from cache: ", keyData)
@@ -34,7 +35,7 @@ func (b *BiliroamingGo) isAuth(userAgent []byte, accessKey string) (bool, bool, 
 		if err != nil {
 			return false, false, err
 		}
-		if userData.VIPDueDate.Before(time.Now()) {
+		if userData.VIPDueDate.After(time.Now()) {
 			return true, true, nil
 		}
 	}

@@ -112,14 +112,37 @@ func (b *BiliroamingGo) cleanupVisitors() {
 	}
 }
 
-// func (b *BiliroamingGo) cleanupDatabase() {
-// 	for {
-// 		time.Sleep(15 * time.Minute)
-// 		b.vMu.Lock()
-
-// 		b.vMu.Unlock()
-// 	}
-// }
+func (b *BiliroamingGo) cleanupDatabase() {
+	for {
+		b.sugar.Debug("Cleaning database...")
+		if aff, err := b.db.CleanupAccessKeys(24 * 7 * time.Hour); err != nil {
+			b.sugar.Error(err)
+		} else {
+			b.sugar.Debugf("Cleanup %d access keys cache", aff)
+		}
+		if aff, err := b.db.CleanupUsers(24 * 7 * time.Hour); err != nil {
+			b.sugar.Error(err)
+		} else {
+			b.sugar.Debugf("Cleanup %d users cache", aff)
+		}
+		if aff, err := b.db.CleanupPlayURLCache(15 * time.Minute); err != nil {
+			b.sugar.Error(err)
+		} else {
+			b.sugar.Debugf("Cleanup %d playURL cache", aff)
+		}
+		if aff, err := b.db.CleanupTHSeasonCache(15 * time.Minute); err != nil {
+			b.sugar.Error(err)
+		} else {
+			b.sugar.Debugf("Cleanup %d TH season cache", aff)
+		}
+		if aff, err := b.db.CleanupTHSubtitleCache(15 * time.Minute); err != nil {
+			b.sugar.Error(err)
+		} else {
+			b.sugar.Debugf("Cleanup %d TH subtitle cache", aff)
+		}
+		time.Sleep(5 * time.Minute)
+	}
+}
 
 func main() {
 	// default config
@@ -191,6 +214,7 @@ func main() {
 		b.sugar.Fatal(err)
 	}
 
+	go b.cleanupDatabase()
 	// go b.cleanupVisitors()
 
 	mux := func(ctx *fasthttp.RequestCtx) {
@@ -491,10 +515,10 @@ func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 	accessKey, area, _, epID, _ := b.processArgs(queryArgs)
 	client := b.getClientByArea(area)
 
-	if area == "" {
-		writeErrorJSON(ctx, -688, []byte("地理区域限制"))
-		return
-	}
+	// if area == "" {
+	// 	writeErrorJSON(ctx, -688, []byte("地理区域限制"))
+	// 	return
+	// }
 
 	episodeIDInt, err := strconv.Atoi(epID)
 	if err != nil {
@@ -503,14 +527,14 @@ func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 	}
 
 	if b.getAuthByArea(area) {
-		if ok, _ := b.doAuth(ctx, accessKey, area); !ok {
-			return
-		}
-		subtitelCache, err := b.db.GetTHSubtitleCache(episodeIDInt)
-		if err == nil && subtitelCache.JSONData != "" && subtitelCache.UpdatedAt.Before(time.Now().Add(15*time.Minute)) {
-			b.sugar.Debug("Replay from cache: ", subtitelCache.JSONData)
+		// if ok, _ := b.doAuth(ctx, accessKey, area); !ok {
+		// 	return
+		// }
+		subtitleCache, err := b.db.GetTHSubtitleCache(episodeIDInt)
+		if err == nil && subtitleCache.JSONData != "" && subtitleCache.UpdatedAt.Before(time.Now().Add(15*time.Minute)) {
+			b.sugar.Debug("Replay from cache: ", subtitleCache.JSONData)
 			setDefaultHeaders(ctx)
-			ctx.Write([]byte(subtitelCache.JSONData))
+			ctx.Write([]byte(subtitleCache.JSONData))
 			return
 		}
 	}

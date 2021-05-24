@@ -65,6 +65,13 @@ func (db *Database) InsertOrUpdateKey(key string, uid int) (int64, error) {
 	return result.RowsAffected, result.Error
 }
 
+// CleanupAccessKeys cleanup access keys if exceeds duration
+func (db *Database) CleanupAccessKeys(duration time.Duration) (int64, error) {
+	startTS := time.Now().Add(-duration)
+	result := db.Where("updated_at <= ?", startTS).Delete(AccessKeys{})
+	return result.RowsAffected, result.Error
+}
+
 // GetUser get user from uid
 func (db *Database) GetUser(uid int) (*Users, error) {
 	var data Users
@@ -82,6 +89,13 @@ func (db *Database) InsertOrUpdateUser(uid int, name string, vipDueDate time.Tim
 		return 0, err
 	}
 	result := db.Model(data).Updates(Users{UID: uid, Name: name, VIPDueDate: vipDueDate})
+	return result.RowsAffected, result.Error
+}
+
+// CleanupUsers cleanup users if exceeds duration
+func (db *Database) CleanupUsers(duration time.Duration) (int64, error) {
+	startTS := time.Now().Add(-duration)
+	result := db.Where("updated_at <= ?", startTS).Delete(Users{})
 	return result.RowsAffected, result.Error
 }
 
@@ -124,6 +138,13 @@ func (db *Database) InsertOrUpdatePlayURLCache(deviceType DeviceType, area Area,
 	return result.RowsAffected, result.Error
 }
 
+// CleanupPlayURLCache cleanup playurl if exceeds duration
+func (db *Database) CleanupPlayURLCache(duration time.Duration) (int64, error) {
+	startTS := time.Now().Add(-duration)
+	result := db.Where("updated_at <= ?", startTS).Delete(PlayURLCache{})
+	return result.RowsAffected, result.Error
+}
+
 // GetTHSeasonCache get season api cache from season id
 func (db *Database) GetTHSeasonCache(seasonID int) (*THSeasonCache, error) {
 	var data THSeasonCache
@@ -144,6 +165,13 @@ func (db *Database) InsertOrUpdateTHSeasonCache(seasonID int, jsonData string) (
 	return result.RowsAffected, result.Error
 }
 
+// CleanupTHSeasonCache cleanup th season if exceeds duration
+func (db *Database) CleanupTHSeasonCache(duration time.Duration) (int64, error) {
+	startTS := time.Now().Add(-duration)
+	result := db.Where("updated_at <= ?", startTS).Delete(THSeasonCache{})
+	return result.RowsAffected, result.Error
+}
+
 // GetTHSubtitleCache get th subtitle api cache from season id
 func (db *Database) GetTHSubtitleCache(episodeID int) (*THSubtitleCache, error) {
 	var data THSubtitleCache
@@ -161,5 +189,12 @@ func (db *Database) InsertOrUpdateTHSubtitleCache(episodeID int, jsonData string
 		return 0, err
 	}
 	result := db.Model(data).Updates(THSubtitleCache{EpisodeID: episodeID, JSONData: jsonData})
+	return result.RowsAffected, result.Error
+}
+
+// CleanupTHSubtitleCache cleanup th subtitle if exceeds duration
+func (db *Database) CleanupTHSubtitleCache(duration time.Duration) (int64, error) {
+	startTS := time.Now().Add(-duration)
+	result := db.Where("updated_at <= ?", startTS).Delete(THSubtitleCache{})
 	return result.RowsAffected, result.Error
 }

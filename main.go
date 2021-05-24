@@ -100,20 +100,6 @@ func (b *BiliroamingGo) getVisitor(ip string) *rate.Limiter {
 	return u.limiter
 }
 
-func (b *BiliroamingGo) cleanupVisitors() {
-	for {
-		time.Sleep(time.Minute)
-
-		b.vMu.Lock()
-		for ip, v := range b.visitors {
-			if time.Since(v.lastSeen) > 5*time.Minute {
-				delete(b.visitors, ip)
-			}
-		}
-		b.vMu.Unlock()
-	}
-}
-
 func (b *BiliroamingGo) cleanupDatabase() {
 	for {
 		b.sugar.Debug("Cleaning database...")
@@ -142,6 +128,16 @@ func (b *BiliroamingGo) cleanupDatabase() {
 		} else {
 			b.sugar.Debugf("Cleanup %d TH subtitle cache", aff)
 		}
+
+		// cleanup ip cache
+		b.vMu.Lock()
+		for ip, v := range b.visitors {
+			if time.Since(v.lastSeen) > 5*time.Minute {
+				delete(b.visitors, ip)
+			}
+		}
+		b.vMu.Unlock()
+
 		time.Sleep(5 * time.Minute)
 	}
 }

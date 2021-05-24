@@ -3,10 +3,6 @@ debug: false
 # 端口
 port: 23333
 
-# 每秒全局限制次数
-global_limit: 4
-# 每秒全局突发次数
-global_burst: 8
 # 每秒限制次数
 ip_limit: 2
 # 每秒突发次数

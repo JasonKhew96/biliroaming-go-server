@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	realip "github.com/Ferluci/fast-realip"
 	"github.com/JasonKhew96/biliroaming-go-server/database"
 	"github.com/valyala/fasthttp"
 	"go.uber.org/zap"
@@ -64,13 +65,12 @@ type Config struct {
 
 // BiliroamingGo ...
 type BiliroamingGo struct {
-	config        *Config
-	globalLimiter *rate.Limiter
-	visitors      map[string]*visitor
-	vMu           sync.RWMutex
-	ctx           context.Context
-	logger        *zap.Logger
-	sugar         *zap.SugaredLogger
+	config   *Config
+	visitors map[string]*visitor
+	vMu      sync.RWMutex
+	ctx      context.Context
+	logger   *zap.Logger
+	sugar    *zap.SugaredLogger
 
 	cnClient      *fasthttp.Client
 	hkClient      *fasthttp.Client
@@ -193,12 +193,11 @@ func main() {
 	sugar := logger.Sugar()
 
 	b := BiliroamingGo{
-		config:        c,
-		globalLimiter: rate.NewLimiter(rate.Limit(c.GlobalLimit), c.GlobalBurst),
-		visitors:      make(map[string]*visitor),
-		ctx:           context.Background(),
-		logger:        logger,
-		sugar:         sugar,
+		config:   c,
+		visitors: make(map[string]*visitor),
+		ctx:      context.Background(),
+		logger:   logger,
+		sugar:    sugar,
 	}
 
 	cnClient, hkClient, twClient, thClient, defaultClient := b.initProxy(b.config)
@@ -223,6 +222,13 @@ func main() {
 	// go b.cleanupVisitors()
 
 	mux := func(ctx *fasthttp.RequestCtx) {
+		clientIP := realip.FromRequest(ctx)
+		limiter := b.getVisitor(clientIP)
+		if !limiter.Allow() {
+			ctx.Error(fasthttp.StatusMessage(fasthttp.StatusTooManyRequests), fasthttp.StatusTooManyRequests)
+			return
+		}
+
 		switch string(ctx.Path()) {
 		case "/pgc/player/web/playurl": // web
 			b.handleWebPlayURL(ctx)

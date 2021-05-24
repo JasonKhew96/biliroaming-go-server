@@ -49,7 +49,7 @@ type Config struct {
 	ReverseHK string `yaml:"reverse_hk"`
 	ReverseTW string `yaml:"reverse_tw"`
 	ReverseTH string `yaml:"reverse_th"`
-	// Authentications
+	// 鉴权+缓存
 	AuthCN bool `yaml:"auth_cn"`
 	AuthHK bool `yaml:"auth_hk"`
 	AuthTW bool `yaml:"auth_tw"`

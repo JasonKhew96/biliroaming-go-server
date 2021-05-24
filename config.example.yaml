@@ -35,7 +35,7 @@ reverse_hk: api.bilibili.com
 reverse_tw: api.bilibili.com
 reverse_th: api.bilibili.com
 
-# 鉴权
+# 鉴权+缓存
 auth_cn: true
 auth_hk: true
 auth_tw: true

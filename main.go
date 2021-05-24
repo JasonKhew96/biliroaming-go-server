@@ -453,8 +453,9 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 	client := b.getClientByArea(area)
 
 	if area == "" {
-		writeErrorJSON(ctx, -688, []byte("地理区域限制"))
-		return
+		area = "th"
+		// writeErrorJSON(ctx, -688, []byte("地理区域限制"))
+		// return
 	}
 
 	if seasonID == "" {
@@ -526,10 +527,11 @@ func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 	accessKey, area, _, epID, _ := b.processArgs(queryArgs)
 	client := b.getClientByArea(area)
 
-	// if area == "" {
-	// 	writeErrorJSON(ctx, -688, []byte("地理区域限制"))
-	// 	return
-	// }
+	if area == "" {
+		area = "th"
+		// writeErrorJSON(ctx, -688, []byte("地理区域限制"))
+		// return
+	}
 
 	episodeIDInt, err := strconv.Atoi(epID)
 	if err != nil {
@@ -596,8 +598,9 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	client := b.getClientByArea(area)
 
 	if area == "" {
-		writeErrorJSON(ctx, -688, []byte("地理区域限制"))
-		return
+		area = "th"
+		// writeErrorJSON(ctx, -688, []byte("地理区域限制"))
+		// return
 	}
 
 	cidInt, err := strconv.Atoi(cid)

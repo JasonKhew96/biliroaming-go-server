@@ -27,16 +27,18 @@ type visitor struct {
 
 // Config ...
 type Config struct {
-	Debug                 bool   `yaml:"debug"`                    // 调试模式
-	Port                  int    `yaml:"port"`                     // 端口
-	GlobalLimit           int    `yaml:"global_limit"`             // 每秒全局限制次数
-	GlobalBurst           int    `yaml:"global_burst"`             // 每秒全局突发次数
-	IPLimit               int    `yaml:"ip_limit"`                 // 每秒限制次数
-	IPBurst               int    `yaml:"ip_burst"`                 // 每秒突发次数
-	RedisAddr             string `yaml:"redis_address"`            // redis 地址
-	RedisPwd              string `yaml:"redis_password"`           // redis 密码
-	AccessKeyMaxCacheTime int    `yaml:"accesskey_max_cache_time"` // accessKey 缓存（天）
-	PlayurlCacheTime      int    `yaml:"playurl_cache_time"`       // 播放链接缓存（分钟）
+	Debug       bool `yaml:"debug"`        // 调试模式
+	Port        int  `yaml:"port"`         // 端口
+	GlobalLimit int  `yaml:"global_limit"` // 每秒全局限制次数
+	GlobalBurst int  `yaml:"global_burst"` // 每秒全局突发次数
+	IPLimit     int  `yaml:"ip_limit"`     // 每秒限制次数
+	IPBurst     int  `yaml:"ip_burst"`     // 每秒突发次数
+	// 缓存时间
+	AccesskeyCache  int `yaml:"accesskey_cache_time"`   // accessKey 缓存（天）
+	UserCache       int `yaml:"users_cache_time"`       // 用户资料缓存（天）
+	PlayURLCache    int `yaml:"playurl_cache_time"`     // 播放链接缓存（分钟）
+	THSeasonCache   int `yaml:"th_season_cache_time"`   // 东南亚 season api 缓存（分钟）
+	THSubtitleCache int `yaml:"th_subtitle_cache_time"` // 东南亚 字幕 api 缓存（分钟）
 	// 代理(留空禁用)(优先)
 	ProxyCN string `yaml:"proxy_cn"`
 	ProxyHK string `yaml:"proxy_hk"`
@@ -115,27 +117,27 @@ func (b *BiliroamingGo) cleanupVisitors() {
 func (b *BiliroamingGo) cleanupDatabase() {
 	for {
 		b.sugar.Debug("Cleaning database...")
-		if aff, err := b.db.CleanupAccessKeys(24 * 7 * time.Hour); err != nil {
+		if aff, err := b.db.CleanupAccessKeys(time.Duration(b.config.AccesskeyCache) * 24 * time.Hour); err != nil {
 			b.sugar.Error(err)
 		} else {
 			b.sugar.Debugf("Cleanup %d access keys cache", aff)
 		}
-		if aff, err := b.db.CleanupUsers(24 * 7 * time.Hour); err != nil {
+		if aff, err := b.db.CleanupUsers(time.Duration(b.config.UserCache) * 24 * time.Hour); err != nil {
 			b.sugar.Error(err)
 		} else {
 			b.sugar.Debugf("Cleanup %d users cache", aff)
 		}
-		if aff, err := b.db.CleanupPlayURLCache(15 * time.Minute); err != nil {
+		if aff, err := b.db.CleanupPlayURLCache(time.Duration(b.config.PlayURLCache) * time.Minute); err != nil {
 			b.sugar.Error(err)
 		} else {
 			b.sugar.Debugf("Cleanup %d playURL cache", aff)
 		}
-		if aff, err := b.db.CleanupTHSeasonCache(15 * time.Minute); err != nil {
+		if aff, err := b.db.CleanupTHSeasonCache(time.Duration(b.config.THSeasonCache) * time.Minute); err != nil {
 			b.sugar.Error(err)
 		} else {
 			b.sugar.Debugf("Cleanup %d TH season cache", aff)
 		}
-		if aff, err := b.db.CleanupTHSubtitleCache(15 * time.Minute); err != nil {
+		if aff, err := b.db.CleanupTHSubtitleCache(time.Duration(b.config.THSubtitleCache) * time.Minute); err != nil {
 			b.sugar.Error(err)
 		} else {
 			b.sugar.Debugf("Cleanup %d TH subtitle cache", aff)
@@ -147,14 +149,17 @@ func (b *BiliroamingGo) cleanupDatabase() {
 func main() {
 	// default config
 	c := &Config{
-		Debug:                 false,
-		Port:                  23333,
-		GlobalLimit:           4,
-		GlobalBurst:           8,
-		IPLimit:               2,
-		IPBurst:               4,
-		AccessKeyMaxCacheTime: 7,
-		PlayurlCacheTime:      60,
+		Debug:           false,
+		Port:            23333,
+		GlobalLimit:     4,
+		GlobalBurst:     8,
+		IPLimit:         2,
+		IPBurst:         4,
+		AccesskeyCache:  7,
+		UserCache:       7,
+		PlayURLCache:    15,
+		THSeasonCache:   15,
+		THSubtitleCache: 15,
 	}
 	data, err := ioutil.ReadFile("config.yaml")
 	if err != nil {

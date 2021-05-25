@@ -1,5 +1,6 @@
 biliroaming-go-server
 config.yaml
 response_sample
+*.sh
 
 *.fasthttp.gz

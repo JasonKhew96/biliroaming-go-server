@@ -3,11 +3,11 @@ FROM golang:alpine AS builder
 WORKDIR /tmp/builder/
 
 COPY go.mod go.sum ./
-RUN go mod download -x
+RUN go mod download
 
 COPY . .
 ENV CGO_ENABLED=0
-RUN go build -v -o /tmp/server
+RUN go build -o /tmp/server
 
 FROM gcr.io/distroless/static:latest
 WORKDIR /runner

@@ -1,2 +1,9 @@
+biliroaming-go-server
+LICENSE
+README.md
+response_sample
+.github
+*.sh
+
 Dockerfile
 *.env

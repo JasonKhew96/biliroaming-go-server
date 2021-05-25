@@ -6,42 +6,42 @@ import (
 
 // Config ...
 type Config struct {
-	Debug   bool `default:"false"` // 调试模式
-	Port    int  `default:"23333"` // 端口
-	IPLimit int  `default:"1"`     // 每秒限制次数
-	IPBurst int  `default:"2"`     // 每秒突发次数
+	Debug   bool `envconfig:"debug" default:"false"` // 调试模式
+	Port    int  `envconfig:"port" default:"23333"`  // 端口
+	IPLimit int  `envconfig:"ip_limit" default:"1"`  // 每秒限制次数
+	IPBurst int  `envconfig:"ip_burst" default:"2"`  // 每秒突发次数
 	// 缓存时间
-	AccesskeyCache  int `default:"7"`  // accessKey 缓存（天）
-	UserCache       int `default:"7"`  // 用户资料缓存（天）
-	PlayURLCache    int `default:"15"` // 播放链接缓存（分钟）
-	THSeasonCache   int `default:"15"` // 东南亚 season api 缓存（分钟）
-	THSubtitleCache int `default:"15"` // 东南亚 字幕 api 缓存（分钟）
-	// 代理(留空禁用)(优先)
-	ProxyCN string
-	ProxyHK string
-	ProxyTW string
-	ProxyTH string
+	CacheAccessKey  int `envconfig:"cache_accesskey" default:"7"`    // accessKey 缓存（天）
+	CacheUser       int `envconfig:"cache_user" default:"7"`         // 用户资料缓存（天）
+	CachePlayURL    int `envconfig:"cache_playurl" default:"15"`     // 播放链接缓存（分钟）
+	CacheTHSeason   int `envconfig:"cache_th_season" default:"15"`   // 东南亚 season api 缓存（分钟）
+	CacheTHSubtitle int `envconfig:"cache_th_subtitle" default:"15"` // 东南亚 字幕 api 缓存（分钟）
+	// 代理(留空禁用)
+	ProxyCN string `envconfig:"proxy_cn"`
+	ProxyHK string `envconfig:"proxy_hk"`
+	ProxyTW string `envconfig:"proxy_tw"`
+	ProxyTH string `envconfig:"proxy_th"`
 	// 反代(留空禁用)
-	ReverseCN string
-	ReverseHK string
-	ReverseTW string
-	ReverseTH string
+	ReverseCN string `envconfig:"reverse_cn"`
+	ReverseHK string `envconfig:"reverse_hk"`
+	ReverseTW string `envconfig:"reverse_tw"`
+	ReverseTH string `envconfig:"reverse_th"`
 	// 鉴权+缓存
-	AuthCN bool `default:"false"`
-	AuthHK bool `default:"false"`
-	AuthTW bool `default:"false"`
-	AuthTH bool `default:"false"`
+	AuthCN bool `envconfig:"auth_th" default:"false"`
+	AuthHK bool `envconfig:"auth_th" default:"false"`
+	AuthTW bool `envconfig:"auth_th" default:"false"`
+	AuthTH bool `envconfig:"auth_th" default:"false"`
 	// PostgreSQL
-	PGHost     string
-	PGUser     string
-	PGPassword string
-	PGDBName   string
-	PGPort     int
+	PGHost     string `envconfig:"pg_host" default:"localhost"`
+	PGUser     string `envconfig:"pg_user"  default:"postgres"`
+	PGPassword string `envconfig:"pg_password"`
+	PGDBName   string `envconfig:"pg_dbname" default:"postgres"`
+	PGPort     int    `envconfig:"pg_port" default:"5432"`
 }
 
 func initConfig() (*Config, error) {
 	var c Config
-	err := envconfig.Process("server", &c)
+	err := envconfig.Process("", &c)
 	if err != nil {
 		return nil, err
 	}

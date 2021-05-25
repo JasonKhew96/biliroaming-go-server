@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"os"
 	"regexp"
 	"strconv"
 	"sync"
@@ -139,10 +140,21 @@ func main() {
 	b.thClient = thClient
 	b.defaultClient = defaultClient
 
+	pgPassword := c.PGPassword
+	if c.PGPasswordFile != "" {
+		data, err := os.ReadFile(c.PGPasswordFile)
+		if err != nil {
+			b.sugar.Fatal(err)
+		}
+		if len(data) > 0 {
+			pgPassword = string(data)
+		}
+	}
+
 	b.db, err = database.NewDBConnection(&database.Config{
 		Host:     c.PGHost,
 		User:     c.PGUser,
-		Password: c.PGPassword,
+		Password: pgPassword,
 		DBName:   c.PGDBName,
 		Port:     c.PGPort,
 	})

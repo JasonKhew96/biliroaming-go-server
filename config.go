@@ -32,11 +32,12 @@ type Config struct {
 	AuthTW bool `envconfig:"auth_th" default:"false"`
 	AuthTH bool `envconfig:"auth_th" default:"false"`
 	// PostgreSQL
-	PGHost     string `envconfig:"pg_host" default:"localhost"`
-	PGUser     string `envconfig:"pg_user"  default:"postgres"`
-	PGPassword string `envconfig:"pg_password"`
-	PGDBName   string `envconfig:"pg_dbname" default:"postgres"`
-	PGPort     int    `envconfig:"pg_port" default:"5432"`
+	PGHost         string `envconfig:"pg_host" default:"localhost"`
+	PGUser         string `envconfig:"pg_user"  default:"postgres"`
+	PGPassword     string `envconfig:"pg_password"`
+	PGPasswordFile string `envconfig:"pg_password_file"`
+	PGDBName       string `envconfig:"pg_dbname" default:"postgres"`
+	PGPort         int    `envconfig:"pg_port" default:"5432"`
 }
 
 func initConfig() (*Config, error) {

@@ -3,9 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"net/url"
-	"os"
 	"regexp"
 	"strconv"
 	"sync"
@@ -17,50 +15,12 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/net/idna"
 	"golang.org/x/time/rate"
-	"gopkg.in/yaml.v2"
 )
 
 // ip string
 type visitor struct {
 	limiter  *rate.Limiter
 	lastSeen time.Time
-}
-
-// Config ...
-type Config struct {
-	Debug       bool `yaml:"debug"`        // 调试模式
-	Port        int  `yaml:"port"`         // 端口
-	GlobalLimit int  `yaml:"global_limit"` // 每秒全局限制次数
-	GlobalBurst int  `yaml:"global_burst"` // 每秒全局突发次数
-	IPLimit     int  `yaml:"ip_limit"`     // 每秒限制次数
-	IPBurst     int  `yaml:"ip_burst"`     // 每秒突发次数
-	// 缓存时间
-	AccesskeyCache  int `yaml:"accesskey_cache_time"`   // accessKey 缓存（天）
-	UserCache       int `yaml:"users_cache_time"`       // 用户资料缓存（天）
-	PlayURLCache    int `yaml:"playurl_cache_time"`     // 播放链接缓存（分钟）
-	THSeasonCache   int `yaml:"th_season_cache_time"`   // 东南亚 season api 缓存（分钟）
-	THSubtitleCache int `yaml:"th_subtitle_cache_time"` // 东南亚 字幕 api 缓存（分钟）
-	// 代理(留空禁用)(优先)
-	ProxyCN string `yaml:"proxy_cn"`
-	ProxyHK string `yaml:"proxy_hk"`
-	ProxyTW string `yaml:"proxy_tw"`
-	ProxyTH string `yaml:"proxy_th"`
-	// 反代(留空禁用)
-	ReverseCN string `yaml:"reverse_cn"`
-	ReverseHK string `yaml:"reverse_hk"`
-	ReverseTW string `yaml:"reverse_tw"`
-	ReverseTH string `yaml:"reverse_th"`
-	// 鉴权+缓存
-	AuthCN bool `yaml:"auth_cn"`
-	AuthHK bool `yaml:"auth_hk"`
-	AuthTW bool `yaml:"auth_tw"`
-	AuthTH bool `yaml:"auth_th"`
-	// Postgres
-	PGHost     string `yaml:"pg_host"`
-	PGUser     string `yaml:"pg_user"`
-	PGPassword string `yaml:"pg_password"`
-	PGDBName   string `yaml:"pg_dbname"`
-	PGPort     int    `yaml:"pg_port"`
 }
 
 // BiliroamingGo ...
@@ -144,34 +104,9 @@ func (b *BiliroamingGo) cleanupDatabase() {
 
 func main() {
 	// default config
-	c := &Config{
-		Debug:           false,
-		Port:            23333,
-		GlobalLimit:     4,
-		GlobalBurst:     8,
-		IPLimit:         2,
-		IPBurst:         4,
-		AccesskeyCache:  7,
-		UserCache:       7,
-		PlayURLCache:    15,
-		THSeasonCache:   15,
-		THSubtitleCache: 15,
-	}
-	data, err := ioutil.ReadFile("config.yaml")
+	c, err := initConfig()
 	if err != nil {
-		data, err = yaml.Marshal(c)
-		if err != nil {
-			panic(err)
-		}
-		err = ioutil.WriteFile("config.yaml", data, os.ModePerm)
-		if err != nil {
-			panic(err)
-		}
-	} else {
-		err = yaml.Unmarshal(data, c)
-		if err != nil {
-			panic(err)
-		}
+		panic(err)
 	}
 
 	var logger *zap.Logger

@@ -444,6 +444,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 	v := url.Values{}
 	v.Set("access_key", accessKey)
 	v.Set("area", area)
+	v.Set("build", "1080003")
 	v.Set("s_locale", "zh_SG")
 	v.Set("season_id", string(seasonID))
 	v.Set("mobi_app", "bstar_a")

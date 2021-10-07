@@ -198,8 +198,8 @@ func main() {
 			b.handleWebPlayURL(ctx)
 		case "/pgc/player/api/playurl": // android
 			b.handleAndroidPlayURL(ctx)
-		// case "/intl/gateway/v2/app/search/type": // bstar android
-		// b.handleBstarAndroidSearch(ctx)
+		case "/intl/gateway/v2/app/search/type": // bstar android
+			b.handleBstarAndroidSearch(ctx)
 		case "/intl/gateway/v2/ogv/view/app/season": // bstar android
 			b.handleBstarAndroidSeason(ctx)
 		case "/intl/gateway/v2/app/subtitle": // bstar android
@@ -420,9 +420,66 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	}
 }
 
-// func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
+func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
+	queryArgs := ctx.URI().QueryArgs()
+	args := b.processArgs(queryArgs)
 
-// }
+	if args.area == "" {
+		args.area = "th"
+		// writeErrorJSON(ctx, -688, []byte("地理区域限制"))
+		// return
+	}
+
+	client := b.getClientByArea(args.area)
+
+	if args.keyword == "" {
+		writeErrorJSON(ctx, -400, []byte("请求错误"))
+		return
+	}
+
+	if b.getAuthByArea(args.area) {
+		if ok, _ := b.doAuth(ctx, args.accessKey, args.area); !ok {
+			return
+		}
+	}
+
+	v := url.Values{}
+	v.Set("access_key", args.accessKey)
+	v.Set("area", args.area)
+	v.Set("build", "1080003")
+	v.Set("s_locale", "zh_SG")
+	v.Set("type", "7")
+	v.Set("mobi_app", "bstar_a")
+
+	params, err := SignParams(v, ClientTypeBstarA)
+	if err != nil {
+		b.sugar.Error(err)
+		ctx.Error(
+			fasthttp.StatusMessage(fasthttp.StatusInternalServerError),
+			fasthttp.StatusInternalServerError,
+		)
+		return
+	}
+
+	reverseProxy := b.getReverseProxyByArea(args.area)
+	if reverseProxy == "" {
+		reverseProxy = "api.biliintl.com"
+	}
+	domain, err := idna.New().ToASCII(reverseProxy)
+	if err != nil {
+		b.sugar.Error(err)
+		ctx.Error(
+			fasthttp.StatusMessage(fasthttp.StatusInternalServerError),
+			fasthttp.StatusInternalServerError,
+		)
+		return
+	}
+
+	url := fmt.Sprintf("https://%s/intl/gateway/v2/app/search/type?%s", domain, params)
+	b.sugar.Debug("New url: ", url)
+
+	b.doRequest(ctx, client, url)
+}
 
 func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 	queryArgs := ctx.URI().QueryArgs()

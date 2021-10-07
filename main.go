@@ -333,7 +333,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/pgc/player/web/playurl?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data := b.doRequest(ctx, client, url)
+	data := b.doRequestWrite(ctx, client, url)
 	if data != nil && b.getAuthByArea(args.area) {
 		b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeWeb, getAreaCode(args.area), isVIP, cidInt, epidInt, string(data))
 	}
@@ -414,7 +414,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/pgc/player/api/playurl?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data := b.doRequest(ctx, client, url)
+	data := b.doRequestWrite(ctx, client, url)
 	if data != nil && b.getAuthByArea(args.area) {
 		b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeAndroid, getAreaCode(args.area), isVIP, cidInt, epidInt, string(data))
 	}
@@ -478,7 +478,7 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/intl/gateway/v2/app/search/type?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	b.doRequest(ctx, client, url)
+	b.doRequestWrite(ctx, client, url)
 }
 
 func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
@@ -552,7 +552,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/intl/gateway/v2/ogv/view/app/season?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data := b.doRequest(ctx, client, url)
+	data := b.doRequestWrite(ctx, client, url)
 	if data != nil && b.getAuthByArea(args.area) {
 		b.db.InsertOrUpdateTHSeasonCache(seasonIdInt, string(data))
 	}
@@ -623,7 +623,7 @@ func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/intl/gateway/v2/app/subtitle?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data := b.doRequest(ctx, client, url)
+	data := b.doRequestWrite(ctx, client, url)
 	if data != nil && b.getAuthByArea(args.area) {
 		b.db.InsertOrUpdateTHSubtitleCache(episodeIdInt, string(data))
 	}
@@ -707,7 +707,7 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/intl/gateway/v2/ogv/playurl?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data := b.doRequest(ctx, client, url)
+	data := b.doRequestWrite(ctx, client, url)
 	if data != nil && b.getAuthByArea(args.area) {
 		b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeAndroid, getAreaCode(args.area), isVIP, cidInt, epidInt, string(data))
 	}

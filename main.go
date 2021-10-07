@@ -461,7 +461,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 
 	reverseProxy := b.getReverseProxyByArea(area)
 	if reverseProxy == "" {
-		reverseProxy = "api.global.bilibili.com"
+		reverseProxy = "api.biliintl.com"
 	}
 	domain, err := idna.New().ToASCII(reverseProxy)
 	if err != nil {
@@ -531,7 +531,7 @@ func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 
 	reverseProxy := b.getReverseProxyByArea(area)
 	if reverseProxy == "" {
-		reverseProxy = "app.global.bilibili.com"
+		reverseProxy = "app.biliintl.com"
 	}
 	domain, err := idna.New().ToASCII(reverseProxy)
 	if err != nil {
@@ -614,7 +614,7 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 
 	reverseProxy := b.getReverseProxyByArea(area)
 	if reverseProxy == "" {
-		reverseProxy = "api.global.bilibili.com"
+		reverseProxy = "api.biliintl.com"
 	}
 	domain, err := idna.New().ToASCII(reverseProxy)
 	if err != nil {

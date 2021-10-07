@@ -393,12 +393,13 @@ func (b *BiliroamingGo) handleWebSearch(ctx *fasthttp.RequestCtx) {
 func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	queryArgs := ctx.URI().QueryArgs()
 	args := b.processArgs(queryArgs)
-	client := b.getClientByArea(args.area)
 
 	if args.area == "" {
 		writeErrorJSON(ctx, -688, []byte("地理区域限制"))
 		return
 	}
+
+	client := b.getClientByArea(args.area)
 
 	cidInt, err := strconv.Atoi(args.cid)
 	if err != nil {

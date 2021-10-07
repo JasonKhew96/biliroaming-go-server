@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 
 	"github.com/JasonKhew96/biliroaming-go-server/response"
@@ -98,7 +99,7 @@ func (b *BiliroamingGo) doRequestWrite(ctx *fasthttp.RequestCtx, client *fasthtt
 	}
 
 	if resp.StatusCode() != fasthttp.StatusOK {
-		b.processError(ctx, err)
+		b.processError(ctx, fmt.Errorf("error code: %d\nbody: %s", resp.StatusCode(), string(resp.Body())))
 		return nil
 	}
 

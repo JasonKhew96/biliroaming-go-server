@@ -196,6 +196,8 @@ func main() {
 		switch string(ctx.Path()) {
 		case "/pgc/player/web/playurl": // web
 			b.handleWebPlayURL(ctx)
+		case "/x/v2/search/type": // web
+			b.handleWebSearch(ctx)
 		case "/pgc/player/api/playurl": // android
 			b.handleAndroidPlayURL(ctx)
 		case "/intl/gateway/v2/app/search/type": // bstar android
@@ -337,6 +339,55 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	if data != nil && b.getAuthByArea(args.area) {
 		b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeWeb, getAreaCode(args.area), isVIP, cidInt, epidInt, string(data))
 	}
+}
+
+func (b *BiliroamingGo) handleWebSearch(ctx *fasthttp.RequestCtx) {
+	queryArgs := ctx.URI().QueryArgs()
+	args := b.processArgs(queryArgs)
+
+	if args.area == "" {
+		writeErrorJSON(ctx, -688, []byte("地理区域限制"))
+		return
+	}
+
+	client := b.getClientByArea(args.area)
+
+	v := url.Values{}
+	v.Set("access_key", args.accessKey)
+	v.Set("area", args.area)
+	v.Set("type", "7")
+	v.Set("build", "6400000")
+	v.Set("mobi_app", "android")
+	v.Set("platform", "android")
+
+	params, err := SignParams(v, ClientTypeAndroid)
+	if err != nil {
+		b.sugar.Error(err)
+		ctx.Error(
+			fasthttp.StatusMessage(fasthttp.StatusInternalServerError),
+			fasthttp.StatusInternalServerError,
+		)
+		return
+	}
+
+	reverseProxy := b.getReverseProxyByArea(args.area)
+	if reverseProxy == "" {
+		reverseProxy = "api.bilibili.com"
+	}
+	domain, err := idna.New().ToASCII(reverseProxy)
+	if err != nil {
+		b.sugar.Error(err)
+		ctx.Error(
+			fasthttp.StatusMessage(fasthttp.StatusInternalServerError),
+			fasthttp.StatusInternalServerError,
+		)
+		return
+	}
+
+	url := fmt.Sprintf("https://%s/x/v2/search/type?%s", domain, params)
+	b.sugar.Debug("New url: ", url)
+
+	b.doRequestWrite(ctx, client, url)
 }
 
 func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {

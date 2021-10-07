@@ -18,6 +18,16 @@ import (
 	"golang.org/x/time/rate"
 )
 
+// arguments struct
+type BiliArgs struct {
+	accessKey string
+	area      string
+	cid       string
+	epId      string
+	seasonId  string
+	keyword   string
+}
+
 // ip string
 type visitor struct {
 	limiter  *rate.Limiter
@@ -189,6 +199,7 @@ func main() {
 		case "/pgc/player/api/playurl": // android
 			b.handleAndroidPlayURL(ctx)
 		// case "/intl/gateway/v2/app/search/type": // bstar android
+		// b.handleBstarAndroidSearch(ctx)
 		case "/intl/gateway/v2/ogv/view/app/season": // bstar android
 			b.handleBstarAndroidSeason(ctx)
 		case "/intl/gateway/v2/app/subtitle": // bstar android
@@ -220,18 +231,21 @@ func (b *BiliroamingGo) processError(ctx *fasthttp.RequestCtx, err error) {
 	)
 }
 
-func (b *BiliroamingGo) processArgs(args *fasthttp.Args) (string, string, string, string, string) {
-	bAccessKey := args.Peek("access_key")
-	bArea := args.Peek("area")
-	bCID := args.Peek("cid")
-	bEpID := args.Peek("ep_id")
-	bSeasonID := args.Peek("season_id")
+func (b *BiliroamingGo) processArgs(args *fasthttp.Args) *BiliArgs {
+	queryArgs := &BiliArgs{
+		accessKey: string(args.Peek("access_key")),
+		area:      string(args.Peek("area")),
+		cid:       string(args.Peek("cid")),
+		epId:      string(args.Peek("ep_id")),
+		seasonId:  string(args.Peek("season_id")),
+		keyword:   string(args.Peek("keyword")),
+	}
 	b.sugar.Debug("Request args ", args.String())
 	b.sugar.Debugf(
-		"Parsed request args: access_key: %s, area: %s, cid: %s, ep_id: %s, season_id: %s",
-		string(bAccessKey), string(bArea), string(bCID), string(bEpID), string(bSeasonID),
+		"Parsed request args: %v",
+		queryArgs,
 	)
-	return string(bAccessKey), string(bArea), string(bCID), string(bEpID), string(bSeasonID)
+	return queryArgs
 }
 
 func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string) (bool, bool) {
@@ -255,31 +269,31 @@ func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string)
 
 func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	queryArgs := ctx.URI().QueryArgs()
-	accessKey, area, cid, epid, _ := b.processArgs(queryArgs)
+	args := b.processArgs(queryArgs)
 
-	if area == "" {
+	if args.area == "" {
 		writeErrorJSON(ctx, -688, []byte("地理区域限制"))
 		return
 	}
 
-	cidInt, err := strconv.Atoi(cid)
+	cidInt, err := strconv.Atoi(args.cid)
 	if err != nil {
 		b.processError(ctx, err)
 		return
 	}
-	epidInt, err := strconv.Atoi(epid)
+	epidInt, err := strconv.Atoi(args.epId)
 	if err != nil {
 		b.processError(ctx, err)
 		return
 	}
 
 	var isVIP bool
-	if b.getAuthByArea(area) {
+	if b.getAuthByArea(args.area) {
 		var ok bool
-		if ok, isVIP = b.doAuth(ctx, accessKey, area); !ok {
+		if ok, isVIP = b.doAuth(ctx, args.accessKey, args.area); !ok {
 			return
 		}
-		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeWeb, getAreaCode(area), isVIP, cidInt, epidInt)
+		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeWeb, getAreaCode(args.area), isVIP, cidInt, epidInt)
 		if err == nil && playurlCache.JSONData != "" && playurlCache.UpdatedAt.Before(time.Now().Add(time.Hour)) {
 			b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
 			setDefaultHeaders(ctx)
@@ -288,13 +302,13 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		}
 	}
 
-	client := b.getClientByArea(area)
+	client := b.getClientByArea(args.area)
 
 	v := url.Values{}
-	v.Set("access_key", accessKey)
-	v.Set("area", area)
-	v.Set("cid", cid)
-	v.Set("ep_id", epid)
+	v.Set("access_key", args.accessKey)
+	v.Set("area", args.area)
+	v.Set("cid", args.cid)
+	v.Set("ep_id", args.epId)
 	v.Set("fnver", "0")
 	v.Set("fnval", "80")
 	v.Set("fourk", "1")
@@ -306,7 +320,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	reverseProxy := b.getReverseProxyByArea(area)
+	reverseProxy := b.getReverseProxyByArea(args.area)
 	if reverseProxy == "" {
 		reverseProxy = "api.bilibili.com"
 	}
@@ -320,40 +334,40 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	b.sugar.Debug("New url: ", url)
 
 	data := b.doRequest(ctx, client, url)
-	if data != nil && b.getAuthByArea(area) {
-		b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeWeb, getAreaCode(area), isVIP, cidInt, epidInt, string(data))
+	if data != nil && b.getAuthByArea(args.area) {
+		b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeWeb, getAreaCode(args.area), isVIP, cidInt, epidInt, string(data))
 	}
 }
 
 func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	queryArgs := ctx.URI().QueryArgs()
-	accessKey, area, cid, epid, _ := b.processArgs(queryArgs)
-	client := b.getClientByArea(area)
+	args := b.processArgs(queryArgs)
+	client := b.getClientByArea(args.area)
 
-	if area == "" {
+	if args.area == "" {
 		writeErrorJSON(ctx, -688, []byte("地理区域限制"))
 		return
 	}
 
-	cidInt, err := strconv.Atoi(cid)
+	cidInt, err := strconv.Atoi(args.cid)
 	if err != nil {
 		b.processError(ctx, err)
 		return
 	}
-	epidInt, err := strconv.Atoi(epid)
+	epidInt, err := strconv.Atoi(args.epId)
 	if err != nil {
 		b.processError(ctx, err)
 		return
 	}
 
 	var isVIP bool
-	if b.getAuthByArea(area) {
+	if b.getAuthByArea(args.area) {
 		var ok bool
-		if ok, isVIP = b.doAuth(ctx, accessKey, area); !ok {
+		if ok, isVIP = b.doAuth(ctx, args.accessKey, args.area); !ok {
 			return
 		}
 
-		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeAndroid, getAreaCode(area), isVIP, cidInt, epidInt)
+		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeAndroid, getAreaCode(args.area), isVIP, cidInt, epidInt)
 		if err == nil && playurlCache.JSONData != "" && playurlCache.UpdatedAt.Before(time.Now().Add(time.Hour)) {
 			b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
 			setDefaultHeaders(ctx)
@@ -363,10 +377,10 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	}
 
 	v := url.Values{}
-	v.Set("access_key", accessKey)
-	v.Set("area", area)
-	v.Set("cid", cid)
-	v.Set("ep_id", epid)
+	v.Set("access_key", args.accessKey)
+	v.Set("area", args.area)
+	v.Set("cid", args.cid)
+	v.Set("ep_id", args.epId)
 	v.Set("fnver", "0")
 	v.Set("fnval", "80")
 	v.Set("fourk", "1")
@@ -383,7 +397,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	reverseProxy := b.getReverseProxyByArea(area)
+	reverseProxy := b.getReverseProxyByArea(args.area)
 	if reverseProxy == "" {
 		reverseProxy = "api.bilibili.com"
 	}
@@ -401,38 +415,42 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	b.sugar.Debug("New url: ", url)
 
 	data := b.doRequest(ctx, client, url)
-	if data != nil && b.getAuthByArea(area) {
-		b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeAndroid, getAreaCode(area), isVIP, cidInt, epidInt, string(data))
+	if data != nil && b.getAuthByArea(args.area) {
+		b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeAndroid, getAreaCode(args.area), isVIP, cidInt, epidInt, string(data))
 	}
 }
 
+// func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
+
+// }
+
 func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 	queryArgs := ctx.URI().QueryArgs()
-	accessKey, area, _, _, seasonID := b.processArgs(queryArgs)
-	client := b.getClientByArea(area)
+	args := b.processArgs(queryArgs)
+	client := b.getClientByArea(args.area)
 
-	if area == "" {
-		area = "th"
+	if args.area == "" {
+		args.area = "th"
 		// writeErrorJSON(ctx, -688, []byte("地理区域限制"))
 		// return
 	}
 
-	if seasonID == "" {
+	if args.seasonId == "" {
 		writeErrorJSON(ctx, -400, []byte("请求错误"))
 		return
 	}
 
-	seasonIDInt, err := strconv.Atoi(seasonID)
+	seasonIdInt, err := strconv.Atoi(args.seasonId)
 	if err != nil {
 		b.processError(ctx, err)
 		return
 	}
 
-	if b.getAuthByArea(area) {
-		if ok, _ := b.doAuth(ctx, accessKey, area); !ok {
+	if b.getAuthByArea(args.area) {
+		if ok, _ := b.doAuth(ctx, args.accessKey, args.area); !ok {
 			return
 		}
-		seasonCache, err := b.db.GetTHSeasonCache(seasonIDInt)
+		seasonCache, err := b.db.GetTHSeasonCache(seasonIdInt)
 		if err == nil && seasonCache.JSONData != "" && seasonCache.UpdatedAt.Before(time.Now().Add(15*time.Minute)) {
 			b.sugar.Debug("Replay from cache: ", seasonCache.JSONData)
 			setDefaultHeaders(ctx)
@@ -442,11 +460,11 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 	}
 
 	v := url.Values{}
-	v.Set("access_key", accessKey)
-	v.Set("area", area)
+	v.Set("access_key", args.accessKey)
+	v.Set("area", args.area)
 	v.Set("build", "1080003")
 	v.Set("s_locale", "zh_SG")
-	v.Set("season_id", string(seasonID))
+	v.Set("season_id", args.seasonId)
 	v.Set("mobi_app", "bstar_a")
 
 	params, err := SignParams(v, ClientTypeBstarA)
@@ -459,7 +477,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	reverseProxy := b.getReverseProxyByArea(area)
+	reverseProxy := b.getReverseProxyByArea(args.area)
 	if reverseProxy == "" {
 		reverseProxy = "api.biliintl.com"
 	}
@@ -477,33 +495,33 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 	b.sugar.Debug("New url: ", url)
 
 	data := b.doRequest(ctx, client, url)
-	if data != nil && b.getAuthByArea(area) {
-		b.db.InsertOrUpdateTHSeasonCache(seasonIDInt, string(data))
+	if data != nil && b.getAuthByArea(args.area) {
+		b.db.InsertOrUpdateTHSeasonCache(seasonIdInt, string(data))
 	}
 }
 
 func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 	queryArgs := ctx.URI().QueryArgs()
-	accessKey, area, _, epID, _ := b.processArgs(queryArgs)
-	client := b.getClientByArea(area)
+	args := b.processArgs(queryArgs)
+	client := b.getClientByArea(args.area)
 
-	if area == "" {
-		area = "th"
+	if args.area == "" {
+		args.area = "th"
 		// writeErrorJSON(ctx, -688, []byte("地理区域限制"))
 		// return
 	}
 
-	episodeIDInt, err := strconv.Atoi(epID)
+	episodeIdInt, err := strconv.Atoi(args.epId)
 	if err != nil {
 		b.processError(ctx, err)
 		return
 	}
 
-	if b.getAuthByArea(area) {
+	if b.getAuthByArea(args.area) {
 		// if ok, _ := b.doAuth(ctx, accessKey, area); !ok {
 		// 	return
 		// }
-		subtitleCache, err := b.db.GetTHSubtitleCache(episodeIDInt)
+		subtitleCache, err := b.db.GetTHSubtitleCache(episodeIdInt)
 		if err == nil && subtitleCache.JSONData != "" && subtitleCache.UpdatedAt.Before(time.Now().Add(15*time.Minute)) {
 			b.sugar.Debug("Replay from cache: ", subtitleCache.JSONData)
 			setDefaultHeaders(ctx)
@@ -513,10 +531,10 @@ func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 	}
 
 	v := url.Values{}
-	v.Set("access_key", accessKey)
-	v.Set("area", area)
+	v.Set("access_key", args.accessKey)
+	v.Set("area", args.area)
 	v.Set("s_locale", "zh_SG")
-	v.Set("ep_id", string(epID))
+	v.Set("ep_id", args.epId)
 	v.Set("mobi_app", "bstar_a")
 
 	params, err := SignParams(v, ClientTypeBstarA)
@@ -529,7 +547,7 @@ func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	reverseProxy := b.getReverseProxyByArea(area)
+	reverseProxy := b.getReverseProxyByArea(args.area)
 	if reverseProxy == "" {
 		reverseProxy = "app.biliintl.com"
 	}
@@ -547,41 +565,41 @@ func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 	b.sugar.Debug("New url: ", url)
 
 	data := b.doRequest(ctx, client, url)
-	if data != nil && b.getAuthByArea(area) {
-		b.db.InsertOrUpdateTHSubtitleCache(episodeIDInt, string(data))
+	if data != nil && b.getAuthByArea(args.area) {
+		b.db.InsertOrUpdateTHSubtitleCache(episodeIdInt, string(data))
 	}
 }
 
 func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	queryArgs := ctx.URI().QueryArgs()
-	accessKey, area, cid, epid, _ := b.processArgs(queryArgs)
-	client := b.getClientByArea(area)
+	args := b.processArgs(queryArgs)
+	client := b.getClientByArea(args.area)
 
-	if area == "" {
-		area = "th"
+	if args.area == "" {
+		args.area = "th"
 		// writeErrorJSON(ctx, -688, []byte("地理区域限制"))
 		// return
 	}
 
-	cidInt, err := strconv.Atoi(cid)
+	cidInt, err := strconv.Atoi(args.cid)
 	if err != nil {
 		b.processError(ctx, err)
 		return
 	}
-	epidInt, err := strconv.Atoi(epid)
+	epidInt, err := strconv.Atoi(args.epId)
 	if err != nil {
 		b.processError(ctx, err)
 		return
 	}
 
 	var isVIP bool
-	if b.getAuthByArea(area) {
+	if b.getAuthByArea(args.area) {
 		var ok bool
-		if ok, isVIP = b.doAuth(ctx, accessKey, area); !ok {
+		if ok, isVIP = b.doAuth(ctx, args.accessKey, args.area); !ok {
 			return
 		}
 
-		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeAndroid, getAreaCode(area), isVIP, cidInt, epidInt)
+		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeAndroid, getAreaCode(args.area), isVIP, cidInt, epidInt)
 		if err == nil && playurlCache.JSONData != "" && playurlCache.UpdatedAt.Before(time.Now().Add(time.Hour)) {
 			b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
 			setDefaultHeaders(ctx)
@@ -591,10 +609,10 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	}
 
 	v := url.Values{}
-	v.Set("access_key", accessKey)
-	v.Set("area", area)
-	v.Set("cid", cid)
-	v.Set("ep_id", epid)
+	v.Set("access_key", args.accessKey)
+	v.Set("area", args.area)
+	v.Set("cid", args.cid)
+	v.Set("ep_id", args.epId)
 	v.Set("fnver", "0")
 	v.Set("fnval", "80")
 	v.Set("fourk", "1")
@@ -612,7 +630,7 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	reverseProxy := b.getReverseProxyByArea(area)
+	reverseProxy := b.getReverseProxyByArea(args.area)
 	if reverseProxy == "" {
 		reverseProxy = "api.biliintl.com"
 	}
@@ -630,7 +648,7 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	b.sugar.Debug("New url: ", url)
 
 	data := b.doRequest(ctx, client, url)
-	if data != nil && b.getAuthByArea(area) {
-		b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeAndroid, getAreaCode(area), isVIP, cidInt, epidInt, string(data))
+	if data != nil && b.getAuthByArea(args.area) {
+		b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeAndroid, getAreaCode(args.area), isVIP, cidInt, epidInt, string(data))
 	}
 }

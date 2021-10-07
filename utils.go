@@ -60,7 +60,7 @@ func getSecrets(clientType ClientType) (appkey, appsec string, err error) {
 	case ClientTypeBstarA:
 		return appkeyBstarA, appsecBstarA, nil
 	default:
-		return "", "", errors.New("Unknown client type")
+		return "", "", errors.New("unknown client type")
 	}
 }
 

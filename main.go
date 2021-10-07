@@ -103,13 +103,13 @@ func (b *BiliroamingGo) cleanupDatabase() {
 		// cleanup ip cache
 		b.vMu.Lock()
 		for ip, v := range b.visitors {
-			if time.Since(v.lastSeen) > 5*time.Minute {
+			if time.Since(v.lastSeen) > 15*time.Minute {
 				delete(b.visitors, ip)
 			}
 		}
 		b.vMu.Unlock()
 
-		time.Sleep(5 * time.Minute)
+		time.Sleep(15 * time.Minute)
 	}
 }
 

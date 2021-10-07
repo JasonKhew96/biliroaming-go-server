@@ -427,13 +427,14 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 	queryArgs := ctx.URI().QueryArgs()
 	args := b.processArgs(queryArgs)
-	client := b.getClientByArea(args.area)
 
 	if args.area == "" {
 		args.area = "th"
 		// writeErrorJSON(ctx, -688, []byte("地理区域限制"))
 		// return
 	}
+
+	client := b.getClientByArea(args.area)
 
 	if args.seasonId == "" {
 		writeErrorJSON(ctx, -400, []byte("请求错误"))
@@ -503,13 +504,14 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 	queryArgs := ctx.URI().QueryArgs()
 	args := b.processArgs(queryArgs)
-	client := b.getClientByArea(args.area)
 
 	if args.area == "" {
 		args.area = "th"
 		// writeErrorJSON(ctx, -688, []byte("地理区域限制"))
 		// return
 	}
+
+	client := b.getClientByArea(args.area)
 
 	episodeIdInt, err := strconv.Atoi(args.epId)
 	if err != nil {
@@ -573,13 +575,14 @@ func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	queryArgs := ctx.URI().QueryArgs()
 	args := b.processArgs(queryArgs)
-	client := b.getClientByArea(args.area)
 
 	if args.area == "" {
 		args.area = "th"
 		// writeErrorJSON(ctx, -688, []byte("地理区域限制"))
 		// return
 	}
+
+	client := b.getClientByArea(args.area)
 
 	cidInt, err := strconv.Atoi(args.cid)
 	if err != nil {

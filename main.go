@@ -352,11 +352,17 @@ func (b *BiliroamingGo) handleWebSearch(ctx *fasthttp.RequestCtx) {
 
 	client := b.getClientByArea(args.area)
 
+	if args.keyword == "" {
+		writeErrorJSON(ctx, -688, []byte("地理区域限制"))
+		return
+	}
+
 	v := url.Values{}
 	v.Set("access_key", args.accessKey)
 	v.Set("area", args.area)
-	v.Set("type", "7")
 	v.Set("build", "6400000")
+	v.Set("keyword", args.keyword)
+	v.Set("type", "7")
 	v.Set("mobi_app", "android")
 	v.Set("platform", "android")
 
@@ -499,6 +505,7 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 	v.Set("access_key", args.accessKey)
 	v.Set("area", args.area)
 	v.Set("build", "1080003")
+	v.Set("keyword", args.keyword)
 	v.Set("s_locale", "zh_SG")
 	v.Set("type", "7")
 	v.Set("mobi_app", "bstar_a")
@@ -515,7 +522,7 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 
 	reverseProxy := b.getReverseProxyByArea(args.area)
 	if reverseProxy == "" {
-		reverseProxy = "api.biliintl.com"
+		reverseProxy = "app.biliintl.com"
 	}
 	domain, err := idna.New().ToASCII(reverseProxy)
 	if err != nil {

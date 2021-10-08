@@ -39,6 +39,7 @@ func (b *BiliroamingGo) isAuth(userAgent []byte, accessKey string) (bool, bool, 
 		if userData.VIPDueDate.After(time.Now()) {
 			return true, true, nil
 		}
+		return true, false, nil
 	}
 
 	body, err := b.getMyInfo(userAgent, accessKey)

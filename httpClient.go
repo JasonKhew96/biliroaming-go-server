@@ -11,13 +11,12 @@ import (
 	"github.com/valyala/fasthttp/fasthttpproxy"
 )
 
-func (b *BiliroamingGo) initProxy(c *Config) (*fasthttp.Client, *fasthttp.Client, *fasthttp.Client, *fasthttp.Client, *fasthttp.Client) {
-	cnClient := b.newClient(c.ProxyCN)
-	hkClient := b.newClient(c.ProxyHK)
-	twClient := b.newClient(c.ProxyTW)
-	thClient := b.newClient(c.ProxyTH)
-	defaultClient := &fasthttp.Client{}
-	return cnClient, hkClient, twClient, thClient, defaultClient
+func (b *BiliroamingGo) initProxy(c *Config) {
+	b.cnClient = b.newClient(c.ProxyCN)
+	b.hkClient = b.newClient(c.ProxyHK)
+	b.twClient = b.newClient(c.ProxyTW)
+	b.thClient = b.newClient(c.ProxyTH)
+	b.defaultClient = &fasthttp.Client{}
 }
 
 func (b *BiliroamingGo) newClient(proxy string) *fasthttp.Client {

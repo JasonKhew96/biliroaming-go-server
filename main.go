@@ -113,67 +113,21 @@ func (b *BiliroamingGo) cleanupDatabase() {
 	}
 }
 
-func main() {
-	// default config
-	c, err := initConfig()
-	if err != nil {
-		panic(err)
-	}
-
-	var logger *zap.Logger
-	if c.Debug {
-		logger, err = zap.NewDevelopment()
-		if err != nil {
-			panic(err)
-		}
-	} else {
-		logger, err = zap.NewProduction()
-		if err != nil {
-			panic(err)
-		}
-	}
-	sugar := logger.Sugar()
-
-	b := BiliroamingGo{
-		config:   c,
-		visitors: make(map[string]*visitor),
-		ctx:      context.Background(),
-		logger:   logger,
-		sugar:    sugar,
-	}
-
-	cnClient, hkClient, twClient, thClient, defaultClient := b.initProxy(b.config)
-	b.cnClient = cnClient
-	b.hkClient = hkClient
-	b.twClient = twClient
-	b.thClient = thClient
-	b.defaultClient = defaultClient
-
+func getDbPassword(c *Config) (string, error) {
 	pgPassword := c.PGPassword
 	if c.PGPasswordFile != "" {
 		data, err := os.ReadFile(c.PGPasswordFile)
 		if err != nil {
-			b.sugar.Fatal(err)
+			return "", err
 		}
 		if len(data) > 0 {
 			pgPassword = string(data)
 		}
 	}
+	return pgPassword, nil
+}
 
-	b.db, err = database.NewDBConnection(&database.Config{
-		Host:     c.PGHost,
-		User:     c.PGUser,
-		Password: pgPassword,
-		DBName:   c.PGDBName,
-		Port:     c.PGPort,
-	})
-	if err != nil {
-		b.sugar.Fatal(err)
-	}
-
-	go b.cleanupDatabase()
-	// go b.cleanupVisitors()
-
+func initHttpServer(c *Config, b *BiliroamingGo) {
 	fs := &fasthttp.FS{
 		Root:               "html",
 		IndexNames:         []string{"index.html"},
@@ -214,11 +168,55 @@ func main() {
 		}
 	}
 
-	sugar.Infof("Listening on :%d ...", c.Port)
-	err = fasthttp.ListenAndServe(":"+strconv.Itoa(c.Port), mux)
+	b.sugar.Infof("Listening on :%d ...", c.Port)
+	err := fasthttp.ListenAndServe(":"+strconv.Itoa(c.Port), mux)
 	if err != nil {
-		sugar.Panic(err)
+		b.sugar.Panic(err)
 	}
+}
+
+func main() {
+	// default config
+	c, err := initConfig()
+	if err != nil {
+		panic(err)
+	}
+
+	logger, err := initLogger(c.Debug)
+	if err != nil {
+		panic(err)
+	}
+	sugar := logger.Sugar()
+
+	b := &BiliroamingGo{
+		config:   c,
+		visitors: make(map[string]*visitor),
+		ctx:      context.Background(),
+		logger:   logger,
+		sugar:    sugar,
+	}
+
+	b.initProxy(b.config)
+
+	pgPassword, err := getDbPassword(c)
+	if err != nil {
+		b.sugar.Fatal(err)
+	}
+
+	b.db, err = database.NewDBConnection(&database.Config{
+		Host:     c.PGHost,
+		User:     c.PGUser,
+		Password: pgPassword,
+		DBName:   c.PGDBName,
+		Port:     c.PGPort,
+	})
+	if err != nil {
+		b.sugar.Fatal(err)
+	}
+
+	go b.cleanupDatabase()
+
+	initHttpServer(c, b)
 }
 
 func processNotFound(ctx *fasthttp.RequestCtx) {

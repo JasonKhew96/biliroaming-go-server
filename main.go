@@ -18,8 +18,8 @@ import (
 	"golang.org/x/time/rate"
 )
 
-// arguments struct
-type BiliArgs struct {
+// biliArgs query arguments struct
+type biliArgs struct {
 	accessKey string
 	area      string
 	cid       string
@@ -233,8 +233,8 @@ func (b *BiliroamingGo) processError(ctx *fasthttp.RequestCtx, err error) {
 	)
 }
 
-func (b *BiliroamingGo) processArgs(args *fasthttp.Args) *BiliArgs {
-	queryArgs := &BiliArgs{
+func (b *BiliroamingGo) processArgs(args *fasthttp.Args) *biliArgs {
+	queryArgs := &biliArgs{
 		accessKey: string(args.Peek("access_key")),
 		area:      string(args.Peek("area")),
 		cid:       string(args.Peek("cid")),

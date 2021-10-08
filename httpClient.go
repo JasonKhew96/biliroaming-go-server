@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/JasonKhew96/biliroaming-go-server/response"
+	"github.com/mailru/easyjson"
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/fasthttpproxy"
 )
@@ -74,7 +75,7 @@ func writeErrorJSON(ctx *fasthttp.RequestCtx, code int, msg []byte) {
 		Message: string(msg),
 		TTL:     1,
 	}
-	respData, err := resp.MarshalJSON()
+	respData, err := easyjson.Marshal(resp)
 	if err != nil {
 		ctx.Write([]byte(`{"code":-500,"message":"服务器错误","ttl":1}`))
 		return

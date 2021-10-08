@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/JasonKhew96/biliroaming-go-server/auth"
+	"github.com/mailru/easyjson"
 	"github.com/valyala/fasthttp"
 )
 
@@ -45,7 +46,10 @@ func (b *BiliroamingGo) isAuth(userAgent []byte, accessKey string) (bool, bool, 
 		return false, false, err
 	}
 	data := &auth.AccInfo{}
-	data.UnmarshalJSON(body)
+	err = easyjson.Unmarshal(body, data)
+	if err != nil {
+		return false, false, err
+	}
 	if data.Code != 0 {
 		return false, false, errors.New(data.Message)
 	}

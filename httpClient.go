@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/JasonKhew96/biliroaming-go-server/response"
+	"github.com/JasonKhew96/biliroaming-go-server/entity"
 	"github.com/mailru/easyjson"
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/fasthttpproxy"
@@ -69,7 +69,7 @@ func setDefaultHeaders(ctx *fasthttp.RequestCtx) {
 
 func writeErrorJSON(ctx *fasthttp.RequestCtx, code int, msg []byte) {
 	setDefaultHeaders(ctx)
-	resp := &response.SimpleResponse{
+	resp := &entity.SimpleResponse{
 		Code:    code,
 		Message: string(msg),
 		TTL:     1,

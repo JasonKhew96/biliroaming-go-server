@@ -1,4 +1,4 @@
-package response
+package entity
 
 // SimpleResponse simple response
 //easyjson:json

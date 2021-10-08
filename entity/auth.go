@@ -1,4 +1,4 @@
-package auth
+package entity
 
 // AccInfo account info
 //easyjson:json

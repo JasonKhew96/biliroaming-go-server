@@ -10,6 +10,9 @@ type Config struct {
 	Port    int  `envconfig:"port" default:"23333"`  // 端口
 	IPLimit int  `envconfig:"ip_limit" default:"1"`  // 每秒限制次数
 	IPBurst int  `envconfig:"ip_burst" default:"2"`  // 每秒突发次数
+	// 字幕(泰区)
+	CustomSubAPI  string `envconfig:"custom_sub_api"`  // 自定义字幕API
+	CustomSubTeam string `envconfig:"custom_sub_team"` // 自定义字幕组名字
 	// 缓存时间
 	CacheAccessKey  int `envconfig:"cache_accesskey" default:"7"`    // accessKey 缓存（天）
 	CacheUser       int `envconfig:"cache_user" default:"7"`         // 用户资料缓存（天）

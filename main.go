@@ -251,7 +251,7 @@ func main() {
 	}
 	sugar := logger.Sugar()
 
-	sugar.Debug("%v", c)
+	sugar.Debug(c)
 
 	b := &BiliroamingGo{
 		config:   c,

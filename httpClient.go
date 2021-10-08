@@ -83,31 +83,32 @@ func writeErrorJSON(ctx *fasthttp.RequestCtx, code int, msg []byte) {
 	// ctx.Write([]byte(`{"accept_format":"mp4","code":0,"seek_param":"start","is_preview":0,"fnval":1,"video_project":true,"fnver":0,"type":"MP4","bp":0,"result":"suee","seek_type":"offset","qn_extras":[{"attribute":0,"icon":"http://i0.hdslb.com/bfs/app/81dab3a04370aafa93525053c4e760ac834fcc2f.png","icon2":"http://i0.hdslb.com/bfs/app/4e6f14c2806f7cc508d8b6f5f1d8306f94a71ecc.png","need_login":true,"need_vip":true,"qn":112},{"attribute":0,"icon":"","icon2":"","need_login":false,"need_vip":false,"qn":80},{"attribute":0,"icon":"","icon2":"","need_login":false,"need_vip":false,"qn":64},{"attribute":0,"icon":"","icon2":"","need_login":false,"need_vip":false,"qn":32},{"attribute":0,"icon":"","icon2":"","need_login":false,"need_vip":false,"qn":16}],"accept_watermark":[false,false,false,false,false],"from":"local","video_codecid":7,"durl":[{"order":1,"length":16740,"size":172775,"ahead":"","vhead":"","url":"https://s1.hdslb.com/bfs/static/player/media/error.mp4","backup_url":[]}],"no_rexcode":0,"format":"mp4","support_formats":[{"display_desc":"360P","superscript":"","format":"mp4","description":"流畅 360P","quality":16,"new_description":"360P 流畅"}],"message":"","accept_quality":[16],"quality":16,"timelength":16740,"has_paid":false,"accept_description":["流畅 360P"],"status":2}`))
 }
 
-func (b *BiliroamingGo) doRequestWrite(ctx *fasthttp.RequestCtx, client *fasthttp.Client, url string) []byte {
+func (b *BiliroamingGo) doRequest(ctx *fasthttp.RequestCtx, client *fasthttp.Client, url string) ([]byte, error) {
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
 	req.Header.SetUserAgentBytes(ctx.UserAgent())
 	req.SetRequestURI(url)
 
+	b.sugar.Debugf("doRequest: %s", req.RequestURI())
+
 	resp := fasthttp.AcquireResponse()
 	defer fasthttp.ReleaseResponse(resp)
 
-	err := client.Do(req, resp)
+	err := client.DoRedirects(req, resp, 1)
 	if err != nil {
-		b.processError(ctx, err)
-		return nil
+		return nil, err
 	}
 
+	b.sugar.Debugf("doRedirects: %d", resp.StatusCode())
+
 	if resp.StatusCode() != fasthttp.StatusOK {
-		b.processError(ctx, fmt.Errorf("error code: %d\nbody: %s", resp.StatusCode(), string(resp.Body())))
-		return nil
+		return nil, fmt.Errorf("error code: %d\nbody: %s", resp.StatusCode(), string(resp.Body()))
 	}
 
 	// Verify the content type
 	contentType := resp.Header.Peek("Content-Type")
 	if bytes.Index(contentType, []byte("application/json")) != 0 {
-		b.processError(ctx, err)
-		return nil
+		return nil, fmt.Errorf("expected content-type json but %s", string(contentType))
 	}
 
 	// Do we need to decompress the response?
@@ -128,7 +129,5 @@ func (b *BiliroamingGo) doRequestWrite(ctx *fasthttp.RequestCtx, client *fasthtt
 		b.sugar.Debug("New content: ", string(body))
 	}
 
-	setDefaultHeaders(ctx)
-	ctx.Write(body)
-	return body
+	return body, nil
 }

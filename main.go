@@ -188,6 +188,8 @@ func main() {
 	}
 	sugar := logger.Sugar()
 
+	sugar.Debug("%v", c)
+
 	b := &BiliroamingGo{
 		config:   c,
 		visitors: make(map[string]*visitor),

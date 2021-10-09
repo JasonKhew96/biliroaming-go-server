@@ -65,9 +65,12 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 		if err != nil {
 			return nil, err
 		}
-		isBlacklisted, err := b.isBlacklist(ctx, accessKey)
-		if err != nil {
-			return nil, err
+		isBlacklisted := false
+		if b.config.BlockType == BlockTypeBlacklist {
+			isBlacklisted, err = b.isBlacklist(ctx, accessKey)
+			if err != nil {
+				return nil, err
+			}
 		}
 		if userData.VIPDueDate.After(time.Now()) {
 			return &userStatus{
@@ -111,9 +114,12 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 
 	isVip := vipDue.After(time.Now())
 
-	isBlacklisted, err := b.isBlacklist(ctx, accessKey)
-	if err != nil {
-		return nil, err
+	isBlacklisted := false
+	if b.config.BlockType == BlockTypeBlacklist {
+		isBlacklisted, err = b.isBlacklist(ctx, accessKey)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &userStatus{

@@ -188,7 +188,7 @@ func (b *BiliroamingGo) addCustomSubSeason(ctx *fasthttp.RequestCtx, seasonId st
 	}
 
 	requestUrl := fmt.Sprintf(b.config.CustomSubAPI, seasonId)
-	customSubData, err := b.doRequest(ctx, b.defaultClient, requestUrl)
+	customSubData, err := b.doRequestJson(ctx, b.defaultClient, requestUrl)
 	if err != nil {
 		return nil, errors.Wrap(err, "custom subtitle api")
 	}
@@ -398,7 +398,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/pgc/player/web/playurl?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data, err := b.doRequest(ctx, client, url)
+	data, err := b.doRequestJson(ctx, client, url)
 	if err != nil {
 		b.processError(ctx, err)
 		return
@@ -464,7 +464,7 @@ func (b *BiliroamingGo) handleWebSearch(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/x/v2/search/type?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data, err := b.doRequest(ctx, client, url)
+	data, err := b.doRequestJson(ctx, client, url)
 	if err != nil {
 		b.processError(ctx, err)
 		return
@@ -550,7 +550,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/pgc/player/api/playurl?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data, err := b.doRequest(ctx, client, url)
+	data, err := b.doRequestJson(ctx, client, url)
 	if err != nil {
 		b.processError(ctx, err)
 		return
@@ -623,7 +623,7 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/intl/gateway/v2/app/search/type?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data, err := b.doRequest(ctx, client, url)
+	data, err := b.doRequestJson(ctx, client, url)
 	if err != nil {
 		b.processError(ctx, err)
 		return
@@ -704,7 +704,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/intl/gateway/v2/ogv/view/app/season?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data, err := b.doRequest(ctx, client, url)
+	data, err := b.doRequestJson(ctx, client, url)
 	if err != nil {
 		b.processError(ctx, err)
 		return
@@ -791,7 +791,7 @@ func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/intl/gateway/v2/app/subtitle?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data, err := b.doRequest(ctx, client, url)
+	data, err := b.doRequestJson(ctx, client, url)
 	if err != nil {
 		b.processError(ctx, err)
 		return
@@ -883,7 +883,7 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/intl/gateway/v2/ogv/playurl?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data, err := b.doRequest(ctx, client, url)
+	data, err := b.doRequestJson(ctx, client, url)
 	if err != nil {
 		b.processError(ctx, err)
 		return

@@ -12,6 +12,13 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
+type userStatus struct {
+	isAuth      bool
+	isVip       bool
+	isBlacklist bool
+	isWhitelist bool
+}
+
 func (b *BiliroamingGo) getAuthByArea(area string) bool {
 	switch strings.ToLower(area) {
 	case "cn":
@@ -27,45 +34,90 @@ func (b *BiliroamingGo) getAuthByArea(area string) bool {
 	}
 }
 
-func (b *BiliroamingGo) isAuth(userAgent []byte, accessKey string) (bool, bool, error) {
+func (b *BiliroamingGo) isAuth(userAgent []byte, accessKey string) (*userStatus, error) {
 	// isAuth, isVIP, error
 	keyData, err := b.db.GetKey(accessKey)
 	if err == nil {
 		b.sugar.Debug("Get vip status from cache: ", keyData)
 		userData, err := b.db.GetUser(keyData.UID)
 		if err != nil {
-			return false, false, err
+			return &userStatus{
+				isAuth:      false,
+				isVip:       false,
+				isBlacklist: false,
+				isWhitelist: false,
+			}, err
 		}
 		if userData.VIPDueDate.After(time.Now()) {
-			return true, true, nil
+			return &userStatus{
+				isAuth:      true,
+				isVip:       true,
+				isBlacklist: false,
+				isWhitelist: false,
+			}, nil
 		}
-		return true, false, nil
+		return &userStatus{
+			isAuth:      true,
+			isVip:       false,
+			isBlacklist: false,
+			isWhitelist: false,
+		}, nil
 	}
 
 	body, err := b.getMyInfo(userAgent, accessKey)
 	if err != nil {
-		return false, false, err
+		return &userStatus{
+			isAuth:      false,
+			isVip:       false,
+			isBlacklist: false,
+			isWhitelist: false,
+		}, err
 	}
 	data := &entity.AccInfo{}
 	err = easyjson.Unmarshal(body, data)
 	if err != nil {
-		return false, false, err
+		return &userStatus{
+			isAuth:      false,
+			isVip:       false,
+			isBlacklist: false,
+			isWhitelist: false,
+		}, err
 	}
 	if data.Code != 0 {
-		return false, false, errors.New(data.Message)
+		return &userStatus{
+			isAuth:      false,
+			isVip:       false,
+			isBlacklist: false,
+			isWhitelist: false,
+		}, errors.New(data.Message)
 	}
 	b.sugar.Debugf("mid: %d, name: %s, due_date: %s", data.Data.Mid, data.Data.Name, time.Unix(data.Data.VIP.DueDate/1000, 0).String())
 
 	_, err = b.db.InsertOrUpdateKey(accessKey, data.Data.Mid)
 	if err != nil {
-		return false, false, err
+		return &userStatus{
+			isAuth:      false,
+			isVip:       false,
+			isBlacklist: false,
+			isWhitelist: false,
+		}, err
 	}
 	_, err = b.db.InsertOrUpdateUser(data.Data.Mid, data.Data.Name, time.Unix(data.Data.VIP.DueDate/1000, 0))
 	if err != nil {
-		return false, false, err
+		return &userStatus{
+			isAuth:      false,
+			isVip:       false,
+			isBlacklist: false,
+			isWhitelist: false,
+		}, err
 	}
 
-	return true, false, nil
+	return &userStatus{
+		isAuth:      true,
+		isVip:       false,
+		isBlacklist: false,
+		isWhitelist: false,
+	}, nil
 }
 
 func (b *BiliroamingGo) getMyInfo(userAgent []byte, accessKey string) ([]byte, error) {

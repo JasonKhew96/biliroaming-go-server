@@ -57,7 +57,6 @@ func (b *BiliroamingGo) isBlacklist(ctx *fasthttp.RequestCtx, accessKey string) 
 }
 
 func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*userStatus, error) {
-	// isAuth, isVIP, error
 	keyData, err := b.db.GetKey(accessKey)
 	if err == nil {
 		b.sugar.Debug("Get vip status from cache: ", keyData)

@@ -30,6 +30,7 @@ type biliArgs struct {
 	epId      string
 	seasonId  string
 	keyword   string
+	pn        string
 }
 
 // ip string
@@ -304,6 +305,7 @@ func (b *BiliroamingGo) processArgs(args *fasthttp.Args) *biliArgs {
 		epId:      string(args.Peek("ep_id")),
 		seasonId:  string(args.Peek("season_id")),
 		keyword:   string(args.Peek("keyword")),
+		pn:        string(args.Peek("pn")),
 	}
 	b.sugar.Debug("Request args ", args.String())
 	b.sugar.Debugf(
@@ -436,6 +438,7 @@ func (b *BiliroamingGo) handleWebSearch(ctx *fasthttp.RequestCtx) {
 	v.Set("type", "7")
 	v.Set("mobi_app", "android")
 	v.Set("platform", "android")
+	v.Set("pn", args.pn)
 
 	params, err := SignParams(v, ClientTypeAndroid)
 	if err != nil {
@@ -595,6 +598,7 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 	v.Set("s_locale", "zh_SG")
 	v.Set("type", "7")
 	v.Set("mobi_app", "bstar_a")
+	v.Set("pn", args.pn)
 
 	params, err := SignParams(v, ClientTypeBstarA)
 	if err != nil {

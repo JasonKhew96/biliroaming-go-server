@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/url"
 	"strings"
 	"time"
@@ -9,6 +10,16 @@ import (
 	"github.com/JasonKhew96/biliroaming-go-server/entity"
 	"github.com/mailru/easyjson"
 	"github.com/valyala/fasthttp"
+)
+
+// BlockType block type
+type BlockType int
+
+// BlockType
+const (
+	BlockTypeDisabled BlockType = iota
+	BlockTypeWhitelist
+	BlockTypeBlacklist
 )
 
 type userStatus struct {
@@ -33,6 +44,18 @@ func (b *BiliroamingGo) getAuthByArea(area string) bool {
 	}
 }
 
+func (b *BiliroamingGo) isBlacklist(ctx *fasthttp.RequestCtx, accessKey string) (bool, error) {
+	apiUrl := fmt.Sprintf("https://black.qimo.ink/?access_key=%s", accessKey)
+	data, err := b.doRequest(ctx, b.defaultClient, apiUrl)
+	if err != nil {
+		return false, err
+	}
+	if string(data) == "ban" {
+		return true, nil
+	}
+	return false, nil
+}
+
 func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*userStatus, error) {
 	// isAuth, isVIP, error
 	keyData, err := b.db.GetKey(accessKey)
@@ -40,81 +63,63 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 		b.sugar.Debug("Get vip status from cache: ", keyData)
 		userData, err := b.db.GetUser(keyData.UID)
 		if err != nil {
-			return &userStatus{
-				isAuth:      false,
-				isVip:       false,
-				isBlacklist: false,
-				isWhitelist: false,
-			}, err
+			return nil, err
+		}
+		isBlacklisted, err := b.isBlacklist(ctx, accessKey)
+		if err != nil {
+			return nil, err
 		}
 		if userData.VIPDueDate.After(time.Now()) {
 			return &userStatus{
 				isAuth:      true,
 				isVip:       true,
-				isBlacklist: false,
+				isBlacklist: isBlacklisted,
 				isWhitelist: false,
 			}, nil
 		}
 		return &userStatus{
 			isAuth:      true,
 			isVip:       false,
-			isBlacklist: false,
+			isBlacklist: isBlacklisted,
 			isWhitelist: false,
 		}, nil
 	}
 
 	body, err := b.getMyInfo(ctx, accessKey)
 	if err != nil {
-		return &userStatus{
-			isAuth:      false,
-			isVip:       false,
-			isBlacklist: false,
-			isWhitelist: false,
-		}, err
+		return nil, err
 	}
 	data := &entity.AccInfo{}
 	err = easyjson.Unmarshal(body, data)
 	if err != nil {
-		return &userStatus{
-			isAuth:      false,
-			isVip:       false,
-			isBlacklist: false,
-			isWhitelist: false,
-		}, err
+		return nil, err
 	}
 	if data.Code != 0 {
-		return &userStatus{
-			isAuth:      false,
-			isVip:       false,
-			isBlacklist: false,
-			isWhitelist: false,
-		}, errors.New(data.Message)
+		return nil, errors.New(data.Message)
 	}
 	b.sugar.Debugf("mid: %d, name: %s, due_date: %s", data.Data.Mid, data.Data.Name, time.Unix(data.Data.VIP.DueDate/1000, 0).String())
 
 	_, err = b.db.InsertOrUpdateKey(accessKey, data.Data.Mid)
 	if err != nil {
-		return &userStatus{
-			isAuth:      false,
-			isVip:       false,
-			isBlacklist: false,
-			isWhitelist: false,
-		}, err
+		return nil, err
 	}
-	_, err = b.db.InsertOrUpdateUser(data.Data.Mid, data.Data.Name, time.Unix(data.Data.VIP.DueDate/1000, 0))
+	vipDue := time.Unix(data.Data.VIP.DueDate/1000, 0)
+	_, err = b.db.InsertOrUpdateUser(data.Data.Mid, data.Data.Name, vipDue)
 	if err != nil {
-		return &userStatus{
-			isAuth:      false,
-			isVip:       false,
-			isBlacklist: false,
-			isWhitelist: false,
-		}, err
+		return nil, err
+	}
+
+	isVip := vipDue.After(time.Now())
+
+	isBlacklisted, err := b.isBlacklist(ctx, accessKey)
+	if err != nil {
+		return nil, err
 	}
 
 	return &userStatus{
 		isAuth:      true,
-		isVip:       false,
-		isBlacklist: false,
+		isVip:       isVip,
+		isBlacklist: isBlacklisted,
 		isWhitelist: false,
 	}, nil
 }

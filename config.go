@@ -10,6 +10,8 @@ type Config struct {
 	Port    int  `envconfig:"port" default:"23333"`  // 端口
 	IPLimit int  `envconfig:"ip_limit" default:"1"`  // 每秒限制次数
 	IPBurst int  `envconfig:"ip_burst" default:"2"`  // 每秒突发次数
+	// 黑白名单
+	BlockType int `envconfig:"block_type" default:"0"` // 0 - 关闭 / 1 - 白名单 / 2 - 黑名单
 	// 字幕(泰区)
 	CustomSubAPI  string `envconfig:"custom_sub_api"`  // 自定义字幕API
 	CustomSubTeam string `envconfig:"custom_sub_team"` // 自定义字幕组名字

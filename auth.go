@@ -66,7 +66,7 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 			return nil, err
 		}
 		isBlacklisted := false
-		if b.config.BlockType == BlockTypeBlacklist {
+		if b.config.BlockTypeConfig == BlockTypeBlacklist {
 			b.sugar.Debugf("isBlacklist %d %s", keyData.UID, accessKey)
 			isBlacklisted, err = b.isBlacklist(ctx, accessKey)
 			if err != nil {
@@ -116,7 +116,7 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 	isVip := vipDue.After(time.Now())
 
 	isBlacklisted := false
-	if b.config.BlockType == BlockTypeBlacklist {
+	if b.config.BlockTypeConfig == BlockTypeBlacklist {
 		isBlacklisted, err = b.isBlacklist(ctx, accessKey)
 		if err != nil {
 			return nil, err

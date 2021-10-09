@@ -67,6 +67,7 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 		}
 		isBlacklisted := false
 		if b.config.BlockType == BlockTypeBlacklist {
+			b.sugar.Debugf("isBlacklist %d %s", keyData.UID, accessKey)
 			isBlacklisted, err = b.isBlacklist(ctx, accessKey)
 			if err != nil {
 				return nil, err

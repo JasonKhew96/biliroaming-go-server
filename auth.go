@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"errors"
 	"net/url"
 	"strings"
@@ -34,7 +33,7 @@ func (b *BiliroamingGo) getAuthByArea(area string) bool {
 	}
 }
 
-func (b *BiliroamingGo) isAuth(userAgent []byte, accessKey string) (*userStatus, error) {
+func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*userStatus, error) {
 	// isAuth, isVIP, error
 	keyData, err := b.db.GetKey(accessKey)
 	if err == nil {
@@ -64,7 +63,7 @@ func (b *BiliroamingGo) isAuth(userAgent []byte, accessKey string) (*userStatus,
 		}, nil
 	}
 
-	body, err := b.getMyInfo(userAgent, accessKey)
+	body, err := b.getMyInfo(ctx, accessKey)
 	if err != nil {
 		return &userStatus{
 			isAuth:      false,
@@ -120,7 +119,7 @@ func (b *BiliroamingGo) isAuth(userAgent []byte, accessKey string) (*userStatus,
 	}, nil
 }
 
-func (b *BiliroamingGo) getMyInfo(userAgent []byte, accessKey string) ([]byte, error) {
+func (b *BiliroamingGo) getMyInfo(ctx *fasthttp.RequestCtx, accessKey string) ([]byte, error) {
 	apiURL := "https://app.bilibili.com/x/v2/account/myinfo"
 
 	v := url.Values{}
@@ -135,36 +134,9 @@ func (b *BiliroamingGo) getMyInfo(userAgent []byte, accessKey string) ([]byte, e
 
 	b.sugar.Debug(apiURL)
 
-	req := fasthttp.AcquireRequest()
-	defer fasthttp.ReleaseRequest(req)
-	req.Header.SetUserAgentBytes(userAgent)
-	req.SetRequestURI(apiURL)
-
-	resp := fasthttp.AcquireResponse()
-	defer fasthttp.ReleaseResponse(resp)
-
-	err = b.defaultClient.Do(req, resp)
+	body, err := b.doRequestJson(ctx, b.defaultClient, apiURL)
 	if err != nil {
 		return nil, err
-	}
-
-	if resp.StatusCode() != fasthttp.StatusOK {
-		return nil, err
-	}
-
-	// Verify the content type
-	contentType := resp.Header.Peek("Content-Type")
-	if bytes.Index(contentType, []byte("application/json")) != 0 {
-		return nil, err
-	}
-
-	// Do we need to decompress the response?
-	contentEncoding := resp.Header.Peek("Content-Encoding")
-	var body []byte
-	if bytes.EqualFold(contentEncoding, []byte("gzip")) {
-		body, _ = resp.BodyGunzip()
-	} else {
-		body = resp.Body()
 	}
 
 	b.sugar.Debug("Content: ", string(body))

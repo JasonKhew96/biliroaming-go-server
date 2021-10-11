@@ -155,8 +155,8 @@ func initHttpServer(c *Config, b *BiliroamingGo) {
 		switch string(ctx.Path()) {
 		case "/pgc/player/web/playurl": // web
 			b.handleWebPlayURL(ctx)
-		case "/x/v2/search/type": // web
-			b.handleWebSearch(ctx)
+		case "/x/v2/search/type": // android
+			b.handleAndroidSearch(ctx)
 		case "/pgc/player/api/playurl": // android
 			b.handleAndroidPlayURL(ctx)
 		case "/intl/gateway/v2/app/search/type": // bstar android
@@ -418,7 +418,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	}
 }
 
-func (b *BiliroamingGo) handleWebSearch(ctx *fasthttp.RequestCtx) {
+func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 	queryArgs := ctx.URI().QueryArgs()
 	args := b.processArgs(queryArgs)
 

@@ -66,6 +66,19 @@ func (b *BiliroamingGo) getReverseProxyByArea(area string) string {
 	}
 }
 
+func (b *BiliroamingGo) getReverseSearchProxyByArea(area string) string {
+	switch strings.ToLower(area) {
+	case "cn":
+		return b.config.ReverseSearchCN
+	case "hk":
+		return b.config.ReverseSearchHK
+	case "tw":
+		return b.config.ReverseSearchTW
+	default:
+		return ""
+	}
+}
+
 func setDefaultHeaders(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.SetBytesKV([]byte("Access-Control-Allow-Origin"), []byte("https://www.bilibili.com"))
 	ctx.Response.Header.SetBytesKV([]byte("Access-Control-Allow-Credentials"), []byte("true"))

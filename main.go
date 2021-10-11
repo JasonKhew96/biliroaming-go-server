@@ -89,21 +89,21 @@ func (b *BiliroamingGo) cleanupDatabase() {
 		} else {
 			b.sugar.Debugf("Cleanup %d users cache", aff)
 		}
-		if aff, err := b.db.CleanupPlayURLCache(time.Duration(b.config.CachePlayURL) * time.Minute); err != nil {
-			b.sugar.Error(err)
-		} else {
-			b.sugar.Debugf("Cleanup %d playURL cache", aff)
-		}
-		if aff, err := b.db.CleanupTHSeasonCache(time.Duration(b.config.CacheTHSeason) * time.Minute); err != nil {
-			b.sugar.Error(err)
-		} else {
-			b.sugar.Debugf("Cleanup %d TH season cache", aff)
-		}
-		if aff, err := b.db.CleanupTHSubtitleCache(time.Duration(b.config.CacheTHSubtitle) * time.Minute); err != nil {
-			b.sugar.Error(err)
-		} else {
-			b.sugar.Debugf("Cleanup %d TH subtitle cache", aff)
-		}
+		// if aff, err := b.db.CleanupPlayURLCache(time.Duration(b.config.CachePlayURL) * time.Minute); err != nil {
+		// 	b.sugar.Error(err)
+		// } else {
+		// 	b.sugar.Debugf("Cleanup %d playURL cache", aff)
+		// }
+		// if aff, err := b.db.CleanupTHSeasonCache(time.Duration(b.config.CacheTHSeason) * time.Minute); err != nil {
+		// 	b.sugar.Error(err)
+		// } else {
+		// 	b.sugar.Debugf("Cleanup %d TH season cache", aff)
+		// }
+		// if aff, err := b.db.CleanupTHSubtitleCache(time.Duration(b.config.CacheTHSubtitle) * time.Minute); err != nil {
+		// 	b.sugar.Error(err)
+		// } else {
+		// 	b.sugar.Debugf("Cleanup %d TH subtitle cache", aff)
+		// }
 
 		// cleanup ip cache
 		b.vMu.Lock()

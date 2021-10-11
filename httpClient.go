@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/JasonKhew96/biliroaming-go-server/entity"
 	"github.com/mailru/easyjson"
@@ -23,11 +24,16 @@ func (b *BiliroamingGo) newClient(proxy string) *fasthttp.Client {
 	if proxy != "" {
 		b.sugar.Debug("New socks proxy client: ", proxy)
 		return &fasthttp.Client{
-			Dial: fasthttpproxy.FasthttpSocksDialer(proxy),
+			ReadTimeout:  10 * time.Second,
+			WriteTimeout: 10 * time.Second,
+			Dial:         fasthttpproxy.FasthttpSocksDialer(proxy),
 		}
 	}
 	b.sugar.Debug("New normal client")
-	return &fasthttp.Client{}
+	return &fasthttp.Client{
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+	}
 }
 
 func (b *BiliroamingGo) getClientByArea(area string) *fasthttp.Client {

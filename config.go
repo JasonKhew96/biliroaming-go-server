@@ -26,11 +26,15 @@ type Config struct {
 	ProxyHK string `envconfig:"proxy_hk"`
 	ProxyTW string `envconfig:"proxy_tw"`
 	ProxyTH string `envconfig:"proxy_th"`
-	// 反代(留空禁用)
+	// 反代
 	ReverseCN string `envconfig:"reverse_cn"`
 	ReverseHK string `envconfig:"reverse_hk"`
 	ReverseTW string `envconfig:"reverse_tw"`
 	ReverseTH string `envconfig:"reverse_th"`
+	// 反代搜索域名
+	ReverseSearchCN string `envconfig:"reverse_search_cn"`
+	ReverseSearchHK string `envconfig:"reverse_search_hk"`
+	ReverseSearchTW string `envconfig:"reverse_search_tw"`
 	// 鉴权+缓存
 	AuthCN bool `envconfig:"auth_th" default:"false"`
 	AuthHK bool `envconfig:"auth_th" default:"false"`

@@ -422,7 +422,7 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 	queryArgs := ctx.URI().QueryArgs()
 	args := b.processArgs(queryArgs)
 
-	if args.area == "" {
+	if args.area == "" || args.area == "th" {
 		writeErrorJSON(ctx, -688, []byte("地理区域限制"))
 		return
 	}
@@ -456,7 +456,7 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 
 	reverseProxy := b.getReverseProxyByArea(args.area)
 	if reverseProxy == "" {
-		reverseProxy = "api.bilibili.com"
+		reverseProxy = "app.bilibili.com"
 	}
 	domain, err := idna.New().ToASCII(reverseProxy)
 	if err != nil {

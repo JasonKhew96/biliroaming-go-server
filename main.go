@@ -217,13 +217,15 @@ func (b *BiliroamingGo) addCustomSubSeason(ctx *fasthttp.RequestCtx, seasonId st
 					newUrl = fmt.Sprintf("https://%s", customSubEp.URL)
 				}
 				title := fmt.Sprintf("%s[%s][非官方]", customSubEp.Lang, b.config.CustomSubTeam)
-				subtitles = append(subtitles, entity.Subtitles{
-					ID:        int64(j),
-					Key:       customSubEp.Key,
-					Title:     title,
-					URL:       newUrl,
-					IsMachine: false,
-				})
+				subtitles = append([]entity.Subtitles{
+					{
+						ID:        int64(j),
+						Key:       customSubEp.Key,
+						Title:     title,
+						URL:       newUrl,
+						IsMachine: false,
+					},
+				}, subtitles...)
 			}
 		}
 		seasonJson.Result.Modules[0].Data.Episodes[i].Subtitles = subtitles

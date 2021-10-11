@@ -12,5 +12,4 @@ RUN go build -o /tmp/server
 FROM gcr.io/distroless/static:latest
 WORKDIR /runner
 COPY --from=builder /tmp/server .
-COPY html ./html
 CMD [ "./server" ]

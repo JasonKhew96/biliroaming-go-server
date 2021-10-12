@@ -180,6 +180,24 @@ func initHttpServer(c *Config, b *BiliroamingGo) {
 	}
 }
 
+func (b *BiliroamingGo) addSearchAds(data []byte) []byte {
+	if b.config.CustomSearchData == "" {
+		return data
+	}
+
+	old := "\"items\":["
+	new := old + b.config.CustomSearchData + ","
+	newData := strings.Replace(string(data), old, new, 1)
+
+	var test easyjson.RawMessage
+	isValidJson := easyjson.Unmarshal([]byte(newData), &test) == nil
+	if isValidJson {
+		return []byte(newData)
+	}
+	b.sugar.Debugf("isValidJson: %t\n%s", isValidJson, string(newData))
+	return data
+}
+
 func (b *BiliroamingGo) addCustomSubSeason(ctx *fasthttp.RequestCtx, seasonId string, oldSeason []byte) ([]byte, error) {
 	b.sugar.Debugf("Getting custom subtitle from season id %s", seasonId)
 	seasonJson := &entity.SeasonResponse{}
@@ -479,6 +497,8 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	data = b.addSearchAds(data)
+
 	setDefaultHeaders(ctx)
 	ctx.Write(data)
 }
@@ -638,6 +658,8 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 		b.processError(ctx, err)
 		return
 	}
+
+	data = b.addSearchAds(data)
 
 	setDefaultHeaders(ctx)
 	ctx.Write(data)

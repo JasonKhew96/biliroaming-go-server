@@ -62,10 +62,79 @@ type BiliroamingGo struct {
 	thClient      *fasthttp.Client
 	defaultClient *fasthttp.Client
 
+	HealthPlayUrlCN *entity.Health
+	HealthPlayUrlHK *entity.Health
+	HealthPlayUrlTW *entity.Health
+	HealthPlayUrlTH *entity.Health
+
+	HealthSeasonTH *entity.Health
+
+	HealthSearchCN *entity.Health
+	HealthSearchHK *entity.Health
+	HealthSearchTW *entity.Health
+	HealthSearchTH *entity.Health
+
 	db *database.Database
 }
 
 var reMid = regexp.MustCompile(`(&|\\u0026)mid=\d+`)
+
+// newHealth assign new health json
+func newHealth() *entity.Health {
+	return &entity.Health{
+		Code:    0,
+		Message: "0",
+		Data: entity.HealthData{
+			LastCheck: time.Now(),
+		},
+	}
+}
+
+func (b *BiliroamingGo) updateHealth(health *entity.Health, isLimited bool) {
+	if health == nil {
+		return
+	}
+	health.Data.LastCheck = time.Now()
+	if isLimited {
+		health.Code = -412
+		health.Message = "请求被拦截"
+	} else {
+		health.Code = 0
+		health.Message = "0"
+	}
+}
+
+func (b *BiliroamingGo) getPlayUrlHealth(area string) *entity.Health {
+	areaCode := getAreaCode(area)
+	switch areaCode {
+	case database.AreaCN:
+		return b.HealthPlayUrlCN
+	case database.AreaHK:
+		return b.HealthPlayUrlHK
+	case database.AreaTW:
+		return b.HealthPlayUrlTW
+	case database.AreaTH:
+		return b.HealthPlayUrlTH
+	default:
+		return nil
+	}
+}
+
+func (b *BiliroamingGo) getSearchHealth(area string) *entity.Health {
+	areaCode := getAreaCode(area)
+	switch areaCode {
+	case database.AreaCN:
+		return b.HealthSearchCN
+	case database.AreaHK:
+		return b.HealthSearchHK
+	case database.AreaTW:
+		return b.HealthSearchTW
+	case database.AreaTH:
+		return b.HealthSearchTH
+	default:
+		return nil
+	}
+}
 
 // get visitor limiter
 func (b *BiliroamingGo) getVisitor(ip string) *rate.Limiter {
@@ -175,6 +244,10 @@ func initHttpServer(c *Config, b *BiliroamingGo) {
 			b.handleBstarAndroidSubtitle(ctx)
 		case "/intl/gateway/v2/ogv/playurl": // bstar android
 			b.handleBstarAndroidPlayURL(ctx)
+
+		case "/api/health": // custom health
+			b.handleApiHealth(ctx)
+
 		default:
 			fsHandler(ctx)
 			// ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
@@ -289,6 +362,18 @@ func main() {
 		ctx:      context.Background(),
 		logger:   logger,
 		sugar:    sugar,
+
+		HealthPlayUrlCN: newHealth(),
+		HealthPlayUrlHK: newHealth(),
+		HealthPlayUrlTW: newHealth(),
+		HealthPlayUrlTH: newHealth(),
+
+		HealthSeasonTH: newHealth(),
+
+		HealthSearchCN: newHealth(),
+		HealthSearchHK: newHealth(),
+		HealthSearchTW: newHealth(),
+		HealthSearchTH: newHealth(),
 	}
 
 	b.initProxy(b.config)
@@ -365,6 +450,33 @@ func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string)
 		return false, false
 	}
 	return true, status.isVip
+}
+
+func (b *BiliroamingGo) handleApiHealth(ctx *fasthttp.RequestCtx) {
+	queryArgs := ctx.URI().QueryArgs()
+	argArea := string(queryArgs.PeekBytes([]byte("area")))
+	argType := string(queryArgs.PeekBytes([]byte("type")))
+
+	if argArea == "" {
+		writeErrorJSON(ctx, -400, []byte("area 参数缺失"))
+		return
+	}
+
+	if argType == "" {
+		writeErrorJSON(ctx, -400, []byte("type 参数缺失"))
+		return
+	}
+
+	switch argType {
+	case "playurl":
+		writeHealthJSON(ctx, b.getPlayUrlHealth(argArea))
+	case "search":
+		writeHealthJSON(ctx, b.getSearchHealth(argArea))
+	case "season":
+		writeHealthJSON(ctx, b.HealthSeasonTH)
+	default:
+		writeErrorJSON(ctx, -400, []byte("参数错误"))
+	}
 }
 
 func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
@@ -506,6 +618,12 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	if isLimited, err := isResponseLimited(data); err != nil {
+		b.sugar.Error(err)
+	} else {
+		b.updateHealth(b.getSearchHealth(args.area), isLimited)
+	}
+
 	data = b.addSearchAds(data)
 
 	setDefaultHeaders(ctx)
@@ -594,6 +712,12 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	if isLimited, err := isResponseLimited(data); err != nil {
+		b.sugar.Error(err)
+	} else {
+		b.updateHealth(b.getPlayUrlHealth(args.area), isLimited)
+	}
+
 	setDefaultHeaders(ctx)
 	ctx.Write(data)
 
@@ -666,6 +790,12 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 	if err != nil {
 		b.processError(ctx, err)
 		return
+	}
+
+	if isLimited, err := isResponseLimited(data); err != nil {
+		b.sugar.Error(err)
+	} else {
+		b.updateHealth(b.HealthSearchTH, isLimited)
 	}
 
 	data = b.addSearchAds(data)
@@ -749,6 +879,12 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 	if err != nil {
 		b.processError(ctx, err)
 		return
+	}
+
+	if isLimited, err := isResponseLimited(data); err != nil {
+		b.sugar.Error(err)
+	} else {
+		b.updateHealth(b.HealthSeasonTH, isLimited)
 	}
 
 	if b.config.CustomSubAPI != "" {
@@ -928,6 +1064,12 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	if err != nil {
 		b.processError(ctx, err)
 		return
+	}
+
+	if isLimited, err := isResponseLimited(data); err != nil {
+		b.sugar.Error(err)
+	} else {
+		b.updateHealth(b.HealthPlayUrlTH, isLimited)
 	}
 
 	setDefaultHeaders(ctx)

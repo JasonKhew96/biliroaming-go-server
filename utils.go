@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"github.com/JasonKhew96/biliroaming-go-server/database"
+	"github.com/JasonKhew96/biliroaming-go-server/entity"
+	"github.com/mailru/easyjson"
 )
 
 // ClientType ...
@@ -77,4 +79,15 @@ func getAreaCode(area string) database.Area {
 	default:
 		return database.AreaNone
 	}
+}
+
+func isResponseLimited(data []byte) (bool, error) {
+	resp := &entity.SimpleResponse{}
+	if err := easyjson.Unmarshal(data, resp); err != nil {
+		return false, err
+	}
+	if resp.Code == -412 {
+		return true, nil
+	}
+	return false, nil
 }

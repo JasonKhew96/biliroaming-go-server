@@ -211,7 +211,7 @@ func main() {
 	}
 	sugar := logger.Sugar()
 
-	sugar.Info("Version: %s", VERSION)
+	sugar.Infof("Version: %s", VERSION)
 	sugar.Debug(c)
 
 	b := &BiliroamingGo{

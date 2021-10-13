@@ -22,6 +22,14 @@ import (
 	"golang.org/x/time/rate"
 )
 
+const (
+	MAJOR    = "1"
+	MINOR    = "0"
+	REVISION = "0"
+
+	VERSION = "v" + MAJOR + "." + MINOR + "." + REVISION
+)
+
 // biliArgs query arguments struct
 type biliArgs struct {
 	accessKey string
@@ -272,6 +280,7 @@ func main() {
 	}
 	sugar := logger.Sugar()
 
+	sugar.Info("Version: %s", VERSION)
 	sugar.Debug(c)
 
 	b := &BiliroamingGo{

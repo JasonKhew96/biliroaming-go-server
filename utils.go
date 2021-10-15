@@ -91,3 +91,7 @@ func isResponseLimited(data []byte) (bool, error) {
 	}
 	return false, nil
 }
+
+func isValidJson(data []byte) bool {
+	return easyjson.Unmarshal([]byte(data), &easyjson.RawMessage{}) == nil
+}

@@ -5,7 +5,6 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/mailru/easyjson"
 	"github.com/valyala/fasthttp"
 	"golang.org/x/net/idna"
 )
@@ -19,11 +18,10 @@ func (b *BiliroamingGo) addSearchAds(data []byte) []byte {
 	new := old + b.config.CustomSearchData + ","
 	newData := strings.Replace(string(data), old, new, 1)
 
-	var test easyjson.RawMessage
-	isValidJson := easyjson.Unmarshal([]byte(newData), &test) == nil
-	if isValidJson {
+	if isValidJson([]byte(newData)) {
 		return []byte(newData)
 	}
+
 	b.sugar.Debugf("isValidJson: %t\n%s", isValidJson, string(newData))
 	return data
 }

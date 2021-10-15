@@ -46,6 +46,7 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 	v.Set("access_key", args.accessKey)
 	v.Set("area", args.area)
 	v.Set("build", "6400000")
+	v.Set("highlight", "1")
 	v.Set("keyword", args.keyword)
 	v.Set("type", "7")
 	v.Set("mobi_app", "android")

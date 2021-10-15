@@ -10,15 +10,15 @@ require (
 	github.com/lib/pq v1.10.3 // indirect
 	github.com/mailru/easyjson v0.7.7
 	github.com/pkg/errors v0.9.1
-	github.com/valyala/fasthttp v1.30.0
+	github.com/valyala/fasthttp v1.31.0
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.19.1
-	golang.org/x/net v0.0.0-20211008194852-3b03d305991f
+	golang.org/x/net v0.0.0-20211014222326-fd004c51d1d6
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gorm.io/driver/postgres v1.1.2
-	gorm.io/gorm v1.21.15
+	gorm.io/gorm v1.21.16
 )
 
 require (

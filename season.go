@@ -14,24 +14,24 @@ import (
 	"golang.org/x/net/idna"
 )
 
-func (b *BiliroamingGo) addCustomSubSeason(ctx *fasthttp.RequestCtx, seasonId string, oldSeason []byte) ([]byte, error) {
+func (b *BiliroamingGo) addCustomSubSeason(ctx *fasthttp.RequestCtx, seasonId string, oldSeason string) (string, error) {
 	b.sugar.Debugf("Getting custom subtitle from season id %s", seasonId)
 	seasonJson := &entity.SeasonResponse{}
-	err := easyjson.Unmarshal(oldSeason, seasonJson)
+	err := easyjson.Unmarshal([]byte(oldSeason), seasonJson)
 	if err != nil {
-		return nil, errors.Wrap(err, "season response unmarshal")
+		return "", errors.Wrap(err, "season response unmarshal")
 	}
 
 	requestUrl := fmt.Sprintf(b.config.CustomSubAPI, seasonId)
 	customSubData, err := b.doRequestJson(ctx, b.defaultClient, requestUrl)
 	if err != nil {
-		return nil, errors.Wrap(err, "custom subtitle api")
+		return "", errors.Wrap(err, "custom subtitle api")
 	}
 
 	customSubJson := &entity.CustomSubResponse{}
-	err = easyjson.Unmarshal(customSubData, customSubJson)
+	err = easyjson.Unmarshal([]byte(customSubData), customSubJson)
 	if err != nil {
-		return nil, errors.Wrap(err, "custom subtitle response unmarshal")
+		return "", errors.Wrap(err, "custom subtitle response unmarshal")
 	}
 
 	if customSubJson.Code != 0 {
@@ -65,12 +65,14 @@ func (b *BiliroamingGo) addCustomSubSeason(ctx *fasthttp.RequestCtx, seasonId st
 		seasonJson.Result.Modules[0].Data.Episodes[i].Subtitles = subtitles
 	}
 
-	newSeason, err := easyjson.Marshal(seasonJson)
+	newSeasonBytes, err := easyjson.Marshal(seasonJson)
 	if err != nil {
-		return nil, errors.Wrap(err, "new season response marshal")
+		return "", errors.Wrap(err, "new season response marshal")
 	}
 
-	b.sugar.Debugf("New season response: %s", string(newSeason))
+	newSeason := string(newSeasonBytes)
+
+	b.sugar.Debugf("New season response: %s", newSeason)
 
 	return newSeason, nil
 }
@@ -172,7 +174,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 	}
 
 	setDefaultHeaders(ctx)
-	ctx.Write(data)
+	ctx.WriteString(data)
 
 	if b.getAuthByArea(args.area) {
 		b.db.InsertOrUpdateTHSeasonCache(seasonIdInt, string(data))

@@ -116,7 +116,7 @@ func writeHealthJSON(ctx *fasthttp.RequestCtx, health *entity.Health) {
 	ctx.Write(respData)
 }
 
-func (b *BiliroamingGo) doRequest(ctx *fasthttp.RequestCtx, client *fasthttp.Client, url string) ([]byte, error) {
+func (b *BiliroamingGo) doRequest(ctx *fasthttp.RequestCtx, client *fasthttp.Client, url string) (string, error) {
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
 	req.Header.SetUserAgentBytes(ctx.UserAgent())
@@ -129,30 +129,32 @@ func (b *BiliroamingGo) doRequest(ctx *fasthttp.RequestCtx, client *fasthttp.Cli
 
 	err := client.DoRedirects(req, resp, 1)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	b.sugar.Debugf("doRedirects: %d", resp.StatusCode())
 
 	if resp.StatusCode() != fasthttp.StatusOK {
-		return nil, fmt.Errorf("error code: %d\nbody: %s", resp.StatusCode(), string(resp.Body()))
+		return "", fmt.Errorf("error code: %d\nbody: %s", resp.StatusCode(), string(resp.Body()))
 	}
 
 	// Do we need to decompress the response?
 	contentEncoding := resp.Header.Peek("Content-Encoding")
-	var body []byte
+	var bodyBytes []byte
 	if bytes.EqualFold(contentEncoding, []byte("gzip")) {
-		body, _ = resp.BodyGunzip()
+		bodyBytes, _ = resp.BodyGunzip()
 	} else {
-		body = resp.Body()
+		bodyBytes = resp.Body()
 	}
 
-	b.sugar.Debug("Content: ", string(body))
+	body := string(bodyBytes)
+
+	b.sugar.Debug("Content: ", body)
 
 	return body, nil
 }
 
-func (b *BiliroamingGo) doRequestJson(ctx *fasthttp.RequestCtx, client *fasthttp.Client, url string) ([]byte, error) {
+func (b *BiliroamingGo) doRequestJson(ctx *fasthttp.RequestCtx, client *fasthttp.Client, url string) (string, error) {
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
 	req.Header.SetUserAgentBytes(ctx.UserAgent())
@@ -165,38 +167,40 @@ func (b *BiliroamingGo) doRequestJson(ctx *fasthttp.RequestCtx, client *fasthttp
 
 	err := client.DoRedirects(req, resp, 3)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	b.sugar.Debugf("doRedirects: %d", resp.StatusCode())
 
 	if resp.StatusCode() != fasthttp.StatusOK {
-		return nil, fmt.Errorf("error code: %d\nbody: %s", resp.StatusCode(), string(resp.Body()))
+		return "", fmt.Errorf("error code: %d\nbody: %s", resp.StatusCode(), string(resp.Body()))
 	}
 
 	// Verify the content type
 	contentType := resp.Header.Peek("Content-Type")
 	if bytes.Index(contentType, []byte("application/json")) != 0 {
-		return nil, fmt.Errorf("expected content-type json but %s", string(contentType))
+		return "", fmt.Errorf("expected content-type json but %s", string(contentType))
 	}
 
 	// Do we need to decompress the response?
 	contentEncoding := resp.Header.Peek("Content-Encoding")
-	var body []byte
+	var bodyBytes []byte
 	if bytes.EqualFold(contentEncoding, []byte("gzip")) {
-		body, _ = resp.BodyGunzip()
+		bodyBytes, _ = resp.BodyGunzip()
 	} else {
-		body = resp.Body()
+		bodyBytes = resp.Body()
 	}
 
-	b.sugar.Debug("Content: ", string(body))
+	body := string(bodyBytes)
+
+	b.sugar.Debug("Content: ", body)
 
 	// Remove mid from json content
 	if strings.Contains(url, "/playurl?") {
-		s := reMid.FindAllString(string(body), 1)
+		s := reMid.FindAllString(body, 1)
 		if len(s) > 0 {
-			body = []byte(strings.ReplaceAll(string(body), s[0], ""))
-			b.sugar.Debug("New content: ", string(body))
+			body = strings.ReplaceAll(body, s[0], "")
+			b.sugar.Debug("New content: ", body)
 		}
 	}
 

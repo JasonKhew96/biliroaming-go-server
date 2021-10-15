@@ -93,7 +93,7 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 		return nil, err
 	}
 	data := &entity.AccInfo{}
-	err = easyjson.Unmarshal(body, data)
+	err = easyjson.Unmarshal([]byte(body), data)
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +130,7 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 	}, nil
 }
 
-func (b *BiliroamingGo) getMyInfo(ctx *fasthttp.RequestCtx, accessKey string) ([]byte, error) {
+func (b *BiliroamingGo) getMyInfo(ctx *fasthttp.RequestCtx, accessKey string) (string, error) {
 	apiURL := "https://app.bilibili.com/x/v2/account/myinfo"
 
 	v := url.Values{}
@@ -139,7 +139,7 @@ func (b *BiliroamingGo) getMyInfo(ctx *fasthttp.RequestCtx, accessKey string) ([
 
 	params, err := SignParams(v, ClientTypeAndroid)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	apiURL += "?" + params
 
@@ -147,10 +147,10 @@ func (b *BiliroamingGo) getMyInfo(ctx *fasthttp.RequestCtx, accessKey string) ([
 
 	body, err := b.doRequestJson(ctx, b.defaultClient, apiURL)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	b.sugar.Debug("Content: ", string(body))
+	b.sugar.Debug("Content: ", body)
 
 	return body, nil
 }

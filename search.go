@@ -9,20 +9,20 @@ import (
 	"golang.org/x/net/idna"
 )
 
-func (b *BiliroamingGo) addSearchAds(data []byte) []byte {
+func (b *BiliroamingGo) addSearchAds(data string) string {
 	if b.config.CustomSearchData == "" {
 		return data
 	}
 
 	old := "\"items\":["
 	new := old + b.config.CustomSearchData + ","
-	newData := strings.Replace(string(data), old, new, 1)
+	newData := strings.Replace(data, old, new, 1)
 
-	if isValidJson([]byte(newData)) {
-		return []byte(newData)
+	if isValidJson(newData) {
+		return newData
 	}
 
-	b.sugar.Debugf("isValidJson: %t\n%s", isValidJson, string(newData))
+	b.sugar.Debugf("isValidJson: %t\n%s", isValidJson, newData)
 	return data
 }
 
@@ -94,7 +94,7 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 	data = b.addSearchAds(data)
 
 	setDefaultHeaders(ctx)
-	ctx.Write(data)
+	ctx.WriteString(data)
 }
 
 func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
@@ -172,5 +172,5 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 	data = b.addSearchAds(data)
 
 	setDefaultHeaders(ctx)
-	ctx.Write(data)
+	ctx.WriteString(data)
 }

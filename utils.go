@@ -81,9 +81,9 @@ func getAreaCode(area string) database.Area {
 	}
 }
 
-func isResponseLimited(data []byte) (bool, error) {
+func isResponseLimited(data string) (bool, error) {
 	resp := &entity.SimpleResponse{}
-	if err := easyjson.Unmarshal(data, resp); err != nil {
+	if err := easyjson.Unmarshal([]byte(data), resp); err != nil {
 		return false, err
 	}
 	if resp.Code == -412 {
@@ -92,6 +92,6 @@ func isResponseLimited(data []byte) (bool, error) {
 	return false, nil
 }
 
-func isValidJson(data []byte) bool {
+func isValidJson(data string) bool {
 	return easyjson.Unmarshal([]byte(data), &easyjson.RawMessage{}) == nil
 }

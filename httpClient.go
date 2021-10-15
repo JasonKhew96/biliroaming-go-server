@@ -163,7 +163,7 @@ func (b *BiliroamingGo) doRequestJson(ctx *fasthttp.RequestCtx, client *fasthttp
 	resp := fasthttp.AcquireResponse()
 	defer fasthttp.ReleaseResponse(resp)
 
-	err := client.DoRedirects(req, resp, 1)
+	err := client.DoRedirects(req, resp, 3)
 	if err != nil {
 		return nil, err
 	}

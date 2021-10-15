@@ -167,7 +167,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 		if isValidJson(newData) {
 			data = newData
 		} else {
-			b.sugar.Errorf("addCustomSubSeason: ", string(newData))
+			b.sugar.Error("addCustomSubSeason: ", string(newData))
 		}
 	}
 

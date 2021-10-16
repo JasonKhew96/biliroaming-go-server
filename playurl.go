@@ -83,6 +83,13 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	if isNotLogin, err := isResponseNotLogin(data); err != nil {
+		b.sugar.Error(err)
+	} else if isNotLogin {
+		ctx.Write([]byte(data))
+		return
+	}
+
 	setDefaultHeaders(ctx)
 	ctx.WriteString(data)
 
@@ -170,6 +177,13 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	data, err := b.doRequestJson(ctx, client, url)
 	if err != nil {
 		b.processError(ctx, err)
+		return
+	}
+
+	if isNotLogin, err := isResponseNotLogin(data); err != nil {
+		b.sugar.Error(err)
+	} else if isNotLogin {
+		ctx.Write([]byte(data))
 		return
 	}
 

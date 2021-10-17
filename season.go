@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
@@ -23,7 +24,7 @@ func (b *BiliroamingGo) addCustomSubSeason(ctx *fasthttp.RequestCtx, seasonId st
 	}
 
 	requestUrl := fmt.Sprintf(b.config.CustomSubtitle.ApiUrl, seasonId)
-	customSubData, err := b.doRequestJson(ctx, b.defaultClient, requestUrl)
+	customSubData, err := b.doRequestJson(ctx, b.defaultClient, requestUrl, []byte(http.MethodGet))
 	if err != nil {
 		return "", errors.Wrap(err, "custom subtitle api")
 	}
@@ -148,7 +149,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/intl/gateway/v2/ogv/view/app/season?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data, err := b.doRequestJson(ctx, client, url)
+	data, err := b.doRequestJson(ctx, client, url, []byte(http.MethodGet))
 	if err != nil {
 		b.processError(ctx, err)
 		return

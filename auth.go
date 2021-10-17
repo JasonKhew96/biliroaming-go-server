@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -46,7 +47,7 @@ func (b *BiliroamingGo) getAuthByArea(area string) bool {
 
 func (b *BiliroamingGo) isBlacklist(ctx *fasthttp.RequestCtx, accessKey string) (bool, error) {
 	apiUrl := fmt.Sprintf("https://black.qimo.ink/?access_key=%s", accessKey)
-	data, err := b.doRequest(ctx, b.defaultClient, apiUrl)
+	data, err := b.doRequest(ctx, b.defaultClient, apiUrl, []byte(http.MethodGet))
 	if err != nil {
 		return false, err
 	}
@@ -145,7 +146,7 @@ func (b *BiliroamingGo) getMyInfo(ctx *fasthttp.RequestCtx, accessKey string) (s
 
 	b.sugar.Debug(apiURL)
 
-	body, err := b.doRequestJson(ctx, b.defaultClient, apiURL)
+	body, err := b.doRequestJson(ctx, b.defaultClient, apiURL, []byte(http.MethodGet))
 	if err != nil {
 		return "", err
 	}

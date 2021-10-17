@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"net/url"
 	"strconv"
 	"time"
@@ -75,7 +76,7 @@ func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/intl/gateway/v2/app/subtitle?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data, err := b.doRequestJson(ctx, client, url)
+	data, err := b.doRequestJson(ctx, client, url, []byte(http.MethodGet))
 	if err != nil {
 		b.processError(ctx, err)
 		return

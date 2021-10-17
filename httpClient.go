@@ -116,11 +116,12 @@ func writeHealthJSON(ctx *fasthttp.RequestCtx, health *entity.Health) {
 	ctx.Write(respData)
 }
 
-func (b *BiliroamingGo) doRequest(ctx *fasthttp.RequestCtx, client *fasthttp.Client, url string) (string, error) {
+func (b *BiliroamingGo) doRequest(ctx *fasthttp.RequestCtx, client *fasthttp.Client, url string, method []byte) (string, error) {
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
 	req.Header.SetUserAgentBytes(ctx.UserAgent())
 	req.SetRequestURI(url)
+	req.Header.SetMethodBytes(method)
 
 	b.sugar.Debugf("doRequest: %s", req.RequestURI())
 
@@ -154,11 +155,12 @@ func (b *BiliroamingGo) doRequest(ctx *fasthttp.RequestCtx, client *fasthttp.Cli
 	return body, nil
 }
 
-func (b *BiliroamingGo) doRequestJson(ctx *fasthttp.RequestCtx, client *fasthttp.Client, url string) (string, error) {
+func (b *BiliroamingGo) doRequestJson(ctx *fasthttp.RequestCtx, client *fasthttp.Client, url string, method []byte) (string, error) {
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
 	req.Header.SetUserAgentBytes(ctx.UserAgent())
 	req.SetRequestURI(url)
+	req.Header.SetMethodBytes(method)
 
 	b.sugar.Debugf("doRequest: %s", req.RequestURI())
 

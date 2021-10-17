@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -80,7 +81,7 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/x/v2/search/type?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data, err := b.doRequestJson(ctx, client, url)
+	data, err := b.doRequestJson(ctx, client, url, []byte(http.MethodGet))
 	if err != nil {
 		b.processError(ctx, err)
 		return
@@ -158,7 +159,7 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/intl/gateway/v2/app/search/type?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data, err := b.doRequestJson(ctx, client, url)
+	data, err := b.doRequestJson(ctx, client, url, []byte(http.MethodGet))
 	if err != nil {
 		b.processError(ctx, err)
 		return

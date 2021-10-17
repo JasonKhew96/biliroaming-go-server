@@ -13,10 +13,10 @@ import (
 )
 
 func (b *BiliroamingGo) initProxy(c *Config) {
-	b.cnClient = b.newClient(c.ProxyCN)
-	b.hkClient = b.newClient(c.ProxyHK)
-	b.twClient = b.newClient(c.ProxyTW)
-	b.thClient = b.newClient(c.ProxyTH)
+	b.cnClient = b.newClient(c.Proxy.CN)
+	b.hkClient = b.newClient(c.Proxy.HK)
+	b.twClient = b.newClient(c.Proxy.TW)
+	b.thClient = b.newClient(c.Proxy.TH)
 	b.defaultClient = &fasthttp.Client{}
 }
 
@@ -54,13 +54,13 @@ func (b *BiliroamingGo) getClientByArea(area string) *fasthttp.Client {
 func (b *BiliroamingGo) getReverseProxyByArea(area string) string {
 	switch strings.ToLower(area) {
 	case "cn":
-		return b.config.ReverseCN
+		return b.config.Reverse.CN
 	case "hk":
-		return b.config.ReverseHK
+		return b.config.Reverse.HK
 	case "tw":
-		return b.config.ReverseTW
+		return b.config.Reverse.TW
 	case "th":
-		return b.config.ReverseTH
+		return b.config.Reverse.TH
 	default:
 		return ""
 	}
@@ -69,11 +69,11 @@ func (b *BiliroamingGo) getReverseProxyByArea(area string) string {
 func (b *BiliroamingGo) getReverseSearchProxyByArea(area string) string {
 	switch strings.ToLower(area) {
 	case "cn":
-		return b.config.ReverseSearchCN
+		return b.config.ReverseSearch.CN
 	case "hk":
-		return b.config.ReverseSearchHK
+		return b.config.ReverseSearch.HK
 	case "tw":
-		return b.config.ReverseSearchTW
+		return b.config.ReverseSearch.TW
 	default:
 		return ""
 	}

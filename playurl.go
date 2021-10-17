@@ -38,7 +38,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 			return
 		}
 		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeWeb, getAreaCode(args.area), isVIP, cidInt, epidInt)
-		if err == nil && playurlCache.JSONData != "" && playurlCache.UpdatedAt.After(time.Now().Add(-time.Duration(b.config.CachePlayURL)*time.Minute)) {
+		if err == nil && playurlCache.JSONData != "" && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
 			b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
 			setDefaultHeaders(ctx)
 			ctx.Write([]byte(playurlCache.JSONData))
@@ -128,7 +128,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		}
 
 		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeAndroid, getAreaCode(args.area), isVIP, cidInt, epidInt)
-		if err == nil && playurlCache.JSONData != "" && playurlCache.UpdatedAt.After(time.Now().Add(-time.Duration(b.config.CachePlayURL)*time.Minute)) {
+		if err == nil && playurlCache.JSONData != "" && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
 			b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
 			setDefaultHeaders(ctx)
 			ctx.Write([]byte(playurlCache.JSONData))
@@ -232,7 +232,7 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		}
 
 		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeAndroid, getAreaCode(args.area), isVIP, cidInt, epidInt)
-		if err == nil && playurlCache.JSONData != "" && playurlCache.UpdatedAt.After(time.Now().Add(-time.Duration(b.config.CachePlayURL)*time.Minute)) {
+		if err == nil && playurlCache.JSONData != "" && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
 			b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
 			setDefaultHeaders(ctx)
 			ctx.Write([]byte(playurlCache.JSONData))

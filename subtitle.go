@@ -33,7 +33,7 @@ func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 		// 	return
 		// }
 		subtitleCache, err := b.db.GetTHSubtitleCache(episodeIdInt)
-		if err == nil && subtitleCache.JSONData != "" && subtitleCache.UpdatedAt.After(time.Now().Add(-time.Duration(b.config.CacheTHSubtitle)*time.Minute)) {
+		if err == nil && subtitleCache.JSONData != "" && subtitleCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.THSubtitle)) {
 			b.sugar.Debug("Replay from cache: ", subtitleCache.JSONData)
 			setDefaultHeaders(ctx)
 			ctx.Write([]byte(subtitleCache.JSONData))

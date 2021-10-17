@@ -10,12 +10,12 @@ import (
 )
 
 func (b *BiliroamingGo) addSearchAds(data string) string {
-	if b.config.CustomSearchData == "" {
+	if b.config.CustomSearch.Data == "" {
 		return data
 	}
 
 	old := "\"items\":["
-	new := old + b.config.CustomSearchData + ","
+	new := old + b.config.CustomSearch.Data + ","
 	newData := strings.Replace(data, old, new, 1)
 
 	if isValidJson(newData) {

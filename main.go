@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"os"
 	"regexp"
 	"strconv"
@@ -79,7 +80,8 @@ func (b *BiliroamingGo) getVisitor(ip string) *rate.Limiter {
 	defer b.vMu.Unlock()
 	u, exists := b.visitors[ip]
 	if !exists {
-		uLimiter := rate.NewLimiter(rate.Limit(b.config.IPLimit), b.config.IPBurst)
+		rt := rate.Every(time.Second / time.Duration(b.config.Limiter.IpLimit))
+		uLimiter := rate.NewLimiter(rt, b.config.Limiter.IpBurst)
 		b.visitors[ip] = &visitor{
 			limiter: uLimiter,
 		}
@@ -93,12 +95,12 @@ func (b *BiliroamingGo) getVisitor(ip string) *rate.Limiter {
 func (b *BiliroamingGo) cleanupDatabase() {
 	for {
 		b.sugar.Debug("Cleaning database...")
-		if aff, err := b.db.CleanupAccessKeys(time.Duration(b.config.CacheAccessKey) * 24 * time.Hour); err != nil {
+		if aff, err := b.db.CleanupAccessKeys(b.config.Cache.AccessKey); err != nil {
 			b.sugar.Error(err)
 		} else {
 			b.sugar.Debugf("Cleanup %d access keys cache", aff)
 		}
-		if aff, err := b.db.CleanupUsers(time.Duration(b.config.CacheUser) * 24 * time.Hour); err != nil {
+		if aff, err := b.db.CleanupUsers(b.config.Cache.User); err != nil {
 			b.sugar.Error(err)
 		} else {
 			b.sugar.Debugf("Cleanup %d users cache", aff)
@@ -133,9 +135,9 @@ func (b *BiliroamingGo) cleanupDatabase() {
 }
 
 func getDbPassword(c *Config) (string, error) {
-	pgPassword := c.PGPassword
-	if c.PGPasswordFile != "" {
-		data, err := os.ReadFile(c.PGPasswordFile)
+	pgPassword := c.PostgreSQL.Password
+	if c.PostgreSQL.PasswordFile != "" {
+		data, err := os.ReadFile(c.PostgreSQL.PasswordFile)
 		if err != nil {
 			return "", err
 		}
@@ -199,15 +201,19 @@ func initHttpServer(c *Config, b *BiliroamingGo) {
 }
 
 func main() {
-	// default config
-	c, err := initConfig()
+	configPath, err := parseFlags()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
+	}
+
+	c, err := initConfig(configPath)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	logger, err := initLogger(c.Debug)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	sugar := logger.Sugar()
 
@@ -242,11 +248,11 @@ func main() {
 	}
 
 	b.db, err = database.NewDBConnection(&database.Config{
-		Host:     c.PGHost,
-		User:     c.PGUser,
+		Host:     c.PostgreSQL.Host,
+		User:     c.PostgreSQL.User,
 		Password: pgPassword,
-		DBName:   c.PGDBName,
-		Port:     c.PGPort,
+		DBName:   c.PostgreSQL.DBName,
+		Port:     c.PostgreSQL.Port,
 	})
 	if err != nil {
 		b.sugar.Fatal(err)

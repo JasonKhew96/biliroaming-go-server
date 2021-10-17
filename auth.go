@@ -12,12 +12,12 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-// BlockType block type
-type BlockType int
+// BlockTypeEnum block type
+type BlockTypeEnum int
 
 // BlockType
 const (
-	BlockTypeDisabled BlockType = iota
+	BlockTypeDisabled BlockTypeEnum = iota
 	BlockTypeWhitelist
 	BlockTypeBlacklist
 )
@@ -32,13 +32,13 @@ type userStatus struct {
 func (b *BiliroamingGo) getAuthByArea(area string) bool {
 	switch strings.ToLower(area) {
 	case "cn":
-		return b.config.AuthCN
+		return b.config.Auth.CN
 	case "hk":
-		return b.config.AuthHK
+		return b.config.Auth.HK
 	case "tw":
-		return b.config.AuthTW
+		return b.config.Auth.TW
 	case "th":
-		return b.config.AuthTH
+		return b.config.Auth.TH
 	default:
 		return true
 	}
@@ -65,7 +65,7 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 			return nil, err
 		}
 		isBlacklisted := false
-		if b.config.BlockTypeConfig == BlockTypeBlacklist {
+		if b.config.BlockType == BlockTypeBlacklist {
 			b.sugar.Debugf("isBlacklist %d %s", keyData.UID, accessKey)
 			isBlacklisted, err = b.isBlacklist(ctx, accessKey)
 			if err != nil {
@@ -115,7 +115,7 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 	isVip := vipDue.After(time.Now())
 
 	isBlacklisted := false
-	if b.config.BlockTypeConfig == BlockTypeBlacklist {
+	if b.config.BlockType == BlockTypeBlacklist {
 		isBlacklisted, err = b.isBlacklist(ctx, accessKey)
 		if err != nil {
 			return nil, err

@@ -1,0 +1,78 @@
+# 调试模式
+debug: false
+# 监听端口
+port: 443
+
+# 黑白名单模式
+# 0 - 禁用
+# 1 - 白名单 (尚未支持)
+# 2 - 黑名单
+blockType: 2
+
+# 限制器
+limiter:
+  # 每秒请求限制
+  ipLimit: 2
+  # 每秒突发求请求限制
+  ipBurst: 1
+
+# 自定义搜索强制插入内容
+customSearch:
+  # 插入的 json 内容
+  data: '{"title":"轉生成女性向遊戲只有毀滅 END 的壞人大小姐 X（僅限港澳台地區）","cover":"https://i0.hdslb.com/bfs/bangumi/image/0f96bfc98bbf5de38c8ba1516719231f3e9b69ff.png","uri":"https://www.bilibili.com/bangumi/play/ss39010/","param":"28234702","goto":"bangumi","ptime":1625241600,"season_id":39010,"season_type":1,"season_type_name":"番剧","media_type":1,"style":"小说改/穿越/搞笑/恋爱/少女","styles":"2021 | 番剧 | 日本","cv":"卡塔莉娜·克拉艾斯：內田真禮\n吉奧爾多·斯提亞特：蒼井翔太\n吉斯·克拉艾斯：柿原徹也\n亞蘭·斯提亞特：鈴木達央\n尼克爾·亞斯卡魯特：松岡禎丞\n梅麗·亨特：岡咲美保\n索菲亞·亞斯卡魯特：水瀨祈\n瑪麗亞·坎貝爾：早見沙織\n拉斐爾·沃爾特：增田俊樹\n安·謝利：和氣杏未\n傑佛瑞·斯提亞特：子安武人\n蘇珊娜·蘭德爾：上阪堇\n伊恩·斯提亞特：白井悠介\n賽琳娜·貝格：小倉唯\n魯弗斯·布羅德：鳥海浩輔","area":"日本","staff":"原作：山口悟（一迅社文庫IRIS／一迅社刊）\n角色原案：ひだかなみ\n監督：井上圭介\n系列構成：清水惠\n角色設計：大島美和\n道具設計：松永辰\n美術監督：込山明日香\n色彩設計：重富英里\n3D監督：栗林裕紀\n攝影監督：衛藤英毅\n編輯：瀧川三智（REAL-T）\n音響監督：龜山俊樹（grooove）\n音樂：田渕夏海、中村巴奈重、齋木達彥、櫻井美希、兼松眾、中島純子、青木沙也果、佐久間奏\n音樂製作：日音\n動畫製作：SILVER LINK.","is_selection":1,"badge":"番剧","episodes":[{"position":1,"uri":"https://www.bilibili.com/bangumi/play/ep408600","param":"408600","index":"1"},{"position":2,"uri":"https://www.bilibili.com/bangumi/play/ep408601","param":"408601","index":"2"},{"position":3,"uri":"https://www.bilibili.com/bangumi/play/ep408602","param":"408602","index":"3"},{"position":4,"uri":"https://www.bilibili.com/bangumi/play/ep408603","param":"408603","index":"4"},{"position":5,"uri":"https://www.bilibili.com/bangumi/play/ep408604","param":"408604","index":"5"},{"position":6,"uri":"https://www.bilibili.com/bangumi/play/ep408605","param":"408605","index":"6"},{"position":7,"uri":"https://www.bilibili.com/bangumi/play/ep408606","param":"408606","index":"7"},{"position":8,"uri":"https://www.bilibili.com/bangumi/play/ep408607","param":"408607","index":"8"},{"position":9,"uri":"https://www.bilibili.com/bangumi/play/ep408608","param":"408608","index":"9"},{"position":10,"uri":"https://www.bilibili.com/bangumi/play/ep408609","param":"408609","index":"10"},{"position":11,"uri":"https://www.bilibili.com/bangumi/play/ep408610","param":"408610","index":"11"},{"position":12,"uri":"https://www.bilibili.com/bangumi/play/ep408611","param":"408611","index":"12"}],"label":"小说改/穿越/搞笑/恋爱/少女","watch_button":{"title":"立即观看","link":"https://www.bilibili.com/bangumi/play/ss39010"},"follow_button":{"icon":"http://i0.hdslb.com/bfs/bangumi/154b6898d2b2c20c21ccef9e41fcf809b518ebb4.png","texts":{"0":"追番","1":"已追番"},"status_report":"bangumi"},"selection_style":"grid","episodes_new":[{"title":"1","uri":"https://www.bilibili.com/bangumi/play/ep408600","param":"408600","is_new":0,"position":1},{"title":"2","uri":"https://www.bilibili.com/bangumi/play/ep408601","param":"408601","is_new":0,"position":2},{"title":"...","uri":"bilibili://search/bangumi-episodes/grid/39010","param":"0","is_new":0,"type":1},{"title":"10","uri":"https://www.bilibili.com/bangumi/play/ep408609","param":"408609","is_new":0,"position":3},{"title":"11","uri":"https://www.bilibili.com/bangumi/play/ep408610","param":"408610","is_new":0,"position":4},{"title":"12","uri":"https://www.bilibili.com/bangumi/play/ep408611","param":"408611","is_new":0,"position":5}],"is_atten":1}'
+
+# 自定义插入字幕
+customSubtitle:
+  apiUrl: 'https://example.com/path?season_id=%s'
+  teamName: '蒙古上单字幕组'
+
+# 缓存时间
+# 实例："1h1m4s" / "5m1s" / "4s"
+cache:
+  # 用户 key
+  accessKey: 168h
+  # 用户资料(uid 和 大会员状态)
+  user: 168h
+  # 播放链接
+  playUrl: 15m
+  # 泰区 season
+  thSeason: 15m
+  # 泰区字幕(兼容老版本)
+  thSubtitle: 15m
+
+# 代理
+proxy:
+  cn: socks5://127.0.0.1:7890
+  hk: socks5://127.0.0.1:7891
+  tw: socks5://127.0.0.1:7892
+  th: socks5://127.0.0.1:7893
+
+# 反代域名
+reverse:
+  cn: api.bilibili.com
+  hk: api.bilibili.com
+  tw: api.bilibili.com
+  th: app.biliintl.com
+
+# 反代搜索域名
+reverseSearch:
+  cn: app.bilibili.com
+  hk: app.bilibili.com
+  tw: app.bilibili.com
+  th: app.biliintl.com
+
+# 鉴权 + 缓存
+auth:
+  cn: true
+  hk: true
+  tw: true
+  th: true
+
+# 数据库
+postgreSQL:
+  host: 'db'
+  user: 'postgres'
+  # password: 'password'
+  passwordFile: '/run/secrets/db-password'
+  dbName: 'postgres'
+  port: 5432

@@ -22,7 +22,7 @@ func (b *BiliroamingGo) addCustomSubSeason(ctx *fasthttp.RequestCtx, seasonId st
 		return "", errors.Wrap(err, "season response unmarshal")
 	}
 
-	requestUrl := fmt.Sprintf(b.config.CustomSubAPI, seasonId)
+	requestUrl := fmt.Sprintf(b.config.CustomSubtitle.ApiUrl, seasonId)
 	customSubData, err := b.doRequestJson(ctx, b.defaultClient, requestUrl)
 	if err != nil {
 		return "", errors.Wrap(err, "custom subtitle api")
@@ -50,7 +50,7 @@ func (b *BiliroamingGo) addCustomSubSeason(ctx *fasthttp.RequestCtx, seasonId st
 				if !strings.HasPrefix(newUrl, "https://") {
 					newUrl = fmt.Sprintf("https://%s", customSubEp.URL)
 				}
-				title := fmt.Sprintf("%s[%s][非官方]", customSubEp.Lang, b.config.CustomSubTeam)
+				title := fmt.Sprintf("%s[%s][非官方]", customSubEp.Lang, b.config.CustomSubtitle.TeamName)
 				subtitles = append([]entity.Subtitles{
 					{
 						ID:        int64(j),
@@ -105,7 +105,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 			return
 		}
 		seasonCache, err := b.db.GetTHSeasonCache(seasonIdInt)
-		if err == nil && seasonCache.JSONData != "" && seasonCache.UpdatedAt.After(time.Now().Add(-time.Duration(b.config.CacheTHSeason)*time.Minute)) {
+		if err == nil && seasonCache.JSONData != "" && seasonCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.THSeason)) {
 			b.sugar.Debug("Replay from cache: ", seasonCache.JSONData)
 			setDefaultHeaders(ctx)
 			ctx.Write([]byte(seasonCache.JSONData))
@@ -160,7 +160,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 		b.updateHealth(b.HealthSeasonTH, isLimited)
 	}
 
-	if b.config.CustomSubAPI != "" {
+	if b.config.CustomSubtitle.ApiUrl != "" {
 		newData, err := b.addCustomSubSeason(ctx, args.seasonId, data)
 		if err != nil {
 			b.processError(ctx, err)

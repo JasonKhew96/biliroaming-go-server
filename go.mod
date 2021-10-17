@@ -5,7 +5,6 @@ go 1.17
 require (
 	github.com/Ferluci/fast-realip v1.0.0
 	github.com/andybalholm/brotli v1.0.3 // indirect
-	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/lib/pq v1.10.3 // indirect
 	github.com/mailru/easyjson v0.7.7
@@ -16,7 +15,7 @@ require (
 	go.uber.org/zap v1.19.1
 	golang.org/x/net v0.0.0-20211014222326-fd004c51d1d6
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac
-	gopkg.in/yaml.v2 v2.4.0 // indirect
+	gopkg.in/yaml.v2 v2.4.0
 	gorm.io/driver/postgres v1.1.2
 	gorm.io/gorm v1.21.16
 )

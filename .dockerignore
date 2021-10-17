@@ -1,9 +1,9 @@
 biliroaming-go-server
 LICENSE
 README.md
-response_sample
-.github
+.github/
 *.sh
-
+*.yml
 Dockerfile
-*.env
+response_sample/
+.gitignore

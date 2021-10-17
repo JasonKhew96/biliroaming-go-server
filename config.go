@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"time"
 
@@ -103,17 +104,27 @@ func parseFlags() (string, error) {
 func initConfig(configPath string) (*Config, error) {
 	config := &Config{}
 
-	file, err := os.Open(configPath)
+	data, err := ioutil.ReadFile(configPath)
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
 
-	d := yaml.NewDecoder(file)
-
-	if err := d.Decode(&config); err != nil {
+	if err := yaml.Unmarshal(data, &config); err != nil {
 		return nil, err
 	}
 
 	return config, nil
+}
+
+func (c *Config) saveConfig(configPath string) error {
+	data, err := yaml.Marshal(&c)
+	if err != nil {
+		return err
+	}
+
+	if err := ioutil.WriteFile(configPath, data, 0644); err != nil {
+		return err
+	}
+
+	return nil
 }

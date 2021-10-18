@@ -57,7 +57,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	v.Set("fnver", "0")
 	v.Set("fnval", "80")
 	v.Set("fourk", "1")
-	// v.Set("qn", "120")
+	v.Set("qn", "120")
 
 	params, err := SignParams(v, ClientTypeAndroid)
 	if err != nil {
@@ -146,7 +146,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	v.Set("fnval", "80")
 	v.Set("fourk", "1")
 	v.Set("platform", "android")
-	// v.Set("qn", "120")
+	v.Set("qn", "120")
 
 	params, err := SignParams(v, ClientTypeAndroid)
 	if err != nil {
@@ -251,7 +251,7 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	v.Set("fourk", "1")
 	v.Set("platform", "android")
 	v.Set("s_locale", "zh_SG")
-	// v.Set("qn", "120")
+	v.Set("qn", "120")
 
 	params, err := SignParams(v, ClientTypeBstarA)
 	if err != nil {

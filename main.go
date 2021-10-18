@@ -44,12 +44,13 @@ type visitor struct {
 
 // BiliroamingGo ...
 type BiliroamingGo struct {
-	config   *Config
-	visitors map[string]*visitor
-	vMu      sync.RWMutex
-	ctx      context.Context
-	logger   *zap.Logger
-	sugar    *zap.SugaredLogger
+	configPath string
+	config     *Config
+	visitors   map[string]*visitor
+	vMu        sync.RWMutex
+	ctx        context.Context
+	logger     *zap.Logger
+	sugar      *zap.SugaredLogger
 
 	cnClient      *fasthttp.Client
 	hkClient      *fasthttp.Client
@@ -221,11 +222,12 @@ func main() {
 	sugar.Debug(c)
 
 	b := &BiliroamingGo{
-		config:   c,
-		visitors: make(map[string]*visitor),
-		ctx:      context.Background(),
-		logger:   logger,
-		sugar:    sugar,
+		configPath: configPath,
+		config:     c,
+		visitors:   make(map[string]*visitor),
+		ctx:        context.Background(),
+		logger:     logger,
+		sugar:      sugar,
 
 		HealthPlayUrlCN: newHealth(),
 		HealthPlayUrlHK: newHealth(),

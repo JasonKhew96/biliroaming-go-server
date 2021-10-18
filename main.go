@@ -92,7 +92,7 @@ func (b *BiliroamingGo) getVisitor(ip string) *rate.Limiter {
 	return u.limiter
 }
 
-func (b *BiliroamingGo) cleanupDatabase() {
+func (b *BiliroamingGo) loop() {
 	for {
 		b.sugar.Debug("Cleaning database...")
 		if aff, err := b.db.CleanupAccessKeys(b.config.Cache.AccessKey); err != nil {
@@ -258,7 +258,7 @@ func main() {
 		b.sugar.Fatal(err)
 	}
 
-	go b.cleanupDatabase()
+	go b.loop()
 
 	initHttpServer(c, b)
 }

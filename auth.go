@@ -24,7 +24,6 @@ const (
 )
 
 type userStatus struct {
-	isAuth      bool
 	isVip       bool
 	isBlacklist bool
 	isWhitelist bool
@@ -75,14 +74,12 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 		}
 		if userData.VIPDueDate.After(time.Now()) {
 			return &userStatus{
-				isAuth:      true,
 				isVip:       true,
 				isBlacklist: isBlacklisted,
 				isWhitelist: false,
 			}, nil
 		}
 		return &userStatus{
-			isAuth:      true,
 			isVip:       false,
 			isBlacklist: isBlacklisted,
 			isWhitelist: false,
@@ -124,7 +121,6 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 	}
 
 	return &userStatus{
-		isAuth:      true,
 		isVip:       isVip,
 		isBlacklist: isBlacklisted,
 		isWhitelist: false,

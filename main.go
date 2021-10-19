@@ -304,10 +304,6 @@ func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string)
 	status, err := b.isAuth(ctx, accessKey)
 	if err != nil {
 		b.sugar.Error(err)
-		writeErrorJSON(ctx, -500, []byte("服务器错误"))
-		return false, false
-	}
-	if !status.isAuth {
 		writeErrorJSON(ctx, -101, []byte("账号未登录"))
 		return false, false
 	}

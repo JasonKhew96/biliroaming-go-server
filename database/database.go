@@ -105,13 +105,17 @@ func (db *Database) CleanupUsers(duration time.Duration) (int64, error) {
 // GetPlayURLCache get play url caching with device type, area, cid or episode ID
 func (db *Database) GetPlayURLCache(deviceType DeviceType, area Area, isVIP bool, cid int, episodeID int) (*PlayURLCache, error) {
 	var data PlayURLCache
-	err := db.Where(&PlayURLCache{
-		DeviceType: deviceType,
-		Area:       area,
-		IsVip:      isVIP,
-		CID:        cid,
-		EpisodeID:  episodeID,
-	}).First(&data).Error
+
+	// workaround golang ignores zero value when initializing
+	urlCache := &PlayURLCache{
+		CID:       cid,
+		EpisodeID: episodeID,
+	}
+	urlCache.DeviceType = deviceType
+	urlCache.Area = area
+	urlCache.IsVip = isVIP
+
+	err := db.Where(urlCache).First(&data).Error
 	return &data, err
 }
 

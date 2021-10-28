@@ -107,13 +107,22 @@ func (db *Database) GetPlayURLCache(deviceType DeviceType, area Area, isVIP bool
 	var data PlayURLCache
 
 	// workaround golang ignores zero value when initializing
-	urlCache := &PlayURLCache{
-		CID:       cid,
-		EpisodeID: episodeID,
+	// urlCache := &PlayURLCache{
+	// 	CID:       cid,
+	// 	EpisodeID: episodeID,
+	// }
+	// urlCache.DeviceType = deviceType
+	// urlCache.Area = area
+	// urlCache.IsVip = isVIP
+
+	// fuck workaround
+	urlCache := map[string]interface{}{
+		"cid":         cid,
+		"episode_id":  episodeID,
+		"device_type": deviceType,
+		"area":        area,
+		"is_vip":      isVIP,
 	}
-	urlCache.DeviceType = deviceType
-	urlCache.Area = area
-	urlCache.IsVip = isVIP
 
 	err := db.Where(urlCache).First(&data).Error
 	return &data, err

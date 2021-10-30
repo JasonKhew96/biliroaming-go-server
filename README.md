@@ -5,14 +5,14 @@
 - 脑子
 - PostgreSQL
 - Nginx (可选)
-- Docker (可选)
+- Docker (推荐)
 
 ## Docker
 见 [JasonKhew96/biliroaming-go-server-docker](https://github.com/JasonKhew96/biliroaming-go-server-docker)
 
 ## 使用方式
 1. 安装并启用 [PostgreSQL](https://www.postgresql.org/)
-2. 设置 环境变量，见 [production.env.example](production.env.example)
+2. 设置 `config.yml`，见 [config.example.yml](config.example.yml)
 3. 修改 Nginx 设置文件
 4. 启用程序 (systemd/screen/nohup)
 

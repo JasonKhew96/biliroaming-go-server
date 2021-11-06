@@ -178,6 +178,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	data, err := b.doRequestJson(ctx, client, url, []byte(http.MethodGet))
 	if err != nil {
 		b.processError(ctx, err)
+		b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
 		return
 	}
 
@@ -190,8 +191,10 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 
 	if isLimited, err := isResponseLimited(data); err != nil {
 		b.sugar.Error(err)
+	} else if isLimited {
+		b.updateHealth(b.getPlayUrlHealth(args.area), -412, "请求被拦截")
 	} else {
-		b.updateHealth(b.getPlayUrlHealth(args.area), isLimited)
+		b.updateHealth(b.getPlayUrlHealth(args.area), 0, "0")
 	}
 
 	setDefaultHeaders(ctx)
@@ -283,13 +286,16 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	data, err := b.doRequestJson(ctx, client, url, []byte(http.MethodGet))
 	if err != nil {
 		b.processError(ctx, err)
+		b.updateHealth(b.HealthPlayUrlTH, -500, "服务器错误")
 		return
 	}
 
 	if isLimited, err := isResponseLimited(data); err != nil {
 		b.sugar.Error(err)
+	} else if isLimited {
+		b.updateHealth(b.HealthPlayUrlTH, -412, "请求被拦截")
 	} else {
-		b.updateHealth(b.HealthPlayUrlTH, isLimited)
+		b.updateHealth(b.HealthPlayUrlTH, 0, "0")
 	}
 
 	setDefaultHeaders(ctx)

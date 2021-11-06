@@ -152,13 +152,16 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 	data, err := b.doRequestJson(ctx, client, url, []byte(http.MethodGet))
 	if err != nil {
 		b.processError(ctx, err)
+		b.updateHealth(b.HealthSeasonTH, -500, "服务器错误")
 		return
 	}
 
 	if isLimited, err := isResponseLimited(data); err != nil {
 		b.sugar.Error(err)
+	} else if isLimited {
+		b.updateHealth(b.HealthSeasonTH, -412, "请求被拦截")
 	} else {
-		b.updateHealth(b.HealthSeasonTH, isLimited)
+		b.updateHealth(b.HealthSeasonTH, 0, "0")
 	}
 
 	if b.config.CustomSubtitle.ApiUrl != "" {

@@ -84,13 +84,16 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 	data, err := b.doRequestJson(ctx, client, url, []byte(http.MethodGet))
 	if err != nil {
 		b.processError(ctx, err)
+		b.updateHealth(b.getSearchHealth(args.area), -500, "服务器错误")
 		return
 	}
 
 	if isLimited, err := isResponseLimited(data); err != nil {
 		b.sugar.Error(err)
+	} else if isLimited {
+		b.updateHealth(b.getSearchHealth(args.area), -412, "请求被拦截")
 	} else {
-		b.updateHealth(b.getSearchHealth(args.area), isLimited)
+		b.updateHealth(b.getSearchHealth(args.area), 0, "0")
 	}
 
 	data = b.addSearchAds(data)
@@ -162,13 +165,16 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 	data, err := b.doRequestJson(ctx, client, url, []byte(http.MethodGet))
 	if err != nil {
 		b.processError(ctx, err)
+		b.updateHealth(b.HealthSearchTH, -500, "服务器错误")
 		return
 	}
 
 	if isLimited, err := isResponseLimited(data); err != nil {
 		b.sugar.Error(err)
+	} else if isLimited {
+		b.updateHealth(b.HealthSearchTH, -412, "请求被拦截")
 	} else {
-		b.updateHealth(b.HealthSearchTH, isLimited)
+		b.updateHealth(b.HealthSearchTH, 0, "0")
 	}
 
 	data = b.addSearchAds(data)

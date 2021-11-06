@@ -19,18 +19,13 @@ func newHealth() *entity.Health {
 	}
 }
 
-func (b *BiliroamingGo) updateHealth(health *entity.Health, isLimited bool) {
+func (b *BiliroamingGo) updateHealth(health *entity.Health, code int, message string) {
 	if health == nil {
 		return
 	}
 	health.Data.LastCheck = time.Now()
-	if isLimited {
-		health.Code = -412
-		health.Message = "请求被拦截"
-	} else {
-		health.Code = 0
-		health.Message = "0"
-	}
+	health.Code = code
+	health.Message = message
 }
 
 func (b *BiliroamingGo) getPlayUrlHealth(area string) *entity.Health {

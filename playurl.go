@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/JasonKhew96/biliroaming-go-server/database"
@@ -42,7 +43,8 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		if err == nil && playurlCache.JSONData != "" && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
 			b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
 			setDefaultHeaders(ctx)
-			ctx.Write([]byte(playurlCache.JSONData))
+			newData := strings.Replace(playurlCache.JSONData, "\"quality\":120,", "\"quality\":"+args.qn+",", 1)
+			ctx.WriteString(newData)
 			return
 		}
 	}
@@ -84,18 +86,20 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	newData := strings.Replace(data, "\"quality\":120,", "\"quality\":"+args.qn+",", 1)
+
 	if isNotLogin, err := isResponseNotLogin(data); err != nil {
 		b.sugar.Error(err)
 	} else if isNotLogin {
-		ctx.Write([]byte(data))
+		ctx.WriteString(newData)
 		return
 	}
 
 	setDefaultHeaders(ctx)
-	ctx.WriteString(data)
+	ctx.WriteString(newData)
 
 	if b.getAuthByArea(args.area) {
-		b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeWeb, getAreaCode(args.area), isVIP, cidInt, epidInt, string(data))
+		b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeWeb, getAreaCode(args.area), isVIP, cidInt, epidInt, data)
 	}
 }
 
@@ -132,7 +136,8 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		if err == nil && playurlCache.JSONData != "" && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
 			b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
 			setDefaultHeaders(ctx)
-			ctx.Write([]byte(playurlCache.JSONData))
+			newData := strings.Replace(playurlCache.JSONData, "\"quality\":120,", "\"quality\":"+args.qn+",", 1)
+			ctx.WriteString(newData)
 			return
 		}
 	}
@@ -182,10 +187,12 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	newData := strings.Replace(data, "\"quality\":120,", "\"quality\":"+args.qn+",", 1)
+
 	if isNotLogin, err := isResponseNotLogin(data); err != nil {
 		b.sugar.Error(err)
 	} else if isNotLogin {
-		ctx.Write([]byte(data))
+		ctx.WriteString(newData)
 		return
 	}
 
@@ -198,10 +205,10 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	}
 
 	setDefaultHeaders(ctx)
-	ctx.WriteString(data)
+	ctx.WriteString(newData)
 
 	if b.getAuthByArea(args.area) {
-		b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeAndroid, getAreaCode(args.area), isVIP, cidInt, epidInt, string(data))
+		b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeAndroid, getAreaCode(args.area), isVIP, cidInt, epidInt, data)
 	}
 }
 
@@ -239,7 +246,8 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		if err == nil && playurlCache.JSONData != "" && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
 			b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
 			setDefaultHeaders(ctx)
-			ctx.Write([]byte(playurlCache.JSONData))
+			newData := strings.Replace(playurlCache.JSONData, "\"quality\":120,", "\"quality\":"+args.qn+",", 1)
+			ctx.WriteString(newData)
 			return
 		}
 	}
@@ -290,6 +298,8 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	newData := strings.Replace(data, "\"quality\":120,", "\"quality\":"+args.qn+",", 1)
+
 	if isLimited, err := isResponseLimited(data); err != nil {
 		b.sugar.Error(err)
 	} else if isLimited {
@@ -299,9 +309,9 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	}
 
 	setDefaultHeaders(ctx)
-	ctx.WriteString(data)
+	ctx.WriteString(newData)
 
 	if b.getAuthByArea(args.area) {
-		b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeAndroid, getAreaCode(args.area), isVIP, cidInt, epidInt, string(data))
+		b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeAndroid, getAreaCode(args.area), isVIP, cidInt, epidInt, data)
 	}
 }

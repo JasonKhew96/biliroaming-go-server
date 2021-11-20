@@ -34,6 +34,7 @@ type biliArgs struct {
 	seasonId  string
 	keyword   string
 	pn        string
+	qn        string
 }
 
 // ip string
@@ -286,7 +287,12 @@ func (b *BiliroamingGo) processArgs(args *fasthttp.Args) *biliArgs {
 		seasonId:  string(args.Peek("season_id")),
 		keyword:   string(args.Peek("keyword")),
 		pn:        string(args.Peek("pn")),
+		qn:        string(args.Peek("qn")),
 	}
+	if queryArgs.qn == "" {
+		queryArgs.qn = "0"
+	}
+
 	b.sugar.Debug("Request args ", args.String())
 	b.sugar.Debugf(
 		"Parsed request args: %v",

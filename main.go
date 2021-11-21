@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"os"
-	"regexp"
 	"strconv"
 	"sync"
 	"time"
@@ -73,8 +72,6 @@ type BiliroamingGo struct {
 
 	db *database.Database
 }
-
-var reMid = regexp.MustCompile(`(&|\\u0026)mid=\d+`)
 
 // get visitor limiter
 func (b *BiliroamingGo) getVisitor(ip string) *rate.Limiter {

@@ -199,11 +199,8 @@ func (b *BiliroamingGo) doRequestJson(ctx *fasthttp.RequestCtx, client *fasthttp
 
 	// Remove mid from json content
 	if strings.Contains(url, "/playurl?") {
-		s := reMid.FindAllString(body, 1)
-		if len(s) > 0 {
-			body = strings.ReplaceAll(body, s[0], "")
-			b.sugar.Debug("New content: ", body)
-		}
+		body = removeMid(body)
+		b.sugar.Debug("New content: ", body)
 	}
 
 	return body, nil

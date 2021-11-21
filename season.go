@@ -15,21 +15,21 @@ import (
 	"golang.org/x/net/idna"
 )
 
-func (b *BiliroamingGo) insertSeasonCache(data string) error {
+func (b *BiliroamingGo) insertSeasonCache(data string, isVIP bool) error {
 	seasonJson := &entity.SeasonResponse{}
 	err := easyjson.Unmarshal([]byte(data), seasonJson)
 	if err != nil {
 		return errors.Wrap(err, "season response unmarshal")
 	}
 
-	b.db.InsertOrUpdateTHSeasonCache(seasonJson.Result.SeasonID, data)
+	b.db.InsertOrUpdateTHSeasonCache(seasonJson.Result.SeasonID, isVIP, data)
 
 	if len(seasonJson.Result.Modules) <= 0 {
 		return nil
 	}
 
 	for _, ep := range seasonJson.Result.Modules[0].Data.Episodes {
-		b.db.InsertOrUpdateTHSeasonEpisodeCache(ep.ID, data)
+		b.db.InsertOrUpdateTHSeasonEpisodeCache(ep.ID, isVIP, data)
 	}
 
 	return nil
@@ -138,7 +138,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 			return
 		}
 		if seasonIdInt != 0 {
-			seasonCache, err := b.db.GetTHSeasonCache(seasonIdInt)
+			seasonCache, err := b.db.GetTHSeasonCache(seasonIdInt, false)
 			if err == nil && seasonCache.JSONData != "" && seasonCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.THSeason)) {
 				b.sugar.Debug("Replay from cache: ", seasonCache.JSONData)
 				setDefaultHeaders(ctx)
@@ -147,7 +147,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 			}
 		}
 		if epIdInt != 0 {
-			seasonCache, err := b.db.GetTHSeasonEpisodeCache(epIdInt)
+			seasonCache, err := b.db.GetTHSeasonEpisodeCache(epIdInt, false)
 			if err == nil && seasonCache.JSONData != "" && seasonCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.THSeason)) {
 				b.sugar.Debug("Replay from cache: ", seasonCache.JSONData)
 				setDefaultHeaders(ctx)
@@ -229,6 +229,6 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 	ctx.WriteString(data)
 
 	if b.getAuthByArea(args.area) {
-		b.insertSeasonCache(data)
+		b.insertSeasonCache(data, false)
 	}
 }

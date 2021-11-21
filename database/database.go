@@ -163,22 +163,22 @@ func (db *Database) CleanupPlayURLCache(duration time.Duration) (int64, error) {
 }
 
 // GetTHSeasonCache get season api cache from season id
-func (db *Database) GetTHSeasonCache(seasonID int) (*THSeasonCache, error) {
+func (db *Database) GetTHSeasonCache(seasonID int, isVIP bool) (*THSeasonCache, error) {
 	var data THSeasonCache
-	err := db.Where(&THSeasonCache{SeasonID: seasonID}).First(&data).Error
+	err := db.Where(&THSeasonCache{SeasonID: seasonID, IsVip: &isVIP}).First(&data).Error
 	return &data, err
 }
 
 // InsertOrUpdateTHSeasonCache insert or update season api cache
-func (db *Database) InsertOrUpdateTHSeasonCache(seasonID int, jsonData string) (int64, error) {
-	data, err := db.GetTHSeasonCache(seasonID)
+func (db *Database) InsertOrUpdateTHSeasonCache(seasonID int, isVIP bool, jsonData string) (int64, error) {
+	data, err := db.GetTHSeasonCache(seasonID, isVIP)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		result := db.Create(&THSeasonCache{SeasonID: seasonID, JSONData: jsonData})
+		result := db.Create(&THSeasonCache{SeasonID: seasonID, IsVip: &isVIP, JSONData: jsonData})
 		return result.RowsAffected, result.Error
 	} else if err != nil {
 		return 0, err
 	}
-	result := db.Model(data).Updates(THSeasonCache{SeasonID: seasonID, JSONData: jsonData})
+	result := db.Model(data).Updates(THSeasonCache{SeasonID: seasonID, IsVip: &isVIP, JSONData: jsonData})
 	return result.RowsAffected, result.Error
 }
 
@@ -190,22 +190,22 @@ func (db *Database) CleanupTHSeasonCache(duration time.Duration) (int64, error) 
 }
 
 // GetTHSeasonCache get season api cache from episode id
-func (db *Database) GetTHSeasonEpisodeCache(episodeID int) (*THSeasonCache, error) {
+func (db *Database) GetTHSeasonEpisodeCache(episodeID int, isVIP bool) (*THSeasonCache, error) {
 	var data THSeasonCache
-	err := db.Where(&THSeasonEpisodeCache{EpisodeID: episodeID}).First(&data).Error
+	err := db.Where(&THSeasonEpisodeCache{EpisodeID: episodeID, IsVip: &isVIP}).First(&data).Error
 	return &data, err
 }
 
 // InsertOrUpdateTHSeasonCache insert or update season api cache
-func (db *Database) InsertOrUpdateTHSeasonEpisodeCache(episodeID int, jsonData string) (int64, error) {
-	data, err := db.GetTHSeasonCache(episodeID)
+func (db *Database) InsertOrUpdateTHSeasonEpisodeCache(episodeID int, isVIP bool, jsonData string) (int64, error) {
+	data, err := db.GetTHSeasonCache(episodeID, isVIP)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		result := db.Create(&THSeasonEpisodeCache{EpisodeID: episodeID, JSONData: jsonData})
+		result := db.Create(&THSeasonEpisodeCache{EpisodeID: episodeID, IsVip: &isVIP, JSONData: jsonData})
 		return result.RowsAffected, result.Error
 	} else if err != nil {
 		return 0, err
 	}
-	result := db.Model(data).Updates(THSeasonEpisodeCache{EpisodeID: episodeID, JSONData: jsonData})
+	result := db.Model(data).Updates(THSeasonEpisodeCache{EpisodeID: episodeID, IsVip: &isVIP, JSONData: jsonData})
 	return result.RowsAffected, result.Error
 }
 

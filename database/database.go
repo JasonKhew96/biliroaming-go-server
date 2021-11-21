@@ -42,6 +42,7 @@ func NewDBConnection(c *Config) (*Database, error) {
 		&Users{},
 		&PlayURLCache{},
 		&THSeasonCache{},
+		&THSeasonEpisodeCache{},
 		&THSubtitleCache{},
 	)
 
@@ -185,6 +186,26 @@ func (db *Database) InsertOrUpdateTHSeasonCache(seasonID int, jsonData string) (
 func (db *Database) CleanupTHSeasonCache(duration time.Duration) (int64, error) {
 	startTS := time.Now().Add(-duration)
 	result := db.Where("updated_at <= ?", startTS).Delete(THSeasonCache{})
+	return result.RowsAffected, result.Error
+}
+
+// GetTHSeasonCache get season api cache from episode id
+func (db *Database) GetTHSeasonEpisodeCache(episodeID int) (*THSeasonCache, error) {
+	var data THSeasonCache
+	err := db.Where(&THSeasonEpisodeCache{EpisodeID: episodeID}).First(&data).Error
+	return &data, err
+}
+
+// InsertOrUpdateTHSeasonCache insert or update season api cache
+func (db *Database) InsertOrUpdateTHSeasonEpisodeCache(episodeID int, jsonData string) (int64, error) {
+	data, err := db.GetTHSeasonCache(episodeID)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		result := db.Create(&THSeasonEpisodeCache{EpisodeID: episodeID, JSONData: jsonData})
+		return result.RowsAffected, result.Error
+	} else if err != nil {
+		return 0, err
+	}
+	result := db.Model(data).Updates(THSeasonEpisodeCache{EpisodeID: episodeID, JSONData: jsonData})
 	return result.RowsAffected, result.Error
 }
 

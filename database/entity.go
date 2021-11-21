@@ -64,6 +64,14 @@ type THSeasonCache struct {
 	UpdatedAt time.Time `gorm:"column:updated_at"`            // 更新时间
 }
 
+// THSeasonEpisodeCache season episode ID 缓存
+type THSeasonEpisodeCache struct {
+	EpisodeID int       `gorm:"column:episode_id; primarykey"` // ...
+	JSONData  string    `gorm:"column:json_data"`              // 内容
+	CreatedAt time.Time `gorm:"column:created_at"`             // 创建时间
+	UpdatedAt time.Time `gorm:"column:updated_at"`             // 更新时间
+}
+
 // THSubtitleCache 字幕缓存
 type THSubtitleCache struct {
 	EpisodeID int       `gorm:"column:episode_id; primarykey"` // ...

@@ -286,8 +286,8 @@ func (b *BiliroamingGo) processArgs(args *fasthttp.Args) *biliArgs {
 		pn:        string(args.Peek("pn")),
 		qn:        string(args.Peek("qn")),
 	}
-	if queryArgs.qn == "" {
-		queryArgs.qn = "0"
+	if queryArgs.qn == "" || queryArgs.qn == "0" {
+		queryArgs.qn = "16"
 	}
 
 	b.sugar.Debug("Request args ", args.String())

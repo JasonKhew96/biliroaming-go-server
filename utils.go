@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -13,6 +14,9 @@ import (
 	"github.com/JasonKhew96/biliroaming-go-server/entity"
 	"github.com/mailru/easyjson"
 )
+
+var reMid = regexp.MustCompile(`(&|\\u0026)mid=\d+`)
+var reQn = regexp.MustCompile(`"quality":\d+`)
 
 // ClientType ...
 type ClientType int
@@ -105,4 +109,20 @@ func isResponseNotLogin(data string) (bool, error) {
 
 func isValidJson(data string) bool {
 	return easyjson.Unmarshal([]byte(data), &easyjson.RawMessage{}) == nil
+}
+
+func removeMid(data string) string {
+	s := reMid.FindAllString(data, 1)
+	if len(s) > 0 {
+		data = strings.ReplaceAll(data, s[0], "")
+	}
+	return data
+}
+
+func replaceQn(data string, qn string) string {
+	s := reQn.FindAllString(data, 1)
+	if len(s) > 0 {
+		data = strings.ReplaceAll(data, s[0], fmt.Sprintf(`"quality":%s`, qn))
+	}
+	return data
 }

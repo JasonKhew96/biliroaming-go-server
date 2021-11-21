@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/JasonKhew96/biliroaming-go-server/database"
@@ -43,7 +42,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		if err == nil && playurlCache.JSONData != "" && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
 			b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
 			setDefaultHeaders(ctx)
-			newData := strings.Replace(playurlCache.JSONData, "\"quality\":120,", "\"quality\":"+args.qn+",", 1)
+			newData := replaceQn(playurlCache.JSONData, args.qn)
 			ctx.WriteString(newData)
 			return
 		}
@@ -86,7 +85,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	newData := strings.Replace(data, "\"quality\":120,", "\"quality\":"+args.qn+",", 1)
+	newData := replaceQn(data, args.qn)
 
 	if isNotLogin, err := isResponseNotLogin(data); err != nil {
 		b.sugar.Error(err)
@@ -136,7 +135,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		if err == nil && playurlCache.JSONData != "" && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
 			b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
 			setDefaultHeaders(ctx)
-			newData := strings.Replace(playurlCache.JSONData, "\"quality\":120,", "\"quality\":"+args.qn+",", 1)
+			newData := replaceQn(playurlCache.JSONData, args.qn)
 			ctx.WriteString(newData)
 			return
 		}
@@ -187,7 +186,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	newData := strings.Replace(data, "\"quality\":120,", "\"quality\":"+args.qn+",", 1)
+	newData := replaceQn(data, args.qn)
 
 	if isNotLogin, err := isResponseNotLogin(data); err != nil {
 		b.sugar.Error(err)
@@ -246,7 +245,7 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		if err == nil && playurlCache.JSONData != "" && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
 			b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
 			setDefaultHeaders(ctx)
-			newData := strings.Replace(playurlCache.JSONData, "\"quality\":120,", "\"quality\":"+args.qn+",", 1)
+			newData := replaceQn(playurlCache.JSONData, args.qn)
 			ctx.WriteString(newData)
 			return
 		}
@@ -298,7 +297,7 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	newData := strings.Replace(data, "\"quality\":120,", "\"quality\":"+args.qn+",", 1)
+	newData := replaceQn(data, args.qn)
 
 	if isLimited, err := isResponseLimited(data); err != nil {
 		b.sugar.Error(err)

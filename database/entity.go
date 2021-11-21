@@ -45,15 +45,15 @@ type Users struct {
 
 // PlayURLCache 播放链接缓存
 type PlayURLCache struct {
-	ID         uint       `gorm:"column:id; primarykey"` // ...
-	IsVip      bool       `gorm:"column:is_vip"`         // 大会员
-	CID        int        `gorm:"column:cid"`            // cid
-	Area       Area       `gorm:"column:area"`           // 地区
-	DeviceType DeviceType `gorm:"column:device_type"`    // 装置种类
-	EpisodeID  int        `gorm:"column:episode_id"`     // 剧集 ID
-	JSONData   string     `gorm:"column:json_data"`      // 内容
-	CreatedAt  time.Time  `gorm:"column:created_at"`     // 创建时间
-	UpdatedAt  time.Time  `gorm:"column:updated_at"`     // 更新时间
+	ID         uint       `gorm:"column:id; primarykey"`        // ...
+	IsVip      *bool      `gorm:"column:is_vip; default:false"` // 大会员
+	CID        int        `gorm:"column:cid"`                   // cid
+	Area       Area       `gorm:"column:area"`                  // 地区
+	DeviceType DeviceType `gorm:"column:device_type"`           // 装置种类
+	EpisodeID  int        `gorm:"column:episode_id"`            // 剧集 ID
+	JSONData   string     `gorm:"column:json_data"`             // 内容
+	CreatedAt  time.Time  `gorm:"column:created_at"`            // 创建时间
+	UpdatedAt  time.Time  `gorm:"column:updated_at"`            // 更新时间
 }
 
 // THSeasonCache season 缓存

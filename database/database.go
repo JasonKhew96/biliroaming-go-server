@@ -136,7 +136,7 @@ func (db *Database) InsertOrUpdatePlayURLCache(deviceType DeviceType, area Area,
 		result := db.Create(&PlayURLCache{
 			DeviceType: deviceType,
 			Area:       area,
-			IsVip:      isVIP,
+			IsVip:      &isVIP,
 			CID:        cid,
 			EpisodeID:  episodeID,
 			JSONData:   jsonData,

@@ -173,7 +173,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 		if isValidJson(newData) {
 			data = newData
 		} else {
-			b.sugar.Error("addCustomSubSeason: ", string(newData))
+			b.sugar.Error("addCustomSubSeason: ", newData)
 		}
 	}
 
@@ -181,6 +181,6 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 	ctx.WriteString(data)
 
 	if b.getAuthByArea(args.area) {
-		b.db.InsertOrUpdateTHSeasonCache(seasonIdInt, string(data))
+		b.db.InsertOrUpdateTHSeasonCache(seasonIdInt, data)
 	}
 }

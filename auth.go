@@ -50,7 +50,7 @@ func (b *BiliroamingGo) isBlacklist(ctx *fasthttp.RequestCtx, accessKey string) 
 	if err != nil {
 		return false, err
 	}
-	if string(data) == "ban" {
+	if data == "ban" {
 		return true, nil
 	}
 	return false, nil

@@ -16,7 +16,7 @@ import (
 )
 
 var reMid = regexp.MustCompile(`(&|\\u0026)mid=\d+`)
-var reQn = regexp.MustCompile(`"quality":\d+,`)
+var reQn = regexp.MustCompile(`"quality":\d+,"timelength"`)
 
 // ClientType ...
 type ClientType int
@@ -122,7 +122,7 @@ func removeMid(data string) string {
 func replaceQn(data string, qn string) string {
 	s := reQn.FindAllString(data, 1)
 	if len(s) > 0 {
-		data = strings.Replace(data, s[0], fmt.Sprintf(`"quality":%s,`, qn), 1)
+		data = strings.Replace(data, s[0], fmt.Sprintf(`"quality":%s,"timelength"`, qn), 1)
 	}
 	return data
 }

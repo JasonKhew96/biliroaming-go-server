@@ -192,20 +192,21 @@ func (db *Database) CleanupTHSeasonCache(duration time.Duration) (int64, error) 
 // GetTHSeasonCache get season api cache from episode id
 func (db *Database) GetTHSeasonEpisodeCache(episodeID int, isVIP bool) (*THSeasonCache, error) {
 	var data THSeasonCache
-	err := db.Where(&THSeasonEpisodeCache{EpisodeID: episodeID, IsVip: &isVIP}).First(&data).Error
+	err := db.Model(&THSeasonCache{}).Joins("INNER JOIN th_season_episode_cache ON th_season_episode_cache.season_id = th_season_cache.season_id AND episode_id = ? AND is_vip = ?", episodeID, isVIP).First(&data).Error
+	// err := db.Where(&THSeasonEpisodeCache{EpisodeID: episodeID, IsVip: &isVIP}).First(&data).Error
 	return &data, err
 }
 
 // InsertOrUpdateTHSeasonCache insert or update season api cache
-func (db *Database) InsertOrUpdateTHSeasonEpisodeCache(episodeID int, isVIP bool, jsonData string) (int64, error) {
+func (db *Database) InsertOrUpdateTHSeasonEpisodeCache(episodeID int, seasonID int, isVIP bool) (int64, error) {
 	data, err := db.GetTHSeasonCache(episodeID, isVIP)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		result := db.Create(&THSeasonEpisodeCache{EpisodeID: episodeID, IsVip: &isVIP, JSONData: jsonData})
+		result := db.Create(&THSeasonEpisodeCache{EpisodeID: episodeID, SeasonID: seasonID})
 		return result.RowsAffected, result.Error
 	} else if err != nil {
 		return 0, err
 	}
-	result := db.Model(data).Updates(THSeasonEpisodeCache{EpisodeID: episodeID, IsVip: &isVIP, JSONData: jsonData})
+	result := db.Model(data).Updates(THSeasonEpisodeCache{EpisodeID: episodeID, SeasonID: seasonID})
 	return result.RowsAffected, result.Error
 }
 

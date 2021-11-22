@@ -68,8 +68,7 @@ type THSeasonCache struct {
 // THSeasonEpisodeCache season episode ID 缓存
 type THSeasonEpisodeCache struct {
 	EpisodeID int       `gorm:"column:episode_id; primarykey"` // ...
-	IsVip     *bool     `gorm:"column:is_vip; default:false"`  // 大会员
-	JSONData  string    `gorm:"column:json_data"`              // 内容
+	SeasonID  int       `gorm:"column:season_id"`              // ...
 	CreatedAt time.Time `gorm:"column:created_at"`             // 创建时间
 	UpdatedAt time.Time `gorm:"column:updated_at"`             // 更新时间
 }

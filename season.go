@@ -29,7 +29,7 @@ func (b *BiliroamingGo) insertSeasonCache(data string, isVIP bool) error {
 	}
 
 	for _, ep := range seasonJson.Result.Modules[0].Data.Episodes {
-		b.db.InsertOrUpdateTHSeasonEpisodeCache(ep.ID, isVIP, data)
+		b.db.InsertOrUpdateTHSeasonEpisodeCache(ep.ID, seasonJson.Result.SeasonID, isVIP)
 	}
 
 	return nil

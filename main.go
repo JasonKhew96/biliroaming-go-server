@@ -28,12 +28,12 @@ const (
 type biliArgs struct {
 	accessKey string
 	area      string
-	cid       string
-	epId      string
-	seasonId  string
+	cid       int
+	epId      int
+	seasonId  int
 	keyword   string
-	pn        string
-	qn        string
+	pn        int
+	qn        int
 }
 
 // ip string
@@ -276,18 +276,36 @@ func (b *BiliroamingGo) processError(ctx *fasthttp.RequestCtx, err error) {
 }
 
 func (b *BiliroamingGo) processArgs(args *fasthttp.Args) *biliArgs {
+	cid, err := strconv.Atoi(string(args.Peek("cid")))
+	if err != nil {
+		cid = 0
+	}
+	epId, err := strconv.Atoi(string(args.Peek("ep_id")))
+	if err != nil {
+		epId = 0
+	}
+	seasonId, err := strconv.Atoi(string(args.Peek("season_id")))
+	if err != nil {
+		seasonId = 0
+	}
+	pn, err := strconv.Atoi(string(args.Peek("pn")))
+	if err != nil {
+		pn = 0
+	}
+	qn, err := strconv.Atoi(string(args.Peek("qn")))
+	if err != nil || qn == 0 {
+		qn = 16
+	}
+
 	queryArgs := &biliArgs{
 		accessKey: string(args.Peek("access_key")),
 		area:      string(args.Peek("area")),
-		cid:       string(args.Peek("cid")),
-		epId:      string(args.Peek("ep_id")),
-		seasonId:  string(args.Peek("season_id")),
+		cid:       cid,
+		epId:      epId,
+		seasonId:  seasonId,
 		keyword:   string(args.Peek("keyword")),
-		pn:        string(args.Peek("pn")),
-		qn:        string(args.Peek("qn")),
-	}
-	if queryArgs.qn == "" || queryArgs.qn == "0" {
-		queryArgs.qn = "16"
+		pn:        pn,
+		qn:        qn,
 	}
 
 	b.sugar.Debug("Request args ", args.String())

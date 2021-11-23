@@ -13,10 +13,13 @@ import (
 	"github.com/JasonKhew96/biliroaming-go-server/database"
 	"github.com/JasonKhew96/biliroaming-go-server/entity"
 	"github.com/mailru/easyjson"
+
+	"github.com/JasonKhew96/biliroaming-go-server/entity/android"
+	"github.com/JasonKhew96/biliroaming-go-server/entity/bstar"
+	"github.com/JasonKhew96/biliroaming-go-server/entity/web"
 )
 
 var reMid = regexp.MustCompile(`(&|\\u0026)mid=\d+`)
-var reQn = regexp.MustCompile(`"quality":\d+,"timelength"`)
 
 // ClientType ...
 type ClientType int
@@ -25,6 +28,7 @@ type ClientType int
 const (
 	ClientTypeAndroid ClientType = iota
 	ClientTypeBstarA
+	ClientTypeWeb
 )
 
 // appkey
@@ -119,10 +123,28 @@ func removeMid(data string) string {
 	return data
 }
 
-func replaceQn(data string, qn string) string {
-	s := reQn.FindAllString(data, 1)
-	if len(s) > 0 {
-		data = strings.Replace(data, s[0], fmt.Sprintf(`"quality":%s,"timelength"`, qn), 1)
+func replaceQn(data []byte, qn int, clientType ClientType) ([]byte, error) {
+	switch clientType {
+	case ClientTypeAndroid:
+		var playUrl android.PlayUrlResult
+		if err := easyjson.Unmarshal([]byte(data), &playUrl); err != nil {
+			return nil, err
+		}
+		playUrl.Quality = qn
+		return easyjson.Marshal(playUrl)
+	case ClientTypeBstarA:
+		var playUrl bstar.PlayUrlResult
+		if err := easyjson.Unmarshal([]byte(data), &playUrl); err != nil {
+			return nil, err
+		}
+		playUrl.Data.VideoInfo.Quality = qn
+		return easyjson.Marshal(playUrl)
+	default:
+		var playUrl web.PlayUrlResult
+		if err := easyjson.Unmarshal([]byte(data), &playUrl); err != nil {
+			return nil, err
+		}
+		playUrl.Result.Quality = qn
+		return easyjson.Marshal(playUrl)
 	}
-	return data
 }

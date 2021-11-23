@@ -1,30 +1,47 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
+	"strconv"
 
+	"github.com/JasonKhew96/biliroaming-go-server/entity/bstar"
+	"github.com/JasonKhew96/biliroaming-go-server/entity/web"
+	"github.com/mailru/easyjson"
 	"github.com/valyala/fasthttp"
 	"golang.org/x/net/idna"
 )
 
-func (b *BiliroamingGo) addSearchAds(data string) string {
+func (b *BiliroamingGo) addSearchAds(data []byte, clientType ClientType) ([]byte, error) {
 	if b.config.CustomSearch.Data == "" {
-		return data
+		return data, nil
 	}
 
-	old := "\"items\":["
-	new := old + b.config.CustomSearch.Data + ","
-	newData := strings.Replace(data, old, new, 1)
-
-	if isValidJson(newData) {
-		return newData
+	var customData interface{}
+	if err := json.Unmarshal([]byte(b.config.CustomSearch.Data), &customData); err != nil {
+		return nil, err
 	}
 
-	b.sugar.Debugf("isValidJson: %t\n%s", isValidJson, newData)
-	return data
+	switch clientType {
+	case ClientTypeBstarA:
+		searchResult := &bstar.SearchResult{}
+		if err := easyjson.Unmarshal(data, searchResult); err != nil {
+			return nil, err
+		}
+		searchResult.Data.Items = append([]interface{}{customData}, searchResult.Data.Items...)
+		searchResult.Data.Total++
+		return easyjson.Marshal(searchResult)
+	default:
+		searchResult := &web.SearchResult{}
+		if err := easyjson.Unmarshal(data, searchResult); err != nil {
+			return nil, err
+		}
+		searchResult.Data.Items = append([]interface{}{customData}, searchResult.Data.Items...)
+		searchResult.Data.Total++
+		return easyjson.Marshal(searchResult)
+	}
 }
 
 func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
@@ -52,7 +69,7 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 	v.Set("type", "7")
 	v.Set("mobi_app", "android")
 	v.Set("platform", "android")
-	v.Set("pn", args.pn)
+	v.Set("pn", strconv.Itoa(args.pn))
 
 	params, err := SignParams(v, ClientTypeAndroid)
 	if err != nil {
@@ -96,10 +113,14 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 		b.updateHealth(b.getSearchHealth(args.area), 0, "0")
 	}
 
-	data = b.addSearchAds(data)
+	dataByte, err := b.addSearchAds([]byte(data), ClientTypeAndroid)
+	if err != nil {
+		b.processError(ctx, err)
+		return
+	}
 
 	setDefaultHeaders(ctx)
-	ctx.WriteString(data)
+	ctx.Write(dataByte)
 }
 
 func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
@@ -133,7 +154,7 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 	v.Set("s_locale", "zh_SG")
 	v.Set("type", "7")
 	v.Set("mobi_app", "bstar_a")
-	v.Set("pn", args.pn)
+	v.Set("pn", strconv.Itoa(args.pn))
 
 	params, err := SignParams(v, ClientTypeBstarA)
 	if err != nil {
@@ -177,8 +198,12 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 		b.updateHealth(b.HealthSearchTH, 0, "0")
 	}
 
-	data = b.addSearchAds(data)
+	dataByte, err := b.addSearchAds([]byte(data), ClientTypeBstarA)
+	if err != nil {
+		b.processError(ctx, err)
+		return
+	}
 
 	setDefaultHeaders(ctx)
-	ctx.WriteString(data)
+	ctx.Write(dataByte)
 }

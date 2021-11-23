@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/JasonKhew96/biliroaming-go-server/entity"
+	"github.com/JasonKhew96/biliroaming-go-server/entity/bstar"
 	"github.com/mailru/easyjson"
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
@@ -16,7 +17,7 @@ import (
 )
 
 func (b *BiliroamingGo) insertSeasonCache(data string, isVIP bool) error {
-	seasonJson := &entity.SeasonResponse{}
+	var seasonJson *bstar.SeasonResult
 	err := easyjson.Unmarshal([]byte(data), seasonJson)
 	if err != nil {
 		return errors.Wrap(err, "season response unmarshal")
@@ -35,9 +36,9 @@ func (b *BiliroamingGo) insertSeasonCache(data string, isVIP bool) error {
 	return nil
 }
 
-func (b *BiliroamingGo) addCustomSubSeason(ctx *fasthttp.RequestCtx, seasonId string, oldSeason string) (string, error) {
+func (b *BiliroamingGo) addCustomSubSeason(ctx *fasthttp.RequestCtx, seasonId int, oldSeason string) (string, error) {
 	b.sugar.Debugf("Getting custom subtitle from season id %s", seasonId)
-	seasonJson := &entity.SeasonResponse{}
+	seasonJson := &bstar.SeasonResult{}
 	err := easyjson.Unmarshal([]byte(oldSeason), seasonJson)
 	if err != nil {
 		return "", errors.Wrap(err, "season response unmarshal")
@@ -72,7 +73,7 @@ func (b *BiliroamingGo) addCustomSubSeason(ctx *fasthttp.RequestCtx, seasonId st
 					newUrl = fmt.Sprintf("https://%s", customSubEp.URL)
 				}
 				title := fmt.Sprintf("%s[%s][非官方]", customSubEp.Lang, b.config.CustomSubtitle.TeamName)
-				subtitles = append([]entity.Subtitles{
+				subtitles = append([]bstar.Subtitles{
 					{
 						ID:        int64(j),
 						Key:       customSubEp.Key,
@@ -110,35 +111,17 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 
 	client := b.getClientByArea(args.area)
 
-	if args.seasonId == "" && args.epId == "" {
+	if args.seasonId == 0 && args.epId == 0 {
 		writeErrorJSON(ctx, -400, []byte("请求错误"))
 		return
-	}
-
-	var seasonIdInt, epIdInt int
-	var err error
-
-	if args.seasonId != "" {
-		seasonIdInt, err = strconv.Atoi(args.seasonId)
-		if err != nil {
-			b.processError(ctx, err)
-			return
-		}
-	}
-	if args.epId != "" {
-		epIdInt, err = strconv.Atoi(args.epId)
-		if err != nil {
-			b.processError(ctx, err)
-			return
-		}
 	}
 
 	if b.getAuthByArea(args.area) {
 		if ok, _ := b.doAuth(ctx, args.accessKey, args.area); !ok {
 			return
 		}
-		if seasonIdInt != 0 {
-			seasonCache, err := b.db.GetTHSeasonCache(seasonIdInt, false)
+		if args.seasonId != 0 {
+			seasonCache, err := b.db.GetTHSeasonCache(args.seasonId, false)
 			if err == nil && seasonCache.JSONData != "" && seasonCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.THSeason)) {
 				b.sugar.Debug("Replay from cache: ", seasonCache.JSONData)
 				setDefaultHeaders(ctx)
@@ -146,8 +129,8 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 				return
 			}
 		}
-		if epIdInt != 0 {
-			seasonCache, err := b.db.GetTHSeasonEpisodeCache(epIdInt, false)
+		if args.epId != 0 {
+			seasonCache, err := b.db.GetTHSeasonEpisodeCache(args.epId, false)
 			if err == nil && seasonCache.JSONData != "" && seasonCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.THSeason)) {
 				b.sugar.Debug("Replay from cache: ", seasonCache.JSONData)
 				setDefaultHeaders(ctx)
@@ -162,11 +145,11 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 	v.Set("area", args.area)
 	v.Set("build", "1080003")
 	v.Set("s_locale", "zh_SG")
-	if args.seasonId != "" {
-		v.Set("season_id", args.seasonId)
+	if args.seasonId != 0 {
+		v.Set("season_id", strconv.Itoa(args.seasonId))
 	}
-	if args.epId != "" {
-		v.Set("ep_id", args.epId)
+	if args.epId != 0 {
+		v.Set("ep_id", strconv.Itoa(args.epId))
 	}
 	v.Set("mobi_app", "bstar_a")
 

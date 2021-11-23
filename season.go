@@ -17,20 +17,20 @@ import (
 )
 
 func (b *BiliroamingGo) insertSeasonCache(data string, isVIP bool) error {
-	var seasonJson *bstar.SeasonResult
-	err := easyjson.Unmarshal([]byte(data), seasonJson)
+	seasonResult := &bstar.SeasonResult{}
+	err := easyjson.Unmarshal([]byte(data), seasonResult)
 	if err != nil {
 		return errors.Wrap(err, "season response unmarshal")
 	}
 
-	b.db.InsertOrUpdateTHSeasonCache(seasonJson.Result.SeasonID, isVIP, data)
+	b.db.InsertOrUpdateTHSeasonCache(seasonResult.Result.SeasonID, isVIP, data)
 
-	if len(seasonJson.Result.Modules) <= 0 {
+	if len(seasonResult.Result.Modules) <= 0 {
 		return nil
 	}
 
-	for _, ep := range seasonJson.Result.Modules[0].Data.Episodes {
-		b.db.InsertOrUpdateTHSeasonEpisodeCache(ep.ID, seasonJson.Result.SeasonID, isVIP)
+	for _, ep := range seasonResult.Result.Modules[0].Data.Episodes {
+		b.db.InsertOrUpdateTHSeasonEpisodeCache(ep.ID, seasonResult.Result.SeasonID, isVIP)
 	}
 
 	return nil

@@ -677,7 +677,7 @@ func testTHSeasonEpisodeCachesSelect(t *testing.T) {
 }
 
 var (
-	thSeasonEpisodeCachDBTypes = map[string]string{`EpisodeID`: `bigint`, `CreatedAt`: `timestamp without time zone`, `UpdatedAt`: `timestamp without time zone`, `SeasonID`: `bigint`}
+	thSeasonEpisodeCachDBTypes = map[string]string{`EpisodeID`: `bigint`, `SeasonID`: `bigint`, `CreatedAt`: `timestamp without time zone`, `UpdatedAt`: `timestamp without time zone`}
 	_                          = bytes.MinRead
 )
 

@@ -1,13 +1,15 @@
 package database
 
 import (
-	"errors"
+	"database/sql"
 	"fmt"
 	"time"
 
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
+	"github.com/JasonKhew96/biliroaming-go-server/models"
+	_ "github.com/lib/pq"
+	"github.com/volatiletech/sqlboiler/v4/boil"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
+	"golang.org/x/net/context"
 )
 
 // Config database configurations
@@ -19,220 +21,160 @@ type Config struct {
 	Port     int
 }
 
-// Database database helper
-type Database struct {
-	*gorm.DB
+// DbHelper database helper
+type DbHelper struct {
+	ctx context.Context
+	db  *sql.DB
 }
 
 // NewDBConnection new database connection
-func NewDBConnection(c *Config) (*Database, error) {
+func NewDBConnection(c *Config) (*DbHelper, error) {
+	// connect to database
 	dsn := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%d",
+		"host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
 		c.Host, c.User, c.Password, c.DBName, c.Port,
 	)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Silent),
-	})
+	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		return nil, err
 	}
 
-	db.AutoMigrate(
-		&AccessKeys{},
-		&Users{},
-		&PlayURLCache{},
-		&THSeasonCache{},
-		&THSeasonEpisodeCache{},
-		&THSubtitleCache{},
-	)
+	// sql migrate
+	// migrations := &migrate.FileMigrationSource{
+	// 	Dir: "sql/migrations",
+	// }
+	// n, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// fmt.Printf("Applied %d migrations!\n", n)
 
-	return &Database{db}, err
+	return &DbHelper{ctx: context.Background(), db: db}, err
 }
 
 // GetKey get access key data
-func (db *Database) GetKey(key string) (*AccessKeys, error) {
-	var data AccessKeys
-	err := db.Where(&AccessKeys{Key: key}).First(&data).Error
-	return &data, err
+func (h *DbHelper) GetKey(key string) (*models.AccessKey, error) {
+	return models.AccessKeys(models.AccessKeyWhere.Key.EQ(key)).One(h.ctx, h.db)
 }
 
 // InsertOrUpdateKey insert or update access key data
-func (db *Database) InsertOrUpdateKey(key string, uid int) (int64, error) {
-	data, err := db.GetKey(key)
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		result := db.Create(&AccessKeys{Key: key, UID: uid})
-		return result.RowsAffected, result.Error
-	} else if err != nil {
-		return 0, err
-	}
-	result := db.Model(data).Updates(AccessKeys{Key: key, UID: uid})
-	return result.RowsAffected, result.Error
+func (h *DbHelper) InsertOrUpdateKey(key string, uid int64) error {
+	var accessKeyTable models.AccessKey
+	accessKeyTable.Key = key
+	accessKeyTable.UID = uid
+	return accessKeyTable.Upsert(h.ctx, h.db, false, nil, boil.Infer(), boil.Infer())
 }
 
 // CleanupAccessKeys cleanup access keys if exceeds duration
-func (db *Database) CleanupAccessKeys(duration time.Duration) (int64, error) {
-	startTS := time.Now().Add(-duration)
-	result := db.Where("updated_at <= ?", startTS).Delete(AccessKeys{})
-	return result.RowsAffected, result.Error
+func (h *DbHelper) CleanupAccessKeys(d time.Duration) (int64, error) {
+	startTS := time.Now().Add(-d)
+	return models.AccessKeys(models.AccessKeyWhere.UpdatedAt.LTE(startTS)).DeleteAll(h.ctx, h.db)
 }
 
 // GetUser get user from uid
-func (db *Database) GetUser(uid int) (*Users, error) {
-	var data Users
-	err := db.Where(&Users{UID: uid}).First(&data).Error
-	return &data, err
+func (h *DbHelper) GetUser(uid int64) (*models.User, error) {
+	return models.Users(models.UserWhere.UID.EQ(uid)).One(h.ctx, h.db)
 }
 
 // InsertOrUpdateUser insert or update user data
-func (db *Database) InsertOrUpdateUser(uid int, name string, vipDueDate time.Time) (int64, error) {
-	data, err := db.GetUser(uid)
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		result := db.Create(&Users{UID: uid, Name: name, VIPDueDate: vipDueDate})
-		return result.RowsAffected, result.Error
-	} else if err != nil {
-		return 0, err
-	}
-	result := db.Model(data).Updates(Users{UID: uid, Name: name, VIPDueDate: vipDueDate})
-	return result.RowsAffected, result.Error
+func (h *DbHelper) InsertOrUpdateUser(uid int64, name string, vipDueDate time.Time) error {
+	var userTable models.User
+	userTable.UID = uid
+	userTable.Name = name
+	userTable.VipDueDate = vipDueDate
+	return userTable.Upsert(h.ctx, h.db, false, nil, boil.Infer(), boil.Infer())
 }
 
 // CleanupUsers cleanup users if exceeds duration
-func (db *Database) CleanupUsers(duration time.Duration) (int64, error) {
+func (h *DbHelper) CleanupUsers(duration time.Duration) (int64, error) {
 	startTS := time.Now().Add(-duration)
-	result := db.Where("updated_at <= ?", startTS).Delete(Users{})
-	return result.RowsAffected, result.Error
+	return models.Users(models.UserWhere.UpdatedAt.LTE(startTS)).DeleteAll(h.ctx, h.db)
 }
 
 // GetPlayURLCache get play url caching with device type, area, cid or episode ID
-func (db *Database) GetPlayURLCache(deviceType DeviceType, area Area, isVIP bool, cid int, episodeID int) (*PlayURLCache, error) {
-	var data PlayURLCache
-
-	// workaround golang ignores zero value when initializing
-	// urlCache := &PlayURLCache{
-	// 	CID:       cid,
-	// 	EpisodeID: episodeID,
-	// }
-	// urlCache.DeviceType = deviceType
-	// urlCache.Area = area
-	// urlCache.IsVip = isVIP
-
-	// fuck workaround
-	urlCache := map[string]interface{}{
-		"cid":         cid,
-		"episode_id":  episodeID,
-		"device_type": deviceType,
-		"area":        area,
-		"is_vip":      isVIP,
-	}
-
-	err := db.Where(urlCache).First(&data).Error
-	return &data, err
+func (h *DbHelper) GetPlayURLCache(deviceType DeviceType, area Area, isVIP bool, cid int64, episodeID int64) (*models.PlayURLCach, error) {
+	return models.PlayURLCaches(
+		models.PlayURLCachWhere.DeviceType.EQ(int16(deviceType)),
+		models.PlayURLCachWhere.Area.EQ(int16(area)),
+		models.PlayURLCachWhere.IsVip.EQ(isVIP),
+		models.PlayURLCachWhere.Cid.EQ(cid),
+		models.PlayURLCachWhere.EpisodeID.EQ(episodeID),
+	).One(h.ctx, h.db)
 }
 
 // InsertOrUpdatePlayURLCache insert or update play url cache data
-func (db *Database) InsertOrUpdatePlayURLCache(deviceType DeviceType, area Area, isVIP bool, cid int, episodeID int, jsonData string) (int64, error) {
-	data, err := db.GetPlayURLCache(deviceType, area, isVIP, cid, episodeID)
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		result := db.Create(&PlayURLCache{
-			DeviceType: deviceType,
-			Area:       area,
-			IsVip:      &isVIP,
-			CID:        cid,
-			EpisodeID:  episodeID,
-			JSONData:   jsonData,
-		})
-		return result.RowsAffected, result.Error
-	} else if err != nil {
-		return 0, err
-	}
-	result := db.Model(data).Updates(PlayURLCache{
-		DeviceType: deviceType,
-		Area:       area,
-		CID:        cid,
-		EpisodeID:  episodeID,
-		JSONData:   jsonData,
-	})
-	return result.RowsAffected, result.Error
+func (h *DbHelper) InsertOrUpdatePlayURLCache(deviceType DeviceType, area Area, isVIP bool, cid int64, episodeID int64, data []byte) error {
+	var playUrlTable models.PlayURLCach
+	playUrlTable.DeviceType = int16(deviceType)
+	playUrlTable.Area = int16(area)
+	playUrlTable.IsVip = isVIP
+	playUrlTable.Cid = cid
+	playUrlTable.EpisodeID = episodeID
+	playUrlTable.Data = data
+	return playUrlTable.Upsert(h.ctx, h.db, true, []string{"episode_id"}, boil.Whitelist("data"), boil.Greylist("device_type", "area", "is_vip"))
 }
 
 // CleanupPlayURLCache cleanup playurl if exceeds duration
-func (db *Database) CleanupPlayURLCache(duration time.Duration) (int64, error) {
+func (h *DbHelper) CleanupPlayURLCache(duration time.Duration) (int64, error) {
 	startTS := time.Now().Add(-duration)
-	result := db.Where("updated_at <= ?", startTS).Delete(PlayURLCache{})
-	return result.RowsAffected, result.Error
+	return models.PlayURLCaches(models.PlayURLCachWhere.UpdatedAt.LTE(startTS)).DeleteAll(h.ctx, h.db)
 }
 
 // GetTHSeasonCache get season api cache from season id
-func (db *Database) GetTHSeasonCache(seasonID int, isVIP bool) (*THSeasonCache, error) {
-	var data THSeasonCache
-	err := db.Where(&THSeasonCache{SeasonID: seasonID, IsVip: &isVIP}).First(&data).Error
-	return &data, err
+func (h *DbHelper) GetTHSeasonCache(seasonID int64, isVIP bool) (*models.THSeasonCach, error) {
+	return models.THSeasonCaches(
+		models.THSeasonCachWhere.SeasonID.EQ(seasonID),
+		models.THSeasonCachWhere.IsVip.EQ(isVIP),
+	).One(h.ctx, h.db)
 }
 
 // InsertOrUpdateTHSeasonCache insert or update season api cache
-func (db *Database) InsertOrUpdateTHSeasonCache(seasonID int, isVIP bool, jsonData string) (int64, error) {
-	data, err := db.GetTHSeasonCache(seasonID, isVIP)
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		result := db.Create(&THSeasonCache{SeasonID: seasonID, IsVip: &isVIP, JSONData: jsonData})
-		return result.RowsAffected, result.Error
-	} else if err != nil {
-		return 0, err
-	}
-	result := db.Model(data).Updates(THSeasonCache{SeasonID: seasonID, IsVip: &isVIP, JSONData: jsonData})
-	return result.RowsAffected, result.Error
+func (h *DbHelper) InsertOrUpdateTHSeasonCache(seasonID int64, isVIP bool, data []byte) error {
+	var thSeasonCacheTable models.THSeasonCach
+	thSeasonCacheTable.SeasonID = seasonID
+	thSeasonCacheTable.IsVip = isVIP
+	thSeasonCacheTable.Data = data
+	return thSeasonCacheTable.Upsert(h.ctx, h.db, true, []string{"season_id"}, boil.Whitelist("data"), boil.Greylist("is_vip"))
 }
 
 // CleanupTHSeasonCache cleanup th season if exceeds duration
-func (db *Database) CleanupTHSeasonCache(duration time.Duration) (int64, error) {
+func (h *DbHelper) CleanupTHSeasonCache(duration time.Duration) (int64, error) {
 	startTS := time.Now().Add(-duration)
-	result := db.Where("updated_at <= ?", startTS).Delete(THSeasonCache{})
-	return result.RowsAffected, result.Error
+	return models.THSeasonCaches(models.THSeasonCachWhere.UpdatedAt.LTE(startTS)).DeleteAll(h.ctx, h.db)
 }
 
 // GetTHSeasonCache get season api cache from episode id
-func (db *Database) GetTHSeasonEpisodeCache(episodeID int, isVIP bool) (*THSeasonCache, error) {
-	var data THSeasonCache
-	err := db.Model(&THSeasonCache{}).Joins("INNER JOIN th_season_episode_cache ON th_season_episode_cache.season_id = th_season_cache.season_id AND episode_id = ? AND is_vip = ?", episodeID, isVIP).First(&data).Error
-	// err := db.Where(&THSeasonEpisodeCache{EpisodeID: episodeID, IsVip: &isVIP}).First(&data).Error
-	return &data, err
+func (h *DbHelper) GetTHSeasonEpisodeCache(episodeID int64, isVIP bool) (*models.THSeasonEpisodeCach, error) {
+	return models.THSeasonEpisodeCaches(
+		qm.InnerJoin("th_season_episode_cache ON th_season_episode_cache.season_id = th_season_cache.season_id"),
+		models.THSeasonEpisodeCachWhere.EpisodeID.EQ(episodeID),
+		models.THSeasonCachWhere.IsVip.EQ(isVIP),
+	).One(h.ctx, h.db)
 }
 
 // InsertOrUpdateTHSeasonCache insert or update season api cache
-func (db *Database) InsertOrUpdateTHSeasonEpisodeCache(episodeID int, seasonID int, isVIP bool) (int64, error) {
-	data, err := db.GetTHSeasonCache(episodeID, isVIP)
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		result := db.Create(&THSeasonEpisodeCache{EpisodeID: episodeID, SeasonID: seasonID})
-		return result.RowsAffected, result.Error
-	} else if err != nil {
-		return 0, err
-	}
-	result := db.Model(data).Updates(THSeasonEpisodeCache{EpisodeID: episodeID, SeasonID: seasonID})
-	return result.RowsAffected, result.Error
+func (h *DbHelper) InsertOrUpdateTHSeasonEpisodeCache(episodeID int64, seasonID int64) error {
+	var thSeasonEpisodeCacheTable models.THSeasonEpisodeCach
+	thSeasonEpisodeCacheTable.EpisodeID = episodeID
+	thSeasonEpisodeCacheTable.SeasonID = seasonID
+	return thSeasonEpisodeCacheTable.Upsert(h.ctx, h.db, false, nil, boil.Infer(), boil.Infer())
 }
 
 // GetTHSubtitleCache get th subtitle api cache from season id
-func (db *Database) GetTHSubtitleCache(episodeID int) (*THSubtitleCache, error) {
-	var data THSubtitleCache
-	err := db.Where(&THSubtitleCache{EpisodeID: episodeID}).First(&data).Error
-	return &data, err
+func (h *DbHelper) GetTHSubtitleCache(episodeID int64) (*models.THSubtitleCach, error) {
+	return models.THSubtitleCaches(models.THSubtitleCachWhere.EpisodeID.EQ(episodeID)).One(h.ctx, h.db)
 }
 
 // InsertOrUpdateTHSubtitleCache insert or update th subtitle api cache
-func (db *Database) InsertOrUpdateTHSubtitleCache(episodeID int, jsonData string) (int64, error) {
-	data, err := db.GetTHSubtitleCache(episodeID)
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		result := db.Create(&THSubtitleCache{EpisodeID: episodeID, JSONData: jsonData})
-		return result.RowsAffected, result.Error
-	} else if err != nil {
-		return 0, err
-	}
-	result := db.Model(data).Updates(THSubtitleCache{EpisodeID: episodeID, JSONData: jsonData})
-	return result.RowsAffected, result.Error
+func (h *DbHelper) InsertOrUpdateTHSubtitleCache(episodeID int64, data []byte) error {
+	var thSubtitleCacheTable models.THSubtitleCach
+	thSubtitleCacheTable.EpisodeID = episodeID
+	thSubtitleCacheTable.Data = data
+	return thSubtitleCacheTable.Upsert(h.ctx, h.db, true, []string{"episode_id"}, boil.Whitelist("data"), boil.Infer())
 }
 
 // CleanupTHSubtitleCache cleanup th subtitle if exceeds duration
-func (db *Database) CleanupTHSubtitleCache(duration time.Duration) (int64, error) {
+func (h *DbHelper) CleanupTHSubtitleCache(duration time.Duration) (int64, error) {
 	startTS := time.Now().Add(-duration)
-	result := db.Where("updated_at <= ?", startTS).Delete(THSubtitleCache{})
-	return result.RowsAffected, result.Error
+	return models.THSubtitleCaches(models.THSubtitleCachWhere.UpdatedAt.LTE(startTS)).DeleteAll(h.ctx, h.db)
 }

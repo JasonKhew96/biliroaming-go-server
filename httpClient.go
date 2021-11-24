@@ -155,7 +155,7 @@ func (b *BiliroamingGo) doRequest(ctx *fasthttp.RequestCtx, client *fasthttp.Cli
 	return body, nil
 }
 
-func (b *BiliroamingGo) doRequestJson(ctx *fasthttp.RequestCtx, client *fasthttp.Client, url string, method []byte) (string, error) {
+func (b *BiliroamingGo) doRequestJson(ctx *fasthttp.RequestCtx, client *fasthttp.Client, url string, method []byte) ([]byte, error) {
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
 	req.Header.SetUserAgentBytes(ctx.UserAgent())
@@ -169,19 +169,19 @@ func (b *BiliroamingGo) doRequestJson(ctx *fasthttp.RequestCtx, client *fasthttp
 
 	err := client.DoRedirects(req, resp, 3)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	b.sugar.Debugf("doRedirects: %d", resp.StatusCode())
 
 	if resp.StatusCode() != fasthttp.StatusOK {
-		return "", fmt.Errorf("error code: %d\nbody: %s", resp.StatusCode(), string(resp.Body()))
+		return nil, fmt.Errorf("error code: %d\nbody: %s", resp.StatusCode(), string(resp.Body()))
 	}
 
 	// Verify the content type
 	contentType := resp.Header.Peek("Content-Type")
 	if bytes.Index(contentType, []byte("application/json")) != 0 {
-		return "", fmt.Errorf("expected content-type json but %s", string(contentType))
+		return nil, fmt.Errorf("expected content-type json but %s", string(contentType))
 	}
 
 	// Do we need to decompress the response?
@@ -203,5 +203,5 @@ func (b *BiliroamingGo) doRequestJson(ctx *fasthttp.RequestCtx, client *fasthttp
 		b.sugar.Debug("New content: ", body)
 	}
 
-	return body, nil
+	return []byte(body), nil
 }

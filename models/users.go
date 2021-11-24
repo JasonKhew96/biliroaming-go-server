@@ -25,9 +25,9 @@ import (
 type User struct {
 	UID        int64     `boil:"uid" json:"uid" toml:"uid" yaml:"uid"`
 	Name       string    `boil:"name" json:"name" toml:"name" yaml:"name"`
+	VipDueDate time.Time `boil:"vip_due_date" json:"vip_due_date" toml:"vip_due_date" yaml:"vip_due_date"`
 	CreatedAt  time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	UpdatedAt  time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
-	VipDueDate time.Time `boil:"vip_due_date" json:"vip_due_date" toml:"vip_due_date" yaml:"vip_due_date"`
 
 	R *userR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L userL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -36,29 +36,29 @@ type User struct {
 var UserColumns = struct {
 	UID        string
 	Name       string
+	VipDueDate string
 	CreatedAt  string
 	UpdatedAt  string
-	VipDueDate string
 }{
 	UID:        "uid",
 	Name:       "name",
+	VipDueDate: "vip_due_date",
 	CreatedAt:  "created_at",
 	UpdatedAt:  "updated_at",
-	VipDueDate: "vip_due_date",
 }
 
 var UserTableColumns = struct {
 	UID        string
 	Name       string
+	VipDueDate string
 	CreatedAt  string
 	UpdatedAt  string
-	VipDueDate string
 }{
 	UID:        "users.uid",
 	Name:       "users.name",
+	VipDueDate: "users.vip_due_date",
 	CreatedAt:  "users.created_at",
 	UpdatedAt:  "users.updated_at",
-	VipDueDate: "users.vip_due_date",
 }
 
 // Generated where
@@ -66,15 +66,15 @@ var UserTableColumns = struct {
 var UserWhere = struct {
 	UID        whereHelperint64
 	Name       whereHelperstring
+	VipDueDate whereHelpertime_Time
 	CreatedAt  whereHelpertime_Time
 	UpdatedAt  whereHelpertime_Time
-	VipDueDate whereHelpertime_Time
 }{
 	UID:        whereHelperint64{field: "\"users\".\"uid\""},
 	Name:       whereHelperstring{field: "\"users\".\"name\""},
+	VipDueDate: whereHelpertime_Time{field: "\"users\".\"vip_due_date\""},
 	CreatedAt:  whereHelpertime_Time{field: "\"users\".\"created_at\""},
 	UpdatedAt:  whereHelpertime_Time{field: "\"users\".\"updated_at\""},
-	VipDueDate: whereHelpertime_Time{field: "\"users\".\"vip_due_date\""},
 }
 
 // UserRels is where relationship names are stored.
@@ -98,8 +98,8 @@ func (*userR) NewStruct() *userR {
 type userL struct{}
 
 var (
-	userAllColumns            = []string{"uid", "name", "created_at", "updated_at", "vip_due_date"}
-	userColumnsWithoutDefault = []string{"uid", "name", "created_at", "updated_at", "vip_due_date"}
+	userAllColumns            = []string{"uid", "name", "vip_due_date", "created_at", "updated_at"}
+	userColumnsWithoutDefault = []string{"uid", "name", "vip_due_date", "created_at", "updated_at"}
 	userColumnsWithDefault    = []string{}
 	userPrimaryKeyColumns     = []string{"uid"}
 )

@@ -149,7 +149,7 @@ func testPlayURLCachesExists(t *testing.T) {
 		t.Error(err)
 	}
 
-	e, err := PlayURLCachExists(ctx, tx, o.ID)
+	e, err := PlayURLCachExists(ctx, tx, o.EpisodeID)
 	if err != nil {
 		t.Errorf("Unable to check if PlayURLCach exists: %s", err)
 	}
@@ -175,7 +175,7 @@ func testPlayURLCachesFind(t *testing.T) {
 		t.Error(err)
 	}
 
-	playURLCachFound, err := FindPlayURLCach(ctx, tx, o.ID)
+	playURLCachFound, err := FindPlayURLCach(ctx, tx, o.EpisodeID)
 	if err != nil {
 		t.Error(err)
 	}
@@ -568,7 +568,7 @@ func testPlayURLCachesSelect(t *testing.T) {
 }
 
 var (
-	playURLCachDBTypes = map[string]string{`ID`: `bigint`, `IsVip`: `boolean`, `Area`: `smallint`, `DeviceType`: `smallint`, `EpisodeID`: `bigint`, `Data`: `json`, `CreatedAt`: `timestamp without time zone`, `UpdatedAt`: `timestamp without time zone`, `Cid`: `bigint`}
+	playURLCachDBTypes = map[string]string{`EpisodeID`: `bigint`, `IsVip`: `boolean`, `Cid`: `bigint`, `Area`: `smallint`, `DeviceType`: `smallint`, `Data`: `json`, `CreatedAt`: `timestamp without time zone`, `UpdatedAt`: `timestamp without time zone`}
 	_                  = bytes.MinRead
 )
 

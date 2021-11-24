@@ -28,9 +28,9 @@ const (
 type biliArgs struct {
 	accessKey string
 	area      string
-	cid       int
-	epId      int
-	seasonId  int
+	cid       int64
+	epId      int64
+	seasonId  int64
 	keyword   string
 	pn        int
 	qn        int
@@ -70,7 +70,7 @@ type BiliroamingGo struct {
 	HealthSearchTW *entity.Health
 	HealthSearchTH *entity.Health
 
-	db *database.Database
+	db *database.DbHelper
 }
 
 // get visitor limiter
@@ -276,15 +276,15 @@ func (b *BiliroamingGo) processError(ctx *fasthttp.RequestCtx, err error) {
 }
 
 func (b *BiliroamingGo) processArgs(args *fasthttp.Args) *biliArgs {
-	cid, err := strconv.Atoi(string(args.Peek("cid")))
+	cid, err := strconv.ParseInt(string(args.Peek("cid")), 10, 64)
 	if err != nil {
 		cid = 0
 	}
-	epId, err := strconv.Atoi(string(args.Peek("ep_id")))
+	epId, err := strconv.ParseInt(string(args.Peek("ep_id")), 10, 64)
 	if err != nil {
 		epId = 0
 	}
-	seasonId, err := strconv.Atoi(string(args.Peek("season_id")))
+	seasonId, err := strconv.ParseInt(string(args.Peek("season_id")), 10, 64)
 	if err != nil {
 		seasonId = 0
 	}

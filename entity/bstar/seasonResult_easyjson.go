@@ -199,7 +199,7 @@ func (v *SeasonResult) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson879f924cDecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(l, v)
 }
 func easyjson879f924cDecode(in *jlexer.Lexer, out *struct {
-	SeasonID           int           `json:"season_id"`
+	SeasonID           int64         `json:"season_id"`
 	Alias              string        `json:"alias"`
 	CommentRestriction string        `json:"comment_restriction"`
 	NoComment          string        `json:"no_comment"`
@@ -237,7 +237,7 @@ func easyjson879f924cDecode(in *jlexer.Lexer, out *struct {
 				Aid              int         `json:"aid"`
 				Cid              int         `json:"cid"`
 				Cover            string      `json:"cover"`
-				ID               int         `json:"id"`
+				ID               int64       `json:"id"`
 				Title            string      `json:"title"`
 				LongTitle        string      `json:"long_title"`
 				Status           int         `json:"status"`
@@ -290,7 +290,7 @@ func easyjson879f924cDecode(in *jlexer.Lexer, out *struct {
 		}
 		switch key {
 		case "season_id":
-			out.SeasonID = int(in.Int())
+			out.SeasonID = int64(in.Int64())
 		case "alias":
 			out.Alias = string(in.String())
 		case "comment_restriction":
@@ -413,7 +413,7 @@ func easyjson879f924cDecode(in *jlexer.Lexer, out *struct {
 									Aid              int         `json:"aid"`
 									Cid              int         `json:"cid"`
 									Cover            string      `json:"cover"`
-									ID               int         `json:"id"`
+									ID               int64       `json:"id"`
 									Title            string      `json:"title"`
 									LongTitle        string      `json:"long_title"`
 									Status           int         `json:"status"`
@@ -441,7 +441,7 @@ func easyjson879f924cDecode(in *jlexer.Lexer, out *struct {
 									Aid              int         `json:"aid"`
 									Cid              int         `json:"cid"`
 									Cover            string      `json:"cover"`
-									ID               int         `json:"id"`
+									ID               int64       `json:"id"`
 									Title            string      `json:"title"`
 									LongTitle        string      `json:"long_title"`
 									Status           int         `json:"status"`
@@ -473,7 +473,7 @@ func easyjson879f924cDecode(in *jlexer.Lexer, out *struct {
 								Aid              int         `json:"aid"`
 								Cid              int         `json:"cid"`
 								Cover            string      `json:"cover"`
-								ID               int         `json:"id"`
+								ID               int64       `json:"id"`
 								Title            string      `json:"title"`
 								LongTitle        string      `json:"long_title"`
 								Status           int         `json:"status"`
@@ -633,7 +633,7 @@ func easyjson879f924cDecode(in *jlexer.Lexer, out *struct {
 	}
 }
 func easyjson879f924cEncode(out *jwriter.Writer, in struct {
-	SeasonID           int           `json:"season_id"`
+	SeasonID           int64         `json:"season_id"`
 	Alias              string        `json:"alias"`
 	CommentRestriction string        `json:"comment_restriction"`
 	NoComment          string        `json:"no_comment"`
@@ -671,7 +671,7 @@ func easyjson879f924cEncode(out *jwriter.Writer, in struct {
 				Aid              int         `json:"aid"`
 				Cid              int         `json:"cid"`
 				Cover            string      `json:"cover"`
-				ID               int         `json:"id"`
+				ID               int64       `json:"id"`
 				Title            string      `json:"title"`
 				LongTitle        string      `json:"long_title"`
 				Status           int         `json:"status"`
@@ -711,7 +711,7 @@ func easyjson879f924cEncode(out *jwriter.Writer, in struct {
 	{
 		const prefix string = ",\"season_id\":"
 		out.RawString(prefix[1:])
-		out.Int(int(in.SeasonID))
+		out.Int64(int64(in.SeasonID))
 	}
 	{
 		const prefix string = ",\"alias\":"
@@ -1081,7 +1081,7 @@ func easyjson879f924cDecode1(in *jlexer.Lexer, out *struct {
 			Aid              int         `json:"aid"`
 			Cid              int         `json:"cid"`
 			Cover            string      `json:"cover"`
-			ID               int         `json:"id"`
+			ID               int64       `json:"id"`
 			Title            string      `json:"title"`
 			LongTitle        string      `json:"long_title"`
 			Status           int         `json:"status"`
@@ -1158,7 +1158,7 @@ func easyjson879f924cEncode1(out *jwriter.Writer, in struct {
 			Aid              int         `json:"aid"`
 			Cid              int         `json:"cid"`
 			Cover            string      `json:"cover"`
-			ID               int         `json:"id"`
+			ID               int64       `json:"id"`
 			Title            string      `json:"title"`
 			LongTitle        string      `json:"long_title"`
 			Status           int         `json:"status"`
@@ -1230,7 +1230,7 @@ func easyjson879f924cDecode2(in *jlexer.Lexer, out *struct {
 		Aid              int         `json:"aid"`
 		Cid              int         `json:"cid"`
 		Cover            string      `json:"cover"`
-		ID               int         `json:"id"`
+		ID               int64       `json:"id"`
 		Title            string      `json:"title"`
 		LongTitle        string      `json:"long_title"`
 		Status           int         `json:"status"`
@@ -1273,7 +1273,7 @@ func easyjson879f924cDecode2(in *jlexer.Lexer, out *struct {
 							Aid              int         `json:"aid"`
 							Cid              int         `json:"cid"`
 							Cover            string      `json:"cover"`
-							ID               int         `json:"id"`
+							ID               int64       `json:"id"`
 							Title            string      `json:"title"`
 							LongTitle        string      `json:"long_title"`
 							Status           int         `json:"status"`
@@ -1290,7 +1290,7 @@ func easyjson879f924cDecode2(in *jlexer.Lexer, out *struct {
 							Aid              int         `json:"aid"`
 							Cid              int         `json:"cid"`
 							Cover            string      `json:"cover"`
-							ID               int         `json:"id"`
+							ID               int64       `json:"id"`
 							Title            string      `json:"title"`
 							LongTitle        string      `json:"long_title"`
 							Status           int         `json:"status"`
@@ -1311,7 +1311,7 @@ func easyjson879f924cDecode2(in *jlexer.Lexer, out *struct {
 						Aid              int         `json:"aid"`
 						Cid              int         `json:"cid"`
 						Cover            string      `json:"cover"`
-						ID               int         `json:"id"`
+						ID               int64       `json:"id"`
 						Title            string      `json:"title"`
 						LongTitle        string      `json:"long_title"`
 						Status           int         `json:"status"`
@@ -1344,7 +1344,7 @@ func easyjson879f924cEncode2(out *jwriter.Writer, in struct {
 		Aid              int         `json:"aid"`
 		Cid              int         `json:"cid"`
 		Cover            string      `json:"cover"`
-		ID               int         `json:"id"`
+		ID               int64       `json:"id"`
 		Title            string      `json:"title"`
 		LongTitle        string      `json:"long_title"`
 		Status           int         `json:"status"`
@@ -1382,7 +1382,7 @@ func easyjson879f924cDecode3(in *jlexer.Lexer, out *struct {
 	Aid              int         `json:"aid"`
 	Cid              int         `json:"cid"`
 	Cover            string      `json:"cover"`
-	ID               int         `json:"id"`
+	ID               int64       `json:"id"`
 	Title            string      `json:"title"`
 	LongTitle        string      `json:"long_title"`
 	Status           int         `json:"status"`
@@ -1419,7 +1419,7 @@ func easyjson879f924cDecode3(in *jlexer.Lexer, out *struct {
 		case "cover":
 			out.Cover = string(in.String())
 		case "id":
-			out.ID = int(in.Int())
+			out.ID = int64(in.Int64())
 		case "title":
 			out.Title = string(in.String())
 		case "long_title":
@@ -1487,7 +1487,7 @@ func easyjson879f924cEncode3(out *jwriter.Writer, in struct {
 	Aid              int         `json:"aid"`
 	Cid              int         `json:"cid"`
 	Cover            string      `json:"cover"`
-	ID               int         `json:"id"`
+	ID               int64       `json:"id"`
 	Title            string      `json:"title"`
 	LongTitle        string      `json:"long_title"`
 	Status           int         `json:"status"`
@@ -1520,7 +1520,7 @@ func easyjson879f924cEncode3(out *jwriter.Writer, in struct {
 	{
 		const prefix string = ",\"id\":"
 		out.RawString(prefix)
-		out.Int(int(in.ID))
+		out.Int64(int64(in.ID))
 	}
 	{
 		const prefix string = ",\"title\":"

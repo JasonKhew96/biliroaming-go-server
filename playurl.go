@@ -28,10 +28,10 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 			return
 		}
 		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeWeb, getAreaCode(args.area), isVIP, args.cid, args.epId)
-		if err == nil && playurlCache.JSONData != "" && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
-			b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
+		if err == nil && len(playurlCache.Data) > 0 && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
+			b.sugar.Debug("Replay from cache: ", playurlCache.Data.String())
 			setDefaultHeaders(ctx)
-			newData, err := replaceQn([]byte(playurlCache.JSONData), args.qn, ClientTypeWeb)
+			newData, err := replaceQn(playurlCache.Data, args.qn, ClientTypeWeb)
 			if err != nil {
 				b.processError(ctx, err)
 				return
@@ -46,8 +46,8 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	v := url.Values{}
 	v.Set("access_key", args.accessKey)
 	v.Set("area", args.area)
-	v.Set("cid", strconv.Itoa(args.cid))
-	v.Set("ep_id", strconv.Itoa(args.epId))
+	v.Set("cid", strconv.FormatInt(args.cid, 10))
+	v.Set("ep_id", strconv.FormatInt(args.epId, 10))
 	v.Set("fnver", "0")
 	v.Set("fnval", "464")
 	v.Set("fourk", "1")
@@ -118,10 +118,10 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		}
 
 		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeAndroid, getAreaCode(args.area), isVIP, args.cid, args.epId)
-		if err == nil && playurlCache.JSONData != "" && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
-			b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
+		if err == nil && len(playurlCache.Data) > 0 && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
+			b.sugar.Debug("Replay from cache: ", playurlCache.Data.String())
 			setDefaultHeaders(ctx)
-			newData, err := replaceQn([]byte(playurlCache.JSONData), args.qn, ClientTypeAndroid)
+			newData, err := replaceQn(playurlCache.Data, args.qn, ClientTypeAndroid)
 			if err != nil {
 				b.processError(ctx, err)
 				return
@@ -134,8 +134,8 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	v := url.Values{}
 	v.Set("access_key", args.accessKey)
 	v.Set("area", args.area)
-	v.Set("cid", strconv.Itoa(args.cid))
-	v.Set("ep_id", strconv.Itoa(args.epId))
+	v.Set("cid", strconv.FormatInt(args.cid, 10))
+	v.Set("ep_id", strconv.FormatInt(args.epId, 10))
 	v.Set("fnver", "0")
 	v.Set("fnval", "464")
 	v.Set("fourk", "1")
@@ -225,10 +225,10 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		}
 
 		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeAndroid, getAreaCode(args.area), isVIP, args.cid, args.epId)
-		if err == nil && playurlCache.JSONData != "" && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
-			b.sugar.Debug("Replay from cache: ", playurlCache.JSONData)
+		if err == nil && len(playurlCache.Data) > 0 && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
+			b.sugar.Debug("Replay from cache: ", playurlCache.Data.String())
 			setDefaultHeaders(ctx)
-			newData, err := replaceQn([]byte(playurlCache.JSONData), args.qn, ClientTypeBstarA)
+			newData, err := replaceQn(playurlCache.Data, args.qn, ClientTypeBstarA)
 			if err != nil {
 				b.processError(ctx, err)
 				return
@@ -241,8 +241,8 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	v := url.Values{}
 	v.Set("access_key", args.accessKey)
 	v.Set("area", args.area)
-	v.Set("cid", strconv.Itoa(args.cid))
-	v.Set("ep_id", strconv.Itoa(args.epId))
+	v.Set("cid", strconv.FormatInt(args.cid, 10))
+	v.Set("ep_id", strconv.FormatInt(args.epId, 10))
 	v.Set("fnver", "0")
 	v.Set("fnval", "464")
 	v.Set("fourk", "1")

@@ -17,7 +17,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjson4a0f95aaDecodeGithubComJasonKhew96BiliroamingGoServerAuth(in *jlexer.Lexer, out *AccInfo) {
+func easyjson4a0f95aaDecodeGithubComJasonKhew96BiliroamingGoServerEntity(in *jlexer.Lexer, out *AccInfo) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -52,7 +52,7 @@ func easyjson4a0f95aaDecodeGithubComJasonKhew96BiliroamingGoServerAuth(in *jlexe
 		in.Consumed()
 	}
 }
-func easyjson4a0f95aaEncodeGithubComJasonKhew96BiliroamingGoServerAuth(out *jwriter.Writer, in AccInfo) {
+func easyjson4a0f95aaEncodeGithubComJasonKhew96BiliroamingGoServerEntity(out *jwriter.Writer, in AccInfo) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -77,28 +77,28 @@ func easyjson4a0f95aaEncodeGithubComJasonKhew96BiliroamingGoServerAuth(out *jwri
 // MarshalJSON supports json.Marshaler interface
 func (v AccInfo) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson4a0f95aaEncodeGithubComJasonKhew96BiliroamingGoServerAuth(&w, v)
+	easyjson4a0f95aaEncodeGithubComJasonKhew96BiliroamingGoServerEntity(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v AccInfo) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson4a0f95aaEncodeGithubComJasonKhew96BiliroamingGoServerAuth(w, v)
+	easyjson4a0f95aaEncodeGithubComJasonKhew96BiliroamingGoServerEntity(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *AccInfo) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson4a0f95aaDecodeGithubComJasonKhew96BiliroamingGoServerAuth(&r, v)
+	easyjson4a0f95aaDecodeGithubComJasonKhew96BiliroamingGoServerEntity(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *AccInfo) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson4a0f95aaDecodeGithubComJasonKhew96BiliroamingGoServerAuth(l, v)
+	easyjson4a0f95aaDecodeGithubComJasonKhew96BiliroamingGoServerEntity(l, v)
 }
 func easyjson4a0f95aaDecode(in *jlexer.Lexer, out *struct {
-	Mid  int    `json:"mid"`
+	Mid  int64  `json:"mid"`
 	Name string `json:"name"`
 	VIP  struct {
 		DueDate int64 `json:"due_date"`
@@ -123,7 +123,7 @@ func easyjson4a0f95aaDecode(in *jlexer.Lexer, out *struct {
 		}
 		switch key {
 		case "mid":
-			out.Mid = int(in.Int())
+			out.Mid = int64(in.Int64())
 		case "name":
 			out.Name = string(in.String())
 		case "vip":
@@ -139,7 +139,7 @@ func easyjson4a0f95aaDecode(in *jlexer.Lexer, out *struct {
 	}
 }
 func easyjson4a0f95aaEncode(out *jwriter.Writer, in struct {
-	Mid  int    `json:"mid"`
+	Mid  int64  `json:"mid"`
 	Name string `json:"name"`
 	VIP  struct {
 		DueDate int64 `json:"due_date"`
@@ -151,7 +151,7 @@ func easyjson4a0f95aaEncode(out *jwriter.Writer, in struct {
 	{
 		const prefix string = ",\"mid\":"
 		out.RawString(prefix[1:])
-		out.Int(int(in.Mid))
+		out.Int64(int64(in.Mid))
 	}
 	{
 		const prefix string = ",\"name\":"

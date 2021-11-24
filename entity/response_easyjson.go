@@ -17,7 +17,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjson6ff3ac1dDecodeGithubComJasonKhew96BiliroamingGoServerResponse(in *jlexer.Lexer, out *SimpleResponse) {
+func easyjson6ff3ac1dDecodeGithubComJasonKhew96BiliroamingGoServerEntity(in *jlexer.Lexer, out *SimpleResponse) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -52,7 +52,7 @@ func easyjson6ff3ac1dDecodeGithubComJasonKhew96BiliroamingGoServerResponse(in *j
 		in.Consumed()
 	}
 }
-func easyjson6ff3ac1dEncodeGithubComJasonKhew96BiliroamingGoServerResponse(out *jwriter.Writer, in SimpleResponse) {
+func easyjson6ff3ac1dEncodeGithubComJasonKhew96BiliroamingGoServerEntity(out *jwriter.Writer, in SimpleResponse) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -77,23 +77,23 @@ func easyjson6ff3ac1dEncodeGithubComJasonKhew96BiliroamingGoServerResponse(out *
 // MarshalJSON supports json.Marshaler interface
 func (v SimpleResponse) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson6ff3ac1dEncodeGithubComJasonKhew96BiliroamingGoServerResponse(&w, v)
+	easyjson6ff3ac1dEncodeGithubComJasonKhew96BiliroamingGoServerEntity(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v SimpleResponse) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6ff3ac1dEncodeGithubComJasonKhew96BiliroamingGoServerResponse(w, v)
+	easyjson6ff3ac1dEncodeGithubComJasonKhew96BiliroamingGoServerEntity(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *SimpleResponse) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson6ff3ac1dDecodeGithubComJasonKhew96BiliroamingGoServerResponse(&r, v)
+	easyjson6ff3ac1dDecodeGithubComJasonKhew96BiliroamingGoServerEntity(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *SimpleResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6ff3ac1dDecodeGithubComJasonKhew96BiliroamingGoServerResponse(l, v)
+	easyjson6ff3ac1dDecodeGithubComJasonKhew96BiliroamingGoServerEntity(l, v)
 }

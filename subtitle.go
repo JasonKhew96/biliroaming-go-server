@@ -28,10 +28,10 @@ func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 		// 	return
 		// }
 		subtitleCache, err := b.db.GetTHSubtitleCache(args.epId)
-		if err == nil && subtitleCache.JSONData != "" && subtitleCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.THSubtitle)) {
-			b.sugar.Debug("Replay from cache: ", subtitleCache.JSONData)
+		if err == nil && len(subtitleCache.Data) > 0 && subtitleCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.THSubtitle)) {
+			b.sugar.Debug("Replay from cache: ", subtitleCache.Data.String())
 			setDefaultHeaders(ctx)
-			ctx.Write([]byte(subtitleCache.JSONData))
+			ctx.Write(subtitleCache.Data)
 			return
 		}
 	}
@@ -40,7 +40,7 @@ func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 	v.Set("access_key", args.accessKey)
 	v.Set("area", args.area)
 	v.Set("s_locale", "zh_SG")
-	v.Set("ep_id", strconv.Itoa(args.epId))
+	v.Set("ep_id", strconv.FormatInt(args.epId, 10))
 	v.Set("mobi_app", "bstar_a")
 
 	params, err := SignParams(v, ClientTypeBstarA)
@@ -77,7 +77,7 @@ func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 	}
 
 	setDefaultHeaders(ctx)
-	ctx.WriteString(data)
+	ctx.Write(data)
 
 	if b.getAuthByArea(args.area) {
 		b.db.InsertOrUpdateTHSubtitleCache(args.epId, data)

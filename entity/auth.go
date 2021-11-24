@@ -6,7 +6,7 @@ type AccInfo struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	Data    struct {
-		Mid  int    `json:"mid"`
+		Mid  int64  `json:"mid"`
 		Name string `json:"name"`
 		VIP  struct {
 			DueDate int64 `json:"due_date"`

@@ -72,7 +72,7 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 				return nil, err
 			}
 		}
-		if userData.VIPDueDate.After(time.Now()) {
+		if userData.VipDueDate.After(time.Now()) {
 			return &userStatus{
 				isVip:       true,
 				isBlacklist: isBlacklisted,
@@ -100,12 +100,13 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 	}
 	b.sugar.Debugf("mid: %d, name: %s, due_date: %s", data.Data.Mid, data.Data.Name, time.Unix(data.Data.VIP.DueDate/1000, 0).String())
 
-	_, err = b.db.InsertOrUpdateKey(accessKey, data.Data.Mid)
+	vipDue := time.Unix(data.Data.VIP.DueDate/1000, 0)
+	err = b.db.InsertOrUpdateUser(data.Data.Mid, data.Data.Name, vipDue)
 	if err != nil {
 		return nil, err
 	}
-	vipDue := time.Unix(data.Data.VIP.DueDate/1000, 0)
-	_, err = b.db.InsertOrUpdateUser(data.Data.Mid, data.Data.Name, vipDue)
+
+	err = b.db.InsertOrUpdateKey(accessKey, data.Data.Mid)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +128,7 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 	}, nil
 }
 
-func (b *BiliroamingGo) getMyInfo(ctx *fasthttp.RequestCtx, accessKey string) (string, error) {
+func (b *BiliroamingGo) getMyInfo(ctx *fasthttp.RequestCtx, accessKey string) ([]byte, error) {
 	apiURL := "https://app.bilibili.com/x/v2/account/myinfo"
 
 	v := url.Values{}
@@ -136,7 +137,7 @@ func (b *BiliroamingGo) getMyInfo(ctx *fasthttp.RequestCtx, accessKey string) (s
 
 	params, err := SignParams(v, ClientTypeAndroid)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	apiURL += "?" + params
 
@@ -144,10 +145,10 @@ func (b *BiliroamingGo) getMyInfo(ctx *fasthttp.RequestCtx, accessKey string) (s
 
 	body, err := b.doRequestJson(ctx, b.defaultClient, apiURL, []byte(http.MethodGet))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	b.sugar.Debug("Content: ", body)
+	b.sugar.Debug("Content: ", string(body))
 
 	return body, nil
 }

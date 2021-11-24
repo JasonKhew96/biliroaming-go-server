@@ -25,10 +25,10 @@ import (
 // THSeasonCach is an object representing the database table.
 type THSeasonCach struct {
 	SeasonID  int64      `boil:"season_id" json:"season_id" toml:"season_id" yaml:"season_id"`
+	IsVip     bool       `boil:"is_vip" json:"is_vip" toml:"is_vip" yaml:"is_vip"`
 	Data      types.JSON `boil:"data" json:"data" toml:"data" yaml:"data"`
 	CreatedAt time.Time  `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	UpdatedAt time.Time  `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
-	IsVip     bool       `boil:"is_vip" json:"is_vip" toml:"is_vip" yaml:"is_vip"`
 
 	R *thSeasonCachR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L thSeasonCachL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -36,46 +36,46 @@ type THSeasonCach struct {
 
 var THSeasonCachColumns = struct {
 	SeasonID  string
+	IsVip     string
 	Data      string
 	CreatedAt string
 	UpdatedAt string
-	IsVip     string
 }{
 	SeasonID:  "season_id",
+	IsVip:     "is_vip",
 	Data:      "data",
 	CreatedAt: "created_at",
 	UpdatedAt: "updated_at",
-	IsVip:     "is_vip",
 }
 
 var THSeasonCachTableColumns = struct {
 	SeasonID  string
+	IsVip     string
 	Data      string
 	CreatedAt string
 	UpdatedAt string
-	IsVip     string
 }{
 	SeasonID:  "th_season_caches.season_id",
+	IsVip:     "th_season_caches.is_vip",
 	Data:      "th_season_caches.data",
 	CreatedAt: "th_season_caches.created_at",
 	UpdatedAt: "th_season_caches.updated_at",
-	IsVip:     "th_season_caches.is_vip",
 }
 
 // Generated where
 
 var THSeasonCachWhere = struct {
 	SeasonID  whereHelperint64
+	IsVip     whereHelperbool
 	Data      whereHelpertypes_JSON
 	CreatedAt whereHelpertime_Time
 	UpdatedAt whereHelpertime_Time
-	IsVip     whereHelperbool
 }{
 	SeasonID:  whereHelperint64{field: "\"th_season_caches\".\"season_id\""},
+	IsVip:     whereHelperbool{field: "\"th_season_caches\".\"is_vip\""},
 	Data:      whereHelpertypes_JSON{field: "\"th_season_caches\".\"data\""},
 	CreatedAt: whereHelpertime_Time{field: "\"th_season_caches\".\"created_at\""},
 	UpdatedAt: whereHelpertime_Time{field: "\"th_season_caches\".\"updated_at\""},
-	IsVip:     whereHelperbool{field: "\"th_season_caches\".\"is_vip\""},
 }
 
 // THSeasonCachRels is where relationship names are stored.
@@ -99,8 +99,8 @@ func (*thSeasonCachR) NewStruct() *thSeasonCachR {
 type thSeasonCachL struct{}
 
 var (
-	thSeasonCachAllColumns            = []string{"season_id", "data", "created_at", "updated_at", "is_vip"}
-	thSeasonCachColumnsWithoutDefault = []string{"season_id", "data", "created_at", "updated_at", "is_vip"}
+	thSeasonCachAllColumns            = []string{"season_id", "is_vip", "data", "created_at", "updated_at"}
+	thSeasonCachColumnsWithoutDefault = []string{"season_id", "is_vip", "data", "created_at", "updated_at"}
 	thSeasonCachColumnsWithDefault    = []string{}
 	thSeasonCachPrimaryKeyColumns     = []string{"season_id"}
 )

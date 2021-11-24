@@ -12,7 +12,7 @@ type SeasonResult struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	Result  struct {
-		SeasonID           int           `json:"season_id"`
+		SeasonID           int64         `json:"season_id"`
 		Alias              string        `json:"alias"`
 		CommentRestriction string        `json:"comment_restriction"`
 		NoComment          string        `json:"no_comment"`
@@ -50,7 +50,7 @@ type SeasonResult struct {
 					Aid              int         `json:"aid"`
 					Cid              int         `json:"cid"`
 					Cover            string      `json:"cover"`
-					ID               int         `json:"id"`
+					ID               int64       `json:"id"`
 					Title            string      `json:"title"`
 					LongTitle        string      `json:"long_title"`
 					Status           int         `json:"status"`

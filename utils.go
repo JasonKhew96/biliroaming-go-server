@@ -89,9 +89,9 @@ func getAreaCode(area string) database.Area {
 	}
 }
 
-func isResponseLimited(data string) (bool, error) {
+func isResponseLimited(data []byte) (bool, error) {
 	resp := &entity.SimpleResponse{}
-	if err := easyjson.Unmarshal([]byte(data), resp); err != nil {
+	if err := easyjson.Unmarshal(data, resp); err != nil {
 		return false, err
 	}
 	if resp.Code == -412 {
@@ -100,19 +100,15 @@ func isResponseLimited(data string) (bool, error) {
 	return false, nil
 }
 
-func isResponseNotLogin(data string) (bool, error) {
+func isResponseNotLogin(data []byte) (bool, error) {
 	resp := &entity.SimpleResponse{}
-	if err := easyjson.Unmarshal([]byte(data), resp); err != nil {
+	if err := easyjson.Unmarshal(data, resp); err != nil {
 		return false, err
 	}
 	if resp.Code == -101 {
 		return true, nil
 	}
 	return false, nil
-}
-
-func isValidJson(data string) bool {
-	return easyjson.Unmarshal([]byte(data), &easyjson.RawMessage{}) == nil
 }
 
 func removeMid(data string) string {

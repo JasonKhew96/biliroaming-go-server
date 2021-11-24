@@ -11,5 +11,6 @@ RUN go build -o /tmp/server
 
 FROM gcr.io/distroless/static:latest
 WORKDIR /runner
+COPY sql sql
 COPY --from=builder /tmp/server .
 CMD [ "./server", "-config", "config/config.yml"]

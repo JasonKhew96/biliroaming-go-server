@@ -722,7 +722,7 @@ func testTHSeasonCachesSelect(t *testing.T) {
 }
 
 var (
-	thSeasonCachDBTypes = map[string]string{`SeasonID`: `bigint`, `Data`: `json`, `CreatedAt`: `timestamp without time zone`, `UpdatedAt`: `timestamp without time zone`, `IsVip`: `boolean`}
+	thSeasonCachDBTypes = map[string]string{`SeasonID`: `bigint`, `IsVip`: `boolean`, `Data`: `json`, `CreatedAt`: `timestamp without time zone`, `UpdatedAt`: `timestamp without time zone`}
 	_                   = bytes.MinRead
 )
 

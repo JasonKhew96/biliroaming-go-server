@@ -24,9 +24,9 @@ import (
 // THSeasonEpisodeCach is an object representing the database table.
 type THSeasonEpisodeCach struct {
 	EpisodeID int64     `boil:"episode_id" json:"episode_id" toml:"episode_id" yaml:"episode_id"`
+	SeasonID  int64     `boil:"season_id" json:"season_id" toml:"season_id" yaml:"season_id"`
 	CreatedAt time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	UpdatedAt time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
-	SeasonID  int64     `boil:"season_id" json:"season_id" toml:"season_id" yaml:"season_id"`
 
 	R *thSeasonEpisodeCachR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L thSeasonEpisodeCachL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -34,40 +34,40 @@ type THSeasonEpisodeCach struct {
 
 var THSeasonEpisodeCachColumns = struct {
 	EpisodeID string
+	SeasonID  string
 	CreatedAt string
 	UpdatedAt string
-	SeasonID  string
 }{
 	EpisodeID: "episode_id",
+	SeasonID:  "season_id",
 	CreatedAt: "created_at",
 	UpdatedAt: "updated_at",
-	SeasonID:  "season_id",
 }
 
 var THSeasonEpisodeCachTableColumns = struct {
 	EpisodeID string
+	SeasonID  string
 	CreatedAt string
 	UpdatedAt string
-	SeasonID  string
 }{
 	EpisodeID: "th_season_episode_caches.episode_id",
+	SeasonID:  "th_season_episode_caches.season_id",
 	CreatedAt: "th_season_episode_caches.created_at",
 	UpdatedAt: "th_season_episode_caches.updated_at",
-	SeasonID:  "th_season_episode_caches.season_id",
 }
 
 // Generated where
 
 var THSeasonEpisodeCachWhere = struct {
 	EpisodeID whereHelperint64
+	SeasonID  whereHelperint64
 	CreatedAt whereHelpertime_Time
 	UpdatedAt whereHelpertime_Time
-	SeasonID  whereHelperint64
 }{
 	EpisodeID: whereHelperint64{field: "\"th_season_episode_caches\".\"episode_id\""},
+	SeasonID:  whereHelperint64{field: "\"th_season_episode_caches\".\"season_id\""},
 	CreatedAt: whereHelpertime_Time{field: "\"th_season_episode_caches\".\"created_at\""},
 	UpdatedAt: whereHelpertime_Time{field: "\"th_season_episode_caches\".\"updated_at\""},
-	SeasonID:  whereHelperint64{field: "\"th_season_episode_caches\".\"season_id\""},
 }
 
 // THSeasonEpisodeCachRels is where relationship names are stored.
@@ -91,8 +91,8 @@ func (*thSeasonEpisodeCachR) NewStruct() *thSeasonEpisodeCachR {
 type thSeasonEpisodeCachL struct{}
 
 var (
-	thSeasonEpisodeCachAllColumns            = []string{"episode_id", "created_at", "updated_at", "season_id"}
-	thSeasonEpisodeCachColumnsWithoutDefault = []string{"episode_id", "created_at", "updated_at", "season_id"}
+	thSeasonEpisodeCachAllColumns            = []string{"episode_id", "season_id", "created_at", "updated_at"}
+	thSeasonEpisodeCachColumnsWithoutDefault = []string{"episode_id", "season_id", "created_at", "updated_at"}
 	thSeasonEpisodeCachColumnsWithDefault    = []string{}
 	thSeasonEpisodeCachPrimaryKeyColumns     = []string{"episode_id"}
 )

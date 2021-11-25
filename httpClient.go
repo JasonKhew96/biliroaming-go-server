@@ -24,15 +24,15 @@ func (b *BiliroamingGo) newClient(proxy string) *fasthttp.Client {
 	if proxy != "" {
 		b.sugar.Debug("New socks proxy client: ", proxy)
 		return &fasthttp.Client{
-			ReadTimeout:  30 * time.Second,
-			WriteTimeout: 30 * time.Second,
+			ReadTimeout:  10 * time.Second,
+			WriteTimeout: 10 * time.Second,
 			Dial:         fasthttpproxy.FasthttpSocksDialer(proxy),
 		}
 	}
 	b.sugar.Debug("New normal client")
 	return &fasthttp.Client{
-		ReadTimeout:  30 * time.Second,
-		WriteTimeout: 30 * time.Second,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 }
 

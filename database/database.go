@@ -144,8 +144,8 @@ func (h *DbHelper) CleanupTHSeasonCache(duration time.Duration) (int64, error) {
 }
 
 // GetTHSeasonCache get season api cache from episode id
-func (h *DbHelper) GetTHSeasonEpisodeCache(episodeID int64, isVIP bool) (*models.THSeasonEpisodeCach, error) {
-	return models.THSeasonEpisodeCaches(
+func (h *DbHelper) GetTHSeasonEpisodeCache(episodeID int64, isVIP bool) (*models.THSeasonCach, error) {
+	return models.THSeasonCaches(
 		qm.InnerJoin("th_season_episode_caches ON th_season_episode_caches.season_id = th_season_caches.season_id"),
 		models.THSeasonEpisodeCachWhere.EpisodeID.EQ(episodeID),
 		models.THSeasonCachWhere.IsVip.EQ(isVIP),

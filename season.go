@@ -134,10 +134,10 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 		}
 		if args.epId != 0 {
 			seasonCache, err := b.db.GetTHSeasonEpisodeCache(args.epId, false)
-			if err == nil && len(seasonCache.R.Season.Data) > 0 && seasonCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.THSeason)) {
-				b.sugar.Debug("Replay from cache: ", seasonCache.R.Season.Data)
+			if err == nil && len(seasonCache.Data) > 0 && seasonCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.THSeason)) {
+				b.sugar.Debug("Replay from cache: ", seasonCache.Data)
 				setDefaultHeaders(ctx)
-				ctx.Write(seasonCache.R.Season.Data)
+				ctx.Write(seasonCache.Data)
 				return
 			} else if err != nil && !errors.Is(err, sql.ErrNoRows) {
 				b.processError(ctx, err)

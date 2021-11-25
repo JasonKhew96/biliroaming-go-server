@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -125,6 +126,10 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 				setDefaultHeaders(ctx)
 				ctx.Write(seasonCache.Data)
 				return
+			} else if err != nil && !errors.Is(err, sql.ErrNoRows) {
+				b.processError(ctx, err)
+				b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
+				return
 			}
 		}
 		if args.epId != 0 {
@@ -133,6 +138,10 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 				b.sugar.Debug("Replay from cache: ", seasonCache.R.Season.Data)
 				setDefaultHeaders(ctx)
 				ctx.Write(seasonCache.R.Season.Data)
+				return
+			} else if err != nil && !errors.Is(err, sql.ErrNoRows) {
+				b.processError(ctx, err)
+				b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
 				return
 			}
 		}

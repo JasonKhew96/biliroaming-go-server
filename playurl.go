@@ -1,6 +1,8 @@
 package main
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -37,6 +39,10 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 				return
 			}
 			ctx.Write(newData)
+			return
+		} else if err != nil && !errors.Is(err, sql.ErrNoRows) {
+			b.processError(ctx, err)
+			b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
 			return
 		}
 	}
@@ -127,6 +133,10 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 				return
 			}
 			ctx.Write(newData)
+			return
+		} else if err != nil && !errors.Is(err, sql.ErrNoRows) {
+			b.processError(ctx, err)
+			b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
 			return
 		}
 	}
@@ -234,6 +244,10 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 				return
 			}
 			ctx.Write(newData)
+			return
+		} else if err != nil && !errors.Is(err, sql.ErrNoRows) {
+			b.processError(ctx, err)
+			b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
 			return
 		}
 	}

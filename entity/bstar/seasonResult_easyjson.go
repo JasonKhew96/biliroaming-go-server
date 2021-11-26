@@ -17,101 +17,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjson879f924cDecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(in *jlexer.Lexer, out *Subtitles) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "id":
-			out.ID = int64(in.Int64())
-		case "key":
-			out.Key = string(in.String())
-		case "title":
-			out.Title = string(in.String())
-		case "url":
-			out.URL = string(in.String())
-		case "is_machine":
-			out.IsMachine = bool(in.Bool())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjson879f924cEncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(out *jwriter.Writer, in Subtitles) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	{
-		const prefix string = ",\"id\":"
-		out.RawString(prefix[1:])
-		out.Int64(int64(in.ID))
-	}
-	{
-		const prefix string = ",\"key\":"
-		out.RawString(prefix)
-		out.String(string(in.Key))
-	}
-	{
-		const prefix string = ",\"title\":"
-		out.RawString(prefix)
-		out.String(string(in.Title))
-	}
-	{
-		const prefix string = ",\"url\":"
-		out.RawString(prefix)
-		out.String(string(in.URL))
-	}
-	{
-		const prefix string = ",\"is_machine\":"
-		out.RawString(prefix)
-		out.Bool(bool(in.IsMachine))
-	}
-	out.RawByte('}')
-}
-
-// MarshalJSON supports json.Marshaler interface
-func (v Subtitles) MarshalJSON() ([]byte, error) {
-	w := jwriter.Writer{}
-	easyjson879f924cEncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(&w, v)
-	return w.Buffer.BuildBytes(), w.Error
-}
-
-// MarshalEasyJSON supports easyjson.Marshaler interface
-func (v Subtitles) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson879f924cEncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(w, v)
-}
-
-// UnmarshalJSON supports json.Unmarshaler interface
-func (v *Subtitles) UnmarshalJSON(data []byte) error {
-	r := jlexer.Lexer{Data: data}
-	easyjson879f924cDecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(&r, v)
-	return r.Error()
-}
-
-// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *Subtitles) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson879f924cDecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(l, v)
-}
-func easyjson879f924cDecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(in *jlexer.Lexer, out *SeasonResult) {
+func easyjson879f924cDecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(in *jlexer.Lexer, out *SeasonResult) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -148,7 +54,7 @@ func easyjson879f924cDecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(i
 		in.Consumed()
 	}
 }
-func easyjson879f924cEncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(out *jwriter.Writer, in SeasonResult) {
+func easyjson879f924cEncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(out *jwriter.Writer, in SeasonResult) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -178,25 +84,25 @@ func easyjson879f924cEncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(o
 // MarshalJSON supports json.Marshaler interface
 func (v SeasonResult) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson879f924cEncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(&w, v)
+	easyjson879f924cEncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v SeasonResult) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson879f924cEncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(w, v)
+	easyjson879f924cEncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *SeasonResult) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson879f924cDecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(&r, v)
+	easyjson879f924cDecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *SeasonResult) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson879f924cDecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(l, v)
+	easyjson879f924cDecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(l, v)
 }
 func easyjson879f924cDecode(in *jlexer.Lexer, out *struct {
 	SeasonID           int64         `json:"season_id"`
@@ -1467,7 +1373,7 @@ func easyjson879f924cDecode3(in *jlexer.Lexer, out *struct {
 				}
 				for !in.IsDelim(']') {
 					var v13 Subtitles
-					(v13).UnmarshalEasyJSON(in)
+					easyjson879f924cDecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(in, &v13)
 					out.Subtitles = append(out.Subtitles, v13)
 					in.WantComma()
 				}
@@ -1590,10 +1496,80 @@ func easyjson879f924cEncode3(out *jwriter.Writer, in struct {
 				if v14 > 0 {
 					out.RawByte(',')
 				}
-				(v15).MarshalEasyJSON(out)
+				easyjson879f924cEncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(out, v15)
 			}
 			out.RawByte(']')
 		}
+	}
+	out.RawByte('}')
+}
+func easyjson879f924cDecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(in *jlexer.Lexer, out *Subtitles) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "id":
+			out.ID = int64(in.Int64())
+		case "key":
+			out.Key = string(in.String())
+		case "title":
+			out.Title = string(in.String())
+		case "url":
+			out.URL = string(in.String())
+		case "is_machine":
+			out.IsMachine = bool(in.Bool())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson879f924cEncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(out *jwriter.Writer, in Subtitles) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"id\":"
+		out.RawString(prefix[1:])
+		out.Int64(int64(in.ID))
+	}
+	{
+		const prefix string = ",\"key\":"
+		out.RawString(prefix)
+		out.String(string(in.Key))
+	}
+	{
+		const prefix string = ",\"title\":"
+		out.RawString(prefix)
+		out.String(string(in.Title))
+	}
+	{
+		const prefix string = ",\"url\":"
+		out.RawString(prefix)
+		out.String(string(in.URL))
+	}
+	{
+		const prefix string = ",\"is_machine\":"
+		out.RawString(prefix)
+		out.Bool(bool(in.IsMachine))
 	}
 	out.RawByte('}')
 }

@@ -17,7 +17,101 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjson18ab02cbDecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(in *jlexer.Lexer, out *SubtitleResult) {
+func easyjson18ab02cbDecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(in *jlexer.Lexer, out *Subtitles) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "id":
+			out.ID = int64(in.Int64())
+		case "key":
+			out.Key = string(in.String())
+		case "title":
+			out.Title = string(in.String())
+		case "url":
+			out.URL = string(in.String())
+		case "is_machine":
+			out.IsMachine = bool(in.Bool())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson18ab02cbEncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(out *jwriter.Writer, in Subtitles) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"id\":"
+		out.RawString(prefix[1:])
+		out.Int64(int64(in.ID))
+	}
+	{
+		const prefix string = ",\"key\":"
+		out.RawString(prefix)
+		out.String(string(in.Key))
+	}
+	{
+		const prefix string = ",\"title\":"
+		out.RawString(prefix)
+		out.String(string(in.Title))
+	}
+	{
+		const prefix string = ",\"url\":"
+		out.RawString(prefix)
+		out.String(string(in.URL))
+	}
+	{
+		const prefix string = ",\"is_machine\":"
+		out.RawString(prefix)
+		out.Bool(bool(in.IsMachine))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v Subtitles) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjson18ab02cbEncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v Subtitles) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson18ab02cbEncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *Subtitles) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjson18ab02cbDecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *Subtitles) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson18ab02cbDecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(l, v)
+}
+func easyjson18ab02cbDecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(in *jlexer.Lexer, out *SubtitleResult) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -54,7 +148,7 @@ func easyjson18ab02cbDecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(in
 		in.Consumed()
 	}
 }
-func easyjson18ab02cbEncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(out *jwriter.Writer, in SubtitleResult) {
+func easyjson18ab02cbEncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(out *jwriter.Writer, in SubtitleResult) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -84,35 +178,29 @@ func easyjson18ab02cbEncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(ou
 // MarshalJSON supports json.Marshaler interface
 func (v SubtitleResult) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson18ab02cbEncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(&w, v)
+	easyjson18ab02cbEncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v SubtitleResult) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson18ab02cbEncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(w, v)
+	easyjson18ab02cbEncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *SubtitleResult) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson18ab02cbDecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(&r, v)
+	easyjson18ab02cbDecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *SubtitleResult) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson18ab02cbDecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(l, v)
+	easyjson18ab02cbDecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(l, v)
 }
 func easyjson18ab02cbDecode(in *jlexer.Lexer, out *struct {
-	SuggestKey string `json:"suggest_key"`
-	Subtitles  []struct {
-		Key       string `json:"key"`
-		ID        int64  `json:"id"`
-		URL       string `json:"url"`
-		Title     string `json:"title"`
-		IsMachine bool   `json:"is_machine"`
-	} `json:"subtitles"`
+	SuggestKey string      `json:"suggest_key"`
+	Subtitles  []Subtitles `json:"subtitles"`
 }) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
@@ -142,34 +230,16 @@ func easyjson18ab02cbDecode(in *jlexer.Lexer, out *struct {
 				in.Delim('[')
 				if out.Subtitles == nil {
 					if !in.IsDelim(']') {
-						out.Subtitles = make([]struct {
-							Key       string `json:"key"`
-							ID        int64  `json:"id"`
-							URL       string `json:"url"`
-							Title     string `json:"title"`
-							IsMachine bool   `json:"is_machine"`
-						}, 0, 1)
+						out.Subtitles = make([]Subtitles, 0, 1)
 					} else {
-						out.Subtitles = []struct {
-							Key       string `json:"key"`
-							ID        int64  `json:"id"`
-							URL       string `json:"url"`
-							Title     string `json:"title"`
-							IsMachine bool   `json:"is_machine"`
-						}{}
+						out.Subtitles = []Subtitles{}
 					}
 				} else {
 					out.Subtitles = (out.Subtitles)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v1 struct {
-						Key       string `json:"key"`
-						ID        int64  `json:"id"`
-						URL       string `json:"url"`
-						Title     string `json:"title"`
-						IsMachine bool   `json:"is_machine"`
-					}
-					easyjson18ab02cbDecode1(in, &v1)
+					var v1 Subtitles
+					(v1).UnmarshalEasyJSON(in)
 					out.Subtitles = append(out.Subtitles, v1)
 					in.WantComma()
 				}
@@ -186,14 +256,8 @@ func easyjson18ab02cbDecode(in *jlexer.Lexer, out *struct {
 	}
 }
 func easyjson18ab02cbEncode(out *jwriter.Writer, in struct {
-	SuggestKey string `json:"suggest_key"`
-	Subtitles  []struct {
-		Key       string `json:"key"`
-		ID        int64  `json:"id"`
-		URL       string `json:"url"`
-		Title     string `json:"title"`
-		IsMachine bool   `json:"is_machine"`
-	} `json:"subtitles"`
+	SuggestKey string      `json:"suggest_key"`
+	Subtitles  []Subtitles `json:"subtitles"`
 }) {
 	out.RawByte('{')
 	first := true
@@ -214,92 +278,10 @@ func easyjson18ab02cbEncode(out *jwriter.Writer, in struct {
 				if v2 > 0 {
 					out.RawByte(',')
 				}
-				easyjson18ab02cbEncode1(out, v3)
+				(v3).MarshalEasyJSON(out)
 			}
 			out.RawByte(']')
 		}
-	}
-	out.RawByte('}')
-}
-func easyjson18ab02cbDecode1(in *jlexer.Lexer, out *struct {
-	Key       string `json:"key"`
-	ID        int64  `json:"id"`
-	URL       string `json:"url"`
-	Title     string `json:"title"`
-	IsMachine bool   `json:"is_machine"`
-}) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "key":
-			out.Key = string(in.String())
-		case "id":
-			out.ID = int64(in.Int64())
-		case "url":
-			out.URL = string(in.String())
-		case "title":
-			out.Title = string(in.String())
-		case "is_machine":
-			out.IsMachine = bool(in.Bool())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjson18ab02cbEncode1(out *jwriter.Writer, in struct {
-	Key       string `json:"key"`
-	ID        int64  `json:"id"`
-	URL       string `json:"url"`
-	Title     string `json:"title"`
-	IsMachine bool   `json:"is_machine"`
-}) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	{
-		const prefix string = ",\"key\":"
-		out.RawString(prefix[1:])
-		out.String(string(in.Key))
-	}
-	{
-		const prefix string = ",\"id\":"
-		out.RawString(prefix)
-		out.Int64(int64(in.ID))
-	}
-	{
-		const prefix string = ",\"url\":"
-		out.RawString(prefix)
-		out.String(string(in.URL))
-	}
-	{
-		const prefix string = ",\"title\":"
-		out.RawString(prefix)
-		out.String(string(in.Title))
-	}
-	{
-		const prefix string = ",\"is_machine\":"
-		out.RawString(prefix)
-		out.Bool(bool(in.IsMachine))
 	}
 	out.RawByte('}')
 }

@@ -99,14 +99,11 @@ func (b *BiliroamingGo) getVisitor(ip string) *rate.Limiter {
 	return u.limiter
 }
 
-func (b *BiliroamingGo) getKey(key string) *accessKey {
+func (b *BiliroamingGo) getKey(key string) (*accessKey, bool) {
 	b.aMu.Lock()
 	defer b.aMu.Unlock()
 	k, exists := b.accessKeys[key]
-	if !exists {
-		return nil
-	}
-	return k
+	return k, exists
 }
 
 func (b *BiliroamingGo) setKey(key string, isLogin bool, status *userStatus) {
@@ -360,8 +357,8 @@ func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string)
 		return false, nil
 	}
 
-	key := b.getKey(accessKey)
-	if key != nil {
+	key, ok := b.getKey(accessKey)
+	if ok {
 		if key.userStatus.isBlacklist {
 			writeErrorJSON(ctx, -101, []byte("黑名单"))
 			return false, nil

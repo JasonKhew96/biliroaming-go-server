@@ -25,10 +25,12 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 
 	var isVIP bool
 	if b.getAuthByArea(args.area) {
-		var ok bool
-		if ok, isVIP = b.doAuth(ctx, args.accessKey, args.area); !ok {
+		if ok, status := b.doAuth(ctx, args.accessKey, args.area); !ok {
 			return
+		} else {
+			isVIP = status.isVip
 		}
+
 		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeWeb, getAreaCode(args.area), isVIP, args.cid, args.epId)
 		if err == nil && len(playurlCache.Data) > 0 && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
 			b.sugar.Debug("Replay from cache: ", playurlCache.Data.String())
@@ -118,9 +120,10 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 
 	var isVIP bool
 	if b.getAuthByArea(args.area) {
-		var ok bool
-		if ok, isVIP = b.doAuth(ctx, args.accessKey, args.area); !ok {
+		if ok, status := b.doAuth(ctx, args.accessKey, args.area); !ok {
 			return
+		} else {
+			isVIP = status.isVip
 		}
 
 		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeAndroid, getAreaCode(args.area), isVIP, args.cid, args.epId)
@@ -229,9 +232,10 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 
 	var isVIP bool
 	if b.getAuthByArea(args.area) {
-		var ok bool
-		if ok, isVIP = b.doAuth(ctx, args.accessKey, args.area); !ok {
+		if ok, status := b.doAuth(ctx, args.accessKey, args.area); !ok {
 			return
+		} else {
+			isVIP = status.isVip
 		}
 
 		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeAndroid, getAreaCode(args.area), isVIP, args.cid, args.epId)

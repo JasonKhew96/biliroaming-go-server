@@ -42,12 +42,20 @@ type visitor struct {
 	lastSeen time.Time
 }
 
+type accessKey struct {
+	isLogin    bool
+	userStatus *userStatus
+	timestamp  time.Time
+}
+
 // BiliroamingGo ...
 type BiliroamingGo struct {
 	configPath string
 	config     *Config
 	visitors   map[string]*visitor
+	accessKeys map[string]*accessKey
 	vMu        sync.RWMutex
+	aMu        sync.RWMutex
 	ctx        context.Context
 	logger     *zap.Logger
 	sugar      *zap.SugaredLogger
@@ -91,6 +99,26 @@ func (b *BiliroamingGo) getVisitor(ip string) *rate.Limiter {
 	return u.limiter
 }
 
+func (b *BiliroamingGo) getKey(key string) *accessKey {
+	b.aMu.Lock()
+	defer b.aMu.Unlock()
+	k, exists := b.accessKeys[key]
+	if !exists {
+		return nil
+	}
+	return k
+}
+
+func (b *BiliroamingGo) setKey(key string, isLogin bool, status *userStatus) {
+	b.aMu.Lock()
+	defer b.aMu.Unlock()
+	b.accessKeys[key] = &accessKey{
+		isLogin:    isLogin,
+		userStatus: status,
+		timestamp:  time.Now(),
+	}
+}
+
 func (b *BiliroamingGo) loop() {
 	for {
 		b.sugar.Debug("Cleaning database...")
@@ -128,6 +156,15 @@ func (b *BiliroamingGo) loop() {
 			}
 		}
 		b.vMu.Unlock()
+
+		// cleanup key cache
+		b.aMu.Lock()
+		for k, v := range b.accessKeys {
+			if time.Since(v.timestamp) > 15*time.Minute {
+				delete(b.accessKeys, k)
+			}
+		}
+		b.aMu.Unlock()
 
 		time.Sleep(15 * time.Minute)
 	}
@@ -223,6 +260,7 @@ func main() {
 		configPath: configPath,
 		config:     c,
 		visitors:   make(map[string]*visitor),
+		accessKeys: make(map[string]*accessKey),
 		ctx:        context.Background(),
 		logger:     logger,
 		sugar:      sugar,
@@ -316,20 +354,34 @@ func (b *BiliroamingGo) processArgs(args *fasthttp.Args) *biliArgs {
 	return queryArgs
 }
 
-func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string) (bool, bool) {
+func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string) (bool, *userStatus) {
 	if len(accessKey) != 32 {
 		writeErrorJSON(ctx, -2, []byte("Access Key错误"))
-		return false, false
+		return false, nil
+	}
+
+	key := b.getKey(accessKey)
+	if key != nil {
+		if key.userStatus.isBlacklist {
+			writeErrorJSON(ctx, -101, []byte("黑名单"))
+			return false, nil
+		}
+		return key.isLogin, key.userStatus
 	}
 
 	status, err := b.isAuth(ctx, accessKey)
 	if err != nil {
+		b.setKey(accessKey, false, nil)
 		writeErrorJSON(ctx, -101, []byte("账号未登录"))
-		return false, false
+		return false, nil
 	}
+
+	b.setKey(accessKey, true, status)
+
 	if status.isBlacklist {
 		writeErrorJSON(ctx, -101, []byte("黑名单"))
-		return false, false
+		return false, nil
 	}
-	return true, status.isVip
+
+	return true, status
 }

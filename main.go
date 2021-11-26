@@ -43,9 +43,11 @@ type visitor struct {
 }
 
 type accessKey struct {
-	isLogin    bool
-	userStatus *userStatus
-	timestamp  time.Time
+	isLogin     bool
+	isVip       bool
+	isBlacklist bool
+	isWhitelist bool
+	timestamp   time.Time
 }
 
 // BiliroamingGo ...
@@ -110,9 +112,11 @@ func (b *BiliroamingGo) setKey(key string, isLogin bool, status *userStatus) {
 	b.aMu.Lock()
 	defer b.aMu.Unlock()
 	b.accessKeys[key] = &accessKey{
-		isLogin:    isLogin,
-		userStatus: status,
-		timestamp:  time.Now(),
+		isLogin:     isLogin,
+		isVip:       status.isVip,
+		isBlacklist: status.isBlacklist,
+		isWhitelist: status.isWhitelist,
+		timestamp:   time.Now(),
 	}
 }
 
@@ -359,11 +363,15 @@ func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string)
 
 	key, ok := b.getKey(accessKey)
 	if ok {
-		if key.userStatus.isBlacklist {
+		if key.isBlacklist {
 			writeErrorJSON(ctx, -101, []byte("黑名单"))
 			return false, nil
 		}
-		return key.isLogin, key.userStatus
+		return key.isLogin, &userStatus{
+			isVip:       key.isVip,
+			isBlacklist: key.isBlacklist,
+			isWhitelist: key.isWhitelist,
+		}
 	}
 
 	status, err := b.isAuth(ctx, accessKey)

@@ -8,12 +8,14 @@ type Subtitles struct {
 	IsMachine bool   `json:"is_machine"`
 }
 
+type SubtitleResultData struct {
+	SuggestKey string      `json:"suggest_key"`
+	Subtitles  []Subtitles `json:"subtitles"`
+}
+
 type SubtitleResult struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-	TTL     int    `json:"ttl"`
-	Data    struct {
-		SuggestKey string      `json:"suggest_key"`
-		Subtitles  []Subtitles `json:"subtitles"`
-	} `json:"data"`
+	Code    int                `json:"code"`
+	Message string             `json:"message"`
+	TTL     int                `json:"ttl"`
+	Data    SubtitleResultData `json:"data"`
 }

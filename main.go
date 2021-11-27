@@ -292,6 +292,7 @@ func main() {
 		Password: pgPassword,
 		DBName:   c.PostgreSQL.DBName,
 		Port:     c.PostgreSQL.Port,
+		Debug:    c.Debug,
 	})
 	if err != nil {
 		b.sugar.Fatal(err)

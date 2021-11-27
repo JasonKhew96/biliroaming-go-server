@@ -19,6 +19,7 @@ type Config struct {
 	Password string
 	DBName   string
 	Port     int
+	Debug    bool
 }
 
 // DbHelper database helper
@@ -29,6 +30,7 @@ type DbHelper struct {
 
 // NewDBConnection new database connection
 func NewDBConnection(c *Config) (*DbHelper, error) {
+	boil.DebugMode = c.Debug
 	// connect to database
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",

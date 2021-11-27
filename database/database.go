@@ -27,7 +27,7 @@ type Config struct {
 type DbHelper struct {
 	ctx context.Context
 	db  *sql.DB
-	mu  *sync.RWMutex
+	mu  sync.RWMutex
 }
 
 // NewDBConnection new database connection

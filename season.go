@@ -56,8 +56,8 @@ func (b *BiliroamingGo) insertSeasonCache(data []byte, isVIP bool) error {
 	return nil
 }
 
-func (b *BiliroamingGo) addCustomSubSeason(ctx *fasthttp.RequestCtx, seasonId int64, seasonResult []byte) ([]byte, error) {
-	b.sugar.Debugf("Getting custom subtitle from season id %d", seasonId)
+func (b *BiliroamingGo) addCustomSubSeason(ctx *fasthttp.RequestCtx, seasonResult []byte) ([]byte, error) {
+	b.sugar.Debugf("Getting custom subtitle")
 	seasonJson := &bstar.SeasonResult{}
 	err := easyjson.Unmarshal(seasonResult, seasonJson)
 	if err != nil {
@@ -67,6 +67,9 @@ func (b *BiliroamingGo) addCustomSubSeason(ctx *fasthttp.RequestCtx, seasonId in
 	if len(seasonJson.Result.Modules) <= 0 || len(seasonJson.Result.Modules[0].Data.Episodes) <= 0 {
 		return nil, errors.Wrap(err, "custom subtitle api cannnot append to weird season api response")
 	}
+
+	seasonId := seasonJson.Result.SeasonID
+	b.sugar.Debugf("Getting custom subtitle from season id %d", seasonId)
 
 	requestUrl := fmt.Sprintf(b.config.CustomSubtitle.ApiUrl, seasonId)
 	customSubData, err := b.doRequestJson(ctx, b.defaultClient, requestUrl, []byte(http.MethodGet))
@@ -222,7 +225,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 	}
 
 	if b.config.CustomSubtitle.ApiUrl != "" {
-		newData, err := b.addCustomSubSeason(ctx, args.seasonId, data)
+		newData, err := b.addCustomSubSeason(ctx, data)
 		if err != nil {
 			b.sugar.Error(err)
 		}

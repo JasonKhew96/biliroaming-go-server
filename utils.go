@@ -126,6 +126,9 @@ func replaceQn(data []byte, qn int, clientType ClientType) ([]byte, error) {
 		if err := easyjson.Unmarshal([]byte(data), &playUrl); err != nil {
 			return nil, err
 		}
+		if playUrl.Code != 0 {
+			return easyjson.Marshal(playUrl)
+		}
 		playUrl.Quality = qn
 		return easyjson.Marshal(playUrl)
 	case ClientTypeBstarA:
@@ -133,12 +136,18 @@ func replaceQn(data []byte, qn int, clientType ClientType) ([]byte, error) {
 		if err := easyjson.Unmarshal([]byte(data), &playUrl); err != nil {
 			return nil, err
 		}
+		if playUrl.Code != 0 {
+			return easyjson.Marshal(playUrl)
+		}
 		playUrl.Data.VideoInfo.Quality = qn
 		return easyjson.Marshal(playUrl)
 	default:
 		var playUrl web.PlayUrlResult
 		if err := easyjson.Unmarshal([]byte(data), &playUrl); err != nil {
 			return nil, err
+		}
+		if playUrl.Code != 0 {
+			return easyjson.Marshal(playUrl)
 		}
 		playUrl.Result.Quality = qn
 		return easyjson.Marshal(playUrl)

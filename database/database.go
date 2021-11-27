@@ -113,7 +113,7 @@ func (h *DbHelper) InsertOrUpdatePlayURLCache(deviceType DeviceType, area Area, 
 	playUrlTable.Cid = cid
 	playUrlTable.EpisodeID = episodeID
 	playUrlTable.Data = data
-	return playUrlTable.Upsert(h.ctx, h.db, true, []string{"episode_id"}, boil.Whitelist("data"), boil.Greylist("device_type", "area", "is_vip"))
+	return playUrlTable.Upsert(h.ctx, h.db, true, []string{"episode_id"}, boil.Whitelist("data", "updated_at"), boil.Greylist("device_type", "area", "is_vip"))
 }
 
 // CleanupPlayURLCache cleanup playurl if exceeds duration
@@ -136,7 +136,7 @@ func (h *DbHelper) InsertOrUpdateTHSeasonCache(seasonID int64, isVIP bool, data 
 	thSeasonCacheTable.SeasonID = seasonID
 	thSeasonCacheTable.IsVip = isVIP
 	thSeasonCacheTable.Data = data
-	return thSeasonCacheTable.Upsert(h.ctx, h.db, true, []string{"season_id"}, boil.Whitelist("data"), boil.Greylist("is_vip"))
+	return thSeasonCacheTable.Upsert(h.ctx, h.db, true, []string{"season_id"}, boil.Whitelist("data", "updated_at"), boil.Greylist("is_vip"))
 }
 
 // CleanupTHSeasonCache cleanup th season if exceeds duration
@@ -172,7 +172,7 @@ func (h *DbHelper) InsertOrUpdateTHSubtitleCache(episodeID int64, data []byte) e
 	var thSubtitleCacheTable models.THSubtitleCach
 	thSubtitleCacheTable.EpisodeID = episodeID
 	thSubtitleCacheTable.Data = data
-	return thSubtitleCacheTable.Upsert(h.ctx, h.db, true, []string{"episode_id"}, boil.Whitelist("data"), boil.Infer())
+	return thSubtitleCacheTable.Upsert(h.ctx, h.db, true, []string{"episode_id"}, boil.Whitelist("data", "updated_at"), boil.Infer())
 }
 
 // CleanupTHSubtitleCache cleanup th subtitle if exceeds duration

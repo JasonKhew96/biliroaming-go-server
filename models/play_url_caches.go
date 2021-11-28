@@ -24,6 +24,7 @@ import (
 
 // PlayURLCach is an object representing the database table.
 type PlayURLCach struct {
+	ID         int        `boil:"id" json:"id" toml:"id" yaml:"id"`
 	EpisodeID  int64      `boil:"episode_id" json:"episode_id" toml:"episode_id" yaml:"episode_id"`
 	IsVip      bool       `boil:"is_vip" json:"is_vip" toml:"is_vip" yaml:"is_vip"`
 	Cid        int64      `boil:"cid" json:"cid" toml:"cid" yaml:"cid"`
@@ -38,6 +39,7 @@ type PlayURLCach struct {
 }
 
 var PlayURLCachColumns = struct {
+	ID         string
 	EpisodeID  string
 	IsVip      string
 	Cid        string
@@ -47,6 +49,7 @@ var PlayURLCachColumns = struct {
 	CreatedAt  string
 	UpdatedAt  string
 }{
+	ID:         "id",
 	EpisodeID:  "episode_id",
 	IsVip:      "is_vip",
 	Cid:        "cid",
@@ -58,6 +61,7 @@ var PlayURLCachColumns = struct {
 }
 
 var PlayURLCachTableColumns = struct {
+	ID         string
 	EpisodeID  string
 	IsVip      string
 	Cid        string
@@ -67,6 +71,7 @@ var PlayURLCachTableColumns = struct {
 	CreatedAt  string
 	UpdatedAt  string
 }{
+	ID:         "play_url_caches.id",
 	EpisodeID:  "play_url_caches.episode_id",
 	IsVip:      "play_url_caches.is_vip",
 	Cid:        "play_url_caches.cid",
@@ -78,6 +83,29 @@ var PlayURLCachTableColumns = struct {
 }
 
 // Generated where
+
+type whereHelperint struct{ field string }
+
+func (w whereHelperint) EQ(x int) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
+func (w whereHelperint) NEQ(x int) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
+func (w whereHelperint) LT(x int) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
+func (w whereHelperint) LTE(x int) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
+func (w whereHelperint) GT(x int) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
+func (w whereHelperint) GTE(x int) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
+func (w whereHelperint) IN(slice []int) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
+}
+func (w whereHelperint) NIN(slice []int) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
+}
 
 type whereHelperbool struct{ field string }
 
@@ -133,6 +161,7 @@ func (w whereHelpertypes_JSON) GTE(x types.JSON) qm.QueryMod {
 }
 
 var PlayURLCachWhere = struct {
+	ID         whereHelperint
 	EpisodeID  whereHelperint64
 	IsVip      whereHelperbool
 	Cid        whereHelperint64
@@ -142,6 +171,7 @@ var PlayURLCachWhere = struct {
 	CreatedAt  whereHelpertime_Time
 	UpdatedAt  whereHelpertime_Time
 }{
+	ID:         whereHelperint{field: "\"play_url_caches\".\"id\""},
 	EpisodeID:  whereHelperint64{field: "\"play_url_caches\".\"episode_id\""},
 	IsVip:      whereHelperbool{field: "\"play_url_caches\".\"is_vip\""},
 	Cid:        whereHelperint64{field: "\"play_url_caches\".\"cid\""},
@@ -169,10 +199,10 @@ func (*playURLCachR) NewStruct() *playURLCachR {
 type playURLCachL struct{}
 
 var (
-	playURLCachAllColumns            = []string{"episode_id", "is_vip", "cid", "area", "device_type", "data", "created_at", "updated_at"}
+	playURLCachAllColumns            = []string{"id", "episode_id", "is_vip", "cid", "area", "device_type", "data", "created_at", "updated_at"}
 	playURLCachColumnsWithoutDefault = []string{"episode_id", "is_vip", "cid", "area", "device_type", "data", "created_at", "updated_at"}
-	playURLCachColumnsWithDefault    = []string{}
-	playURLCachPrimaryKeyColumns     = []string{"episode_id"}
+	playURLCachColumnsWithDefault    = []string{"id"}
+	playURLCachPrimaryKeyColumns     = []string{"id"}
 )
 
 type (
@@ -458,7 +488,7 @@ func PlayURLCaches(mods ...qm.QueryMod) playURLCachQuery {
 
 // FindPlayURLCach retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
-func FindPlayURLCach(ctx context.Context, exec boil.ContextExecutor, episodeID int64, selectCols ...string) (*PlayURLCach, error) {
+func FindPlayURLCach(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*PlayURLCach, error) {
 	playURLCachObj := &PlayURLCach{}
 
 	sel := "*"
@@ -466,10 +496,10 @@ func FindPlayURLCach(ctx context.Context, exec boil.ContextExecutor, episodeID i
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"play_url_caches\" where \"episode_id\"=$1", sel,
+		"select %s from \"play_url_caches\" where \"id\"=$1", sel,
 	)
 
-	q := queries.Raw(query, episodeID)
+	q := queries.Raw(query, iD)
 
 	err := q.Bind(ctx, exec, playURLCachObj)
 	if err != nil {
@@ -844,7 +874,7 @@ func (o *PlayURLCach) Delete(ctx context.Context, exec boil.ContextExecutor) (in
 	}
 
 	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), playURLCachPrimaryKeyMapping)
-	sql := "DELETE FROM \"play_url_caches\" WHERE \"episode_id\"=$1"
+	sql := "DELETE FROM \"play_url_caches\" WHERE \"id\"=$1"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -941,7 +971,7 @@ func (o PlayURLCachSlice) DeleteAll(ctx context.Context, exec boil.ContextExecut
 // Reload refetches the object from the database
 // using the primary keys with an executor.
 func (o *PlayURLCach) Reload(ctx context.Context, exec boil.ContextExecutor) error {
-	ret, err := FindPlayURLCach(ctx, exec, o.EpisodeID)
+	ret, err := FindPlayURLCach(ctx, exec, o.ID)
 	if err != nil {
 		return err
 	}
@@ -980,16 +1010,16 @@ func (o *PlayURLCachSlice) ReloadAll(ctx context.Context, exec boil.ContextExecu
 }
 
 // PlayURLCachExists checks if the PlayURLCach row exists.
-func PlayURLCachExists(ctx context.Context, exec boil.ContextExecutor, episodeID int64) (bool, error) {
+func PlayURLCachExists(ctx context.Context, exec boil.ContextExecutor, iD int) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"play_url_caches\" where \"episode_id\"=$1 limit 1)"
+	sql := "select exists(select 1 from \"play_url_caches\" where \"id\"=$1 limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
 		fmt.Fprintln(writer, sql)
-		fmt.Fprintln(writer, episodeID)
+		fmt.Fprintln(writer, iD)
 	}
-	row := exec.QueryRowContext(ctx, sql, episodeID)
+	row := exec.QueryRowContext(ctx, sql, iD)
 
 	err := row.Scan(&exists)
 	if err != nil {

@@ -12,7 +12,8 @@ CREATE TABLE access_keys(
     updated_at TIMESTAMP NOT NULL
 );
 CREATE TABLE play_url_caches(
-    episode_id BIGINT PRIMARY KEY NOT NULL,
+    id SERIAL PRIMARY KEY,
+    episode_id BIGINT NOT NULL,
     is_vip BOOLEAN NOT NULL,
     cid BIGINT NOT NULL,
     area SMALLINT NOT NULL,

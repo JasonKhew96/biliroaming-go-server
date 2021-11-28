@@ -167,7 +167,7 @@ func (b *BiliroamingGo) loop() {
 		}
 		b.aMu.Unlock()
 
-		time.Sleep(15 * time.Minute)
+		time.Sleep(5 * time.Minute)
 	}
 }
 

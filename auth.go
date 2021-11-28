@@ -152,3 +152,43 @@ func (b *BiliroamingGo) getMyInfo(ctx *fasthttp.RequestCtx, accessKey string) ([
 
 	return body, nil
 }
+
+func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string) (bool, *userStatus) {
+	if len(accessKey) != 32 {
+		writeErrorJSON(ctx, -2, []byte("Access Key错误"))
+		return false, nil
+	}
+
+	key, ok := b.getKey(accessKey)
+	if ok {
+		if key.isBlacklist {
+			writeErrorJSON(ctx, -101, []byte("黑名单"))
+			return false, nil
+		}
+		if !key.isLogin {
+			writeErrorJSON(ctx, -101, []byte("账号未登录"))
+			return false, nil
+		}
+		return key.isLogin, &userStatus{
+			isVip:       key.isVip,
+			isBlacklist: key.isBlacklist,
+			isWhitelist: key.isWhitelist,
+		}
+	}
+
+	status, err := b.isAuth(ctx, accessKey)
+	if err != nil {
+		b.setKey(accessKey, false, &userStatus{})
+		writeErrorJSON(ctx, -101, []byte("账号未登录"))
+		return false, nil
+	}
+
+	b.setKey(accessKey, true, status)
+
+	if status.isBlacklist {
+		writeErrorJSON(ctx, -101, []byte("黑名单"))
+		return false, nil
+	}
+
+	return true, status
+}

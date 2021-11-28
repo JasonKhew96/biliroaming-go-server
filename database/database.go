@@ -141,7 +141,7 @@ func (h *DbHelper) InsertOrUpdatePlayURLCache(deviceType DeviceType, area Area, 
 	playUrlTable.Cid = cid
 	playUrlTable.EpisodeID = episodeID
 	playUrlTable.Data = data
-	return playUrlTable.Upsert(h.ctx, h.db, true, []string{"episode_id"}, boil.Whitelist("data", "updated_at"), boil.Greylist("device_type", "area", "is_vip", "cid"))
+	return playUrlTable.Upsert(h.ctx, h.db, true, []string{"episode_id"}, boil.Whitelist("cid", "data", "updated_at"), boil.Greylist("device_type", "area", "is_vip", "cid"))
 }
 
 // CleanupPlayURLCache cleanup playurl if exceeds duration

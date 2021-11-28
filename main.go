@@ -368,6 +368,10 @@ func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string)
 			writeErrorJSON(ctx, -101, []byte("黑名单"))
 			return false, nil
 		}
+		if !key.isLogin {
+			writeErrorJSON(ctx, -101, []byte("账号未登录"))
+			return false, nil
+		}
 		return key.isLogin, &userStatus{
 			isVip:       key.isVip,
 			isBlacklist: key.isBlacklist,
@@ -382,7 +386,7 @@ func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string)
 		return false, nil
 	}
 
-	b.setKey(accessKey, true, &userStatus{})
+	b.setKey(accessKey, true, status)
 
 	if status.isBlacklist {
 		writeErrorJSON(ctx, -101, []byte("黑名单"))

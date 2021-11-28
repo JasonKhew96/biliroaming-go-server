@@ -88,6 +88,16 @@ func (h *DbHelper) GetUser(uid int64) (*models.User, error) {
 	return models.Users(models.UserWhere.UID.EQ(uid)).One(h.ctx, h.db)
 }
 
+// GetUserFromKey get user from access key
+func (h *DbHelper) GetUserFromKey(key string) (*models.User, error) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	return models.Users(
+		qm.InnerJoin("access_keys ON access_keys.uid = users.uid"),
+		models.AccessKeyWhere.Key.EQ(key),
+	).One(h.ctx, h.db)
+}
+
 // InsertOrUpdateUser insert or update user data
 func (h *DbHelper) InsertOrUpdateUser(uid int64, name string, vipDueDate time.Time) error {
 	h.mu.Lock()

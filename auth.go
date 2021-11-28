@@ -91,7 +91,7 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 		return nil, err
 	}
 	data := &entity.AccInfo{}
-	err = easyjson.Unmarshal([]byte(body), data)
+	err = easyjson.Unmarshal(body, data)
 	if err != nil {
 		return nil, err
 	}

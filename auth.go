@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"net/http"
@@ -19,8 +20,7 @@ type BlockTypeEnum int
 // BlockType
 const (
 	BlockTypeDisabled BlockTypeEnum = iota
-	BlockTypeWhitelist
-	BlockTypeBlacklist
+	BlockTypeEnabled
 )
 
 type userStatus struct {
@@ -44,46 +44,54 @@ func (b *BiliroamingGo) getAuthByArea(area string) bool {
 	}
 }
 
-func (b *BiliroamingGo) isBlacklist(ctx *fasthttp.RequestCtx, accessKey string) (bool, error) {
-	apiUrl := fmt.Sprintf("https://black.qimo.ink/?access_key=%s", accessKey)
-	data, err := b.doRequest(ctx, b.defaultClient, apiUrl, []byte(http.MethodGet))
+func (b *BiliroamingGo) checkBWlist(ctx *fasthttp.RequestCtx, uid int64) (*entity.BlackWhitelist, error) {
+	apiUrl := fmt.Sprintf("https://black.qimo.ink/status.php?uid=%d", uid)
+	data, err := b.doRequestJson(ctx, b.defaultClient, apiUrl, []byte(http.MethodGet))
 	if err != nil {
-		return false, err
+		return nil, err
 	}
-	if data == "ban" {
-		return true, nil
+	blackwhitelist := &entity.BlackWhitelist{}
+	if err := easyjson.Unmarshal(data, blackwhitelist); err != nil {
+		return nil, err
 	}
-	return false, nil
+
+	return blackwhitelist, nil
 }
 
 func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*userStatus, error) {
-	keyData, err := b.db.GetKey(accessKey)
-	if err == nil {
+	userStatus := &userStatus{
+		isVip:       false,
+		isBlacklist: false,
+		isWhitelist: false,
+	}
+
+	keyData, err := b.db.GetUserFromKey(accessKey)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		// unknown error
+		b.sugar.Error("GetUserFromKey error ", err)
+		return nil, err
+	} else if err == nil {
+		// cached
 		b.sugar.Debug("Get vip status from cache: ", keyData)
-		userData, err := b.db.GetUser(keyData.UID)
-		if err != nil {
-			return nil, err
-		}
-		isBlacklisted := false
-		if b.config.BlockType == BlockTypeBlacklist {
+
+		if b.config.BlockType == BlockTypeEnabled {
 			b.sugar.Debugf("isBlacklist %d %s", keyData.UID, accessKey)
-			isBlacklisted, err = b.isBlacklist(ctx, accessKey)
+			bwlist, err := b.checkBWlist(ctx, keyData.UID)
 			if err != nil {
 				return nil, err
 			}
+
+			if bwlist.Code == 0 {
+				userStatus.isBlacklist = bwlist.Data.IsBlacklist
+				userStatus.isWhitelist = bwlist.Data.IsWhitelist
+			}
 		}
-		if userData.VipDueDate.After(time.Now()) {
-			return &userStatus{
-				isVip:       true,
-				isBlacklist: isBlacklisted,
-				isWhitelist: false,
-			}, nil
+
+		if keyData.VipDueDate.After(time.Now()) {
+			userStatus.isVip = true
 		}
-		return &userStatus{
-			isVip:       false,
-			isBlacklist: isBlacklisted,
-			isWhitelist: false,
-		}, nil
+
+		return userStatus, nil
 	}
 
 	body, err := b.getMyInfo(ctx, accessKey)
@@ -111,21 +119,22 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 		return nil, err
 	}
 
-	isVip := vipDue.After(time.Now())
+	if vipDue.After(time.Now()) {
+		userStatus.isVip = true
+	}
 
-	isBlacklisted := false
-	if b.config.BlockType == BlockTypeBlacklist {
-		isBlacklisted, err = b.isBlacklist(ctx, accessKey)
+	if b.config.BlockType == BlockTypeEnabled {
+		bwlist, err := b.checkBWlist(ctx, keyData.UID)
 		if err != nil {
 			return nil, err
 		}
+		if bwlist.Code == 0 {
+			userStatus.isBlacklist = bwlist.Data.IsBlacklist
+			userStatus.isWhitelist = bwlist.Data.IsWhitelist
+		}
 	}
 
-	return &userStatus{
-		isVip:       isVip,
-		isBlacklist: isBlacklisted,
-		isWhitelist: false,
-	}, nil
+	return userStatus, nil
 }
 
 func (b *BiliroamingGo) getMyInfo(ctx *fasthttp.RequestCtx, accessKey string) ([]byte, error) {

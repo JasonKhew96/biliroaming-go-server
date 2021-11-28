@@ -24,7 +24,9 @@ func (b *BiliroamingGo) insertSeasonCache(data []byte, isVIP bool) error {
 		return errors.Wrap(err, "season response unmarshal")
 	}
 
-	b.db.InsertOrUpdateTHSeasonCache(seasonResult.Result.SeasonID, isVIP, data)
+	if err := b.db.InsertOrUpdateTHSeasonCache(seasonResult.Result.SeasonID, isVIP, data); err != nil {
+		b.sugar.Error(err)
+	}
 
 	if len(seasonResult.Result.Modules) <= 0 {
 		return nil
@@ -32,7 +34,9 @@ func (b *BiliroamingGo) insertSeasonCache(data []byte, isVIP bool) error {
 
 	for _, mdl := range seasonResult.Result.Modules {
 		for _, ep := range mdl.Data.Episodes {
-			b.db.InsertOrUpdateTHSeasonEpisodeCache(ep.ID, seasonResult.Result.SeasonID)
+			if err := b.db.InsertOrUpdateTHSeasonEpisodeCache(ep.ID, seasonResult.Result.SeasonID); err != nil {
+				b.sugar.Error(err)
+			}
 			if len(ep.Subtitles) > 0 {
 				subtitles := bstar.SubtitleResult{
 					Code:    0,
@@ -48,7 +52,9 @@ func (b *BiliroamingGo) insertSeasonCache(data []byte, isVIP bool) error {
 					b.sugar.Error(err)
 					continue
 				}
-				b.db.InsertOrUpdateTHSubtitleCache(ep.ID, newSubtitle)
+				if err := b.db.InsertOrUpdateTHSubtitleCache(ep.ID, newSubtitle); err != nil {
+					b.sugar.Error(err)
+				}
 			}
 		}
 	}

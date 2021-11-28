@@ -80,6 +80,8 @@ func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 	ctx.Write(data)
 
 	if b.getAuthByArea(args.area) {
-		b.db.InsertOrUpdateTHSubtitleCache(args.epId, data)
+		if err := b.db.InsertOrUpdateTHSubtitleCache(args.epId, data); err != nil {
+			b.sugar.Error(err)
+		}
 	}
 }

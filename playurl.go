@@ -103,7 +103,9 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	ctx.Write(newData)
 
 	if b.getAuthByArea(args.area) {
-		b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeWeb, getAreaCode(args.area), isVIP, args.cid, args.epId, data)
+		if err := b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeWeb, getAreaCode(args.area), isVIP, args.cid, args.epId, data); err != nil {
+			b.sugar.Error(err)
+		}
 	}
 }
 
@@ -214,7 +216,9 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	ctx.Write(newData)
 
 	if b.getAuthByArea(args.area) {
-		b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeAndroid, getAreaCode(args.area), isVIP, args.cid, args.epId, data)
+		if err := b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeAndroid, getAreaCode(args.area), isVIP, args.cid, args.epId, data); err != nil {
+			b.sugar.Error(err)
+		}
 	}
 }
 
@@ -320,6 +324,8 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	ctx.Write(newData)
 
 	if b.getAuthByArea(args.area) {
-		b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeAndroid, getAreaCode(args.area), isVIP, args.cid, args.epId, data)
+		if err := b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeAndroid, getAreaCode(args.area), isVIP, args.cid, args.epId, data); err != nil {
+			b.sugar.Error(err)
+		}
 	}
 }

@@ -124,7 +124,7 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 	}
 
 	if b.config.BlockType == BlockTypeEnabled {
-		bwlist, err := b.checkBWlist(ctx, keyData.UID)
+		bwlist, err := b.checkBWlist(ctx, data.Data.Mid)
 		if err != nil {
 			return nil, err
 		}

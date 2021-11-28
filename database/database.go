@@ -8,6 +8,7 @@ import (
 
 	"github.com/JasonKhew96/biliroaming-go-server/models"
 	_ "github.com/lib/pq"
+	migrate "github.com/rubenv/sql-migrate"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"golang.org/x/net/context"
@@ -44,14 +45,14 @@ func NewDBConnection(c *Config) (*DbHelper, error) {
 	}
 
 	// sql migrate
-	// migrations := &migrate.FileMigrationSource{
-	// 	Dir: "sql/migrations",
-	// }
-	// n, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// fmt.Printf("Applied %d migrations!\n", n)
+	migrations := &migrate.FileMigrationSource{
+		Dir: "sql/migrations",
+	}
+	n, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("Applied %d migrations!\n", n)
 
 	return &DbHelper{ctx: context.Background(), db: db}, err
 }
@@ -141,7 +142,7 @@ func (h *DbHelper) InsertOrUpdatePlayURLCache(deviceType DeviceType, area Area, 
 	playUrlTable.Cid = cid
 	playUrlTable.EpisodeID = episodeID
 	playUrlTable.Data = data
-	return playUrlTable.Upsert(h.ctx, h.db, true, []string{"episode_id"}, boil.Whitelist("cid", "data", "updated_at"), boil.Greylist("device_type", "area", "is_vip", "cid"))
+	return playUrlTable.Upsert(h.ctx, h.db, true, []string{"id"}, boil.Whitelist("data", "updated_at"), boil.Greylist("device_type", "area", "is_vip", "cid"))
 }
 
 // CleanupPlayURLCache cleanup playurl if exceeds duration

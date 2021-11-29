@@ -3,7 +3,6 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/JasonKhew96/biliroaming-go-server/models"
@@ -28,7 +27,6 @@ type Config struct {
 type DbHelper struct {
 	ctx context.Context
 	db  *sql.DB
-	mu  sync.RWMutex
 }
 
 // NewDBConnection new database connection
@@ -59,15 +57,11 @@ func NewDBConnection(c *Config) (*DbHelper, error) {
 
 // GetKey get access key data
 func (h *DbHelper) GetKey(key string) (*models.AccessKey, error) {
-	h.mu.RLock()
-	defer h.mu.RUnlock()
 	return models.AccessKeys(models.AccessKeyWhere.Key.EQ(key)).One(h.ctx, h.db)
 }
 
 // InsertOrUpdateKey insert or update access key data
 func (h *DbHelper) InsertOrUpdateKey(key string, uid int64) error {
-	h.mu.Lock()
-	defer h.mu.Unlock()
 	var accessKeyTable models.AccessKey
 	accessKeyTable.Key = key
 	accessKeyTable.UID = uid
@@ -76,23 +70,17 @@ func (h *DbHelper) InsertOrUpdateKey(key string, uid int64) error {
 
 // CleanupAccessKeys cleanup access keys if exceeds duration
 func (h *DbHelper) CleanupAccessKeys(d time.Duration) (int64, error) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
 	startTS := time.Now().Add(-d)
 	return models.AccessKeys(models.AccessKeyWhere.UpdatedAt.LTE(startTS)).DeleteAll(h.ctx, h.db)
 }
 
 // GetUser get user from uid
 func (h *DbHelper) GetUser(uid int64) (*models.User, error) {
-	h.mu.RLock()
-	defer h.mu.RUnlock()
 	return models.Users(models.UserWhere.UID.EQ(uid)).One(h.ctx, h.db)
 }
 
 // GetUserFromKey get user from access key
 func (h *DbHelper) GetUserFromKey(key string) (*models.User, error) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
 	return models.Users(
 		qm.InnerJoin("access_keys ON access_keys.uid = users.uid"),
 		models.AccessKeyWhere.Key.EQ(key),
@@ -101,8 +89,6 @@ func (h *DbHelper) GetUserFromKey(key string) (*models.User, error) {
 
 // InsertOrUpdateUser insert or update user data
 func (h *DbHelper) InsertOrUpdateUser(uid int64, name string, vipDueDate time.Time) error {
-	h.mu.Lock()
-	defer h.mu.Unlock()
 	var userTable models.User
 	userTable.UID = uid
 	userTable.Name = name
@@ -112,16 +98,12 @@ func (h *DbHelper) InsertOrUpdateUser(uid int64, name string, vipDueDate time.Ti
 
 // CleanupUsers cleanup users if exceeds duration
 func (h *DbHelper) CleanupUsers(duration time.Duration) (int64, error) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
 	startTS := time.Now().Add(-duration)
 	return models.Users(models.UserWhere.UpdatedAt.LTE(startTS)).DeleteAll(h.ctx, h.db)
 }
 
 // GetPlayURLCache get play url caching with device type, area, cid or episode ID
 func (h *DbHelper) GetPlayURLCache(deviceType DeviceType, area Area, isVIP bool, cid int64, episodeID int64) (*models.PlayURLCach, error) {
-	h.mu.RLock()
-	defer h.mu.RUnlock()
 	return models.PlayURLCaches(
 		models.PlayURLCachWhere.DeviceType.EQ(int16(deviceType)),
 		models.PlayURLCachWhere.Area.EQ(int16(area)),
@@ -133,8 +115,6 @@ func (h *DbHelper) GetPlayURLCache(deviceType DeviceType, area Area, isVIP bool,
 
 // InsertOrUpdatePlayURLCache insert or update play url cache data
 func (h *DbHelper) InsertOrUpdatePlayURLCache(deviceType DeviceType, area Area, isVIP bool, cid int64, episodeID int64, data []byte) error {
-	h.mu.Lock()
-	defer h.mu.Unlock()
 	var playUrlTable models.PlayURLCach
 	playUrlTable.DeviceType = int16(deviceType)
 	playUrlTable.Area = int16(area)
@@ -147,16 +127,12 @@ func (h *DbHelper) InsertOrUpdatePlayURLCache(deviceType DeviceType, area Area, 
 
 // CleanupPlayURLCache cleanup playurl if exceeds duration
 func (h *DbHelper) CleanupPlayURLCache(duration time.Duration) (int64, error) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
 	startTS := time.Now().Add(-duration)
 	return models.PlayURLCaches(models.PlayURLCachWhere.UpdatedAt.LTE(startTS)).DeleteAll(h.ctx, h.db)
 }
 
 // GetTHSeasonCache get season api cache from season id
 func (h *DbHelper) GetTHSeasonCache(seasonID int64, isVIP bool) (*models.THSeasonCach, error) {
-	h.mu.RLock()
-	defer h.mu.RUnlock()
 	return models.THSeasonCaches(
 		models.THSeasonCachWhere.SeasonID.EQ(seasonID),
 		models.THSeasonCachWhere.IsVip.EQ(isVIP),
@@ -165,8 +141,6 @@ func (h *DbHelper) GetTHSeasonCache(seasonID int64, isVIP bool) (*models.THSeaso
 
 // InsertOrUpdateTHSeasonCache insert or update season api cache
 func (h *DbHelper) InsertOrUpdateTHSeasonCache(seasonID int64, isVIP bool, data []byte) error {
-	h.mu.Lock()
-	defer h.mu.Unlock()
 	var thSeasonCacheTable models.THSeasonCach
 	thSeasonCacheTable.SeasonID = seasonID
 	thSeasonCacheTable.IsVip = isVIP
@@ -176,16 +150,12 @@ func (h *DbHelper) InsertOrUpdateTHSeasonCache(seasonID int64, isVIP bool, data 
 
 // CleanupTHSeasonCache cleanup th season if exceeds duration
 func (h *DbHelper) CleanupTHSeasonCache(duration time.Duration) (int64, error) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
 	startTS := time.Now().Add(-duration)
 	return models.THSeasonCaches(models.THSeasonCachWhere.UpdatedAt.LTE(startTS)).DeleteAll(h.ctx, h.db)
 }
 
 // GetTHSeasonCache get season api cache from episode id
 func (h *DbHelper) GetTHSeasonEpisodeCache(episodeID int64, isVIP bool) (*models.THSeasonCach, error) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
 	return models.THSeasonCaches(
 		qm.InnerJoin("th_season_episode_caches ON th_season_episode_caches.season_id = th_season_caches.season_id"),
 		models.THSeasonEpisodeCachWhere.EpisodeID.EQ(episodeID),
@@ -195,8 +165,6 @@ func (h *DbHelper) GetTHSeasonEpisodeCache(episodeID int64, isVIP bool) (*models
 
 // InsertOrUpdateTHSeasonCache insert or update season api cache
 func (h *DbHelper) InsertOrUpdateTHSeasonEpisodeCache(episodeID int64, seasonID int64) error {
-	h.mu.Lock()
-	defer h.mu.Unlock()
 	var thSeasonEpisodeCacheTable models.THSeasonEpisodeCach
 	thSeasonEpisodeCacheTable.EpisodeID = episodeID
 	thSeasonEpisodeCacheTable.SeasonID = seasonID
@@ -205,15 +173,11 @@ func (h *DbHelper) InsertOrUpdateTHSeasonEpisodeCache(episodeID int64, seasonID 
 
 // GetTHSubtitleCache get th subtitle api cache from season id
 func (h *DbHelper) GetTHSubtitleCache(episodeID int64) (*models.THSubtitleCach, error) {
-	h.mu.RLock()
-	defer h.mu.RUnlock()
 	return models.THSubtitleCaches(models.THSubtitleCachWhere.EpisodeID.EQ(episodeID)).One(h.ctx, h.db)
 }
 
 // InsertOrUpdateTHSubtitleCache insert or update th subtitle api cache
 func (h *DbHelper) InsertOrUpdateTHSubtitleCache(episodeID int64, data []byte) error {
-	h.mu.Lock()
-	defer h.mu.Unlock()
 	var thSubtitleCacheTable models.THSubtitleCach
 	thSubtitleCacheTable.EpisodeID = episodeID
 	thSubtitleCacheTable.Data = data
@@ -222,8 +186,6 @@ func (h *DbHelper) InsertOrUpdateTHSubtitleCache(episodeID int64, data []byte) e
 
 // CleanupTHSubtitleCache cleanup th subtitle if exceeds duration
 func (h *DbHelper) CleanupTHSubtitleCache(duration time.Duration) (int64, error) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
 	startTS := time.Now().Add(-duration)
 	return models.THSubtitleCaches(models.THSubtitleCachWhere.UpdatedAt.LTE(startTS)).DeleteAll(h.ctx, h.db)
 }

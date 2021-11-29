@@ -116,6 +116,12 @@ func (h *DbHelper) GetPlayURLCache(deviceType DeviceType, area Area, isVIP bool,
 // InsertOrUpdatePlayURLCache insert or update play url cache data
 func (h *DbHelper) InsertOrUpdatePlayURLCache(deviceType DeviceType, area Area, isVIP bool, cid int64, episodeID int64, data []byte) error {
 	var playUrlTable models.PlayURLCach
+
+	oldData, err := h.GetPlayURLCache(deviceType, area, isVIP, cid, episodeID)
+	if err == nil {
+		playUrlTable.ID = oldData.ID
+	}
+
 	playUrlTable.DeviceType = int16(deviceType)
 	playUrlTable.Area = int16(area)
 	playUrlTable.IsVip = isVIP

@@ -217,6 +217,8 @@ func initHttpServer(c *Config, b *BiliroamingGo) {
 			b.handleBstarAndroidSearch(ctx)
 		case "/intl/gateway/v2/ogv/view/app/season": // bstar android
 			b.handleBstarAndroidSeason(ctx)
+		case "/intl/gateway/v2/ogv/view/app/season2": // bstar android
+			b.handleBstarAndroidSeason2(ctx)
 		case "/intl/gateway/v2/app/subtitle": // bstar android
 			b.handleBstarAndroidSubtitle(ctx)
 		case "/intl/gateway/v2/ogv/playurl": // bstar android

@@ -7,6 +7,7 @@ import (
 
 	"github.com/JasonKhew96/biliroaming-go-server/models"
 	_ "github.com/lib/pq"
+	migrate "github.com/rubenv/sql-migrate"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"golang.org/x/net/context"
@@ -42,14 +43,14 @@ func NewDBConnection(c *Config) (*DbHelper, error) {
 	}
 
 	// sql migrate
-	// migrations := &migrate.FileMigrationSource{
-	// 	Dir: "sql/migrations",
-	// }
-	// n, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// fmt.Printf("Applied %d migrations!\n", n)
+	migrations := &migrate.FileMigrationSource{
+		Dir: "sql/migrations",
+	}
+	n, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("Applied %d migrations!\n", n)
 
 	return &DbHelper{ctx: context.Background(), db: db}, err
 }

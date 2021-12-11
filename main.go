@@ -123,17 +123,17 @@ func (b *BiliroamingGo) setKey(key string, isLogin bool, status *userStatus) {
 
 func (b *BiliroamingGo) loop() {
 	for {
-		b.sugar.Debug("Cleaning database...")
-		if aff, err := b.db.CleanupAccessKeys(b.config.Cache.AccessKey); err != nil {
-			b.sugar.Error(err)
-		} else {
-			b.sugar.Debugf("Cleanup %d access keys cache", aff)
-		}
-		if aff, err := b.db.CleanupUsers(b.config.Cache.User); err != nil {
-			b.sugar.Error(err)
-		} else {
-			b.sugar.Debugf("Cleanup %d users cache", aff)
-		}
+		// b.sugar.Debug("Cleaning database...")
+		// if aff, err := b.db.CleanupAccessKeys(b.config.Cache.AccessKey); err != nil {
+		// 	b.sugar.Error(err)
+		// } else {
+		// 	b.sugar.Debugf("Cleanup %d access keys cache", aff)
+		// }
+		// if aff, err := b.db.CleanupUsers(b.config.Cache.User); err != nil {
+		// 	b.sugar.Error(err)
+		// } else {
+		// 	b.sugar.Debugf("Cleanup %d users cache", aff)
+		// }
 		// if aff, err := b.db.CleanupPlayURLCache(time.Duration(b.config.CachePlayURL) * time.Minute); err != nil {
 		// 	b.sugar.Error(err)
 		// } else {

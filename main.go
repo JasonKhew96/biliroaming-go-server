@@ -34,6 +34,7 @@ type biliArgs struct {
 	keyword   string
 	pn        int
 	qn        int
+	aType     int
 }
 
 // ip string
@@ -336,6 +337,10 @@ func (b *BiliroamingGo) processArgs(args *fasthttp.Args) *biliArgs {
 	if err != nil || qn == 0 {
 		qn = 16
 	}
+	aType, err := strconv.Atoi(string(args.Peek("type")))
+	if err != nil || aType == 0 {
+		aType = 7
+	}
 
 	queryArgs := &biliArgs{
 		accessKey: string(args.Peek("access_key")),
@@ -346,6 +351,7 @@ func (b *BiliroamingGo) processArgs(args *fasthttp.Args) *biliArgs {
 		keyword:   string(args.Peek("keyword")),
 		pn:        pn,
 		qn:        qn,
+		aType:     aType,
 	}
 
 	b.sugar.Debug("Request args ", args.String())

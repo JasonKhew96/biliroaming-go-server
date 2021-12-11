@@ -66,7 +66,7 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 	v.Set("build", "6400000")
 	v.Set("highlight", "1")
 	v.Set("keyword", args.keyword)
-	v.Set("type", "7")
+	v.Set("type", strconv.Itoa(args.aType))
 	v.Set("mobi_app", "android")
 	v.Set("platform", "android")
 	v.Set("pn", strconv.Itoa(args.pn))
@@ -152,7 +152,7 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 	v.Set("build", "1080003")
 	v.Set("keyword", args.keyword)
 	v.Set("s_locale", "zh_SG")
-	v.Set("type", "7")
+	v.Set("type", strconv.Itoa(args.aType))
 	v.Set("mobi_app", "bstar_a")
 	v.Set("pn", strconv.Itoa(args.pn))
 

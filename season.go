@@ -156,7 +156,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 				return
 			} else if err != nil && !errors.Is(err, sql.ErrNoRows) {
 				b.processError(ctx, err)
-				b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
+				b.updateHealth(b.HealthSeasonTH, -500, "服务器错误")
 				return
 			}
 		}
@@ -169,7 +169,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 				return
 			} else if err != nil && !errors.Is(err, sql.ErrNoRows) {
 				b.processError(ctx, err)
-				b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
+				b.updateHealth(b.HealthSeasonTH, -500, "服务器错误")
 				return
 			}
 		}

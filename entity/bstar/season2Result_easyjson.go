@@ -17,101 +17,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(in *jlexer.Lexer, out *Season2Subtitles) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "id":
-			out.ID = int64(in.Int64())
-		case "key":
-			out.Key = string(in.String())
-		case "title":
-			out.Title = string(in.String())
-		case "url":
-			out.URL = string(in.String())
-		case "is_machine":
-			out.IsMachine = bool(in.Bool())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(out *jwriter.Writer, in Season2Subtitles) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	{
-		const prefix string = ",\"id\":"
-		out.RawString(prefix[1:])
-		out.Int64(int64(in.ID))
-	}
-	{
-		const prefix string = ",\"key\":"
-		out.RawString(prefix)
-		out.String(string(in.Key))
-	}
-	{
-		const prefix string = ",\"title\":"
-		out.RawString(prefix)
-		out.String(string(in.Title))
-	}
-	{
-		const prefix string = ",\"url\":"
-		out.RawString(prefix)
-		out.String(string(in.URL))
-	}
-	{
-		const prefix string = ",\"is_machine\":"
-		out.RawString(prefix)
-		out.Bool(bool(in.IsMachine))
-	}
-	out.RawByte('}')
-}
-
-// MarshalJSON supports json.Marshaler interface
-func (v Season2Subtitles) MarshalJSON() ([]byte, error) {
-	w := jwriter.Writer{}
-	easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(&w, v)
-	return w.Buffer.BuildBytes(), w.Error
-}
-
-// MarshalEasyJSON supports easyjson.Marshaler interface
-func (v Season2Subtitles) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(w, v)
-}
-
-// UnmarshalJSON supports json.Unmarshaler interface
-func (v *Season2Subtitles) UnmarshalJSON(data []byte) error {
-	r := jlexer.Lexer{Data: data}
-	easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(&r, v)
-	return r.Error()
-}
-
-// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *Season2Subtitles) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(l, v)
-}
-func easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(in *jlexer.Lexer, out *Season2Sections) {
+func easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(in *jlexer.Lexer, out *Season2Sections) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -167,7 +73,7 @@ func easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(i
 		in.Consumed()
 	}
 }
-func easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(out *jwriter.Writer, in Season2Sections) {
+func easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(out *jwriter.Writer, in Season2Sections) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -203,27 +109,27 @@ func easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(o
 // MarshalJSON supports json.Marshaler interface
 func (v Season2Sections) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(&w, v)
+	easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Season2Sections) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(w, v)
+	easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Season2Sections) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(&r, v)
+	easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Season2Sections) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(l, v)
+	easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar(l, v)
 }
-func easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar2(in *jlexer.Lexer, out *Season2Section) {
+func easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(in *jlexer.Lexer, out *Season2Section) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -279,7 +185,7 @@ func easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar2(i
 		in.Consumed()
 	}
 }
-func easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar2(out *jwriter.Writer, in Season2Section) {
+func easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(out *jwriter.Writer, in Season2Section) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -315,27 +221,27 @@ func easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar2(o
 // MarshalJSON supports json.Marshaler interface
 func (v Season2Section) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar2(&w, v)
+	easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Season2Section) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar2(w, v)
+	easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Season2Section) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar2(&r, v)
+	easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Season2Section) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar2(l, v)
+	easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar1(l, v)
 }
-func easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar3(in *jlexer.Lexer, out *Season2Result) {
+func easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar2(in *jlexer.Lexer, out *Season2Result) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -372,7 +278,7 @@ func easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar3(i
 		in.Consumed()
 	}
 }
-func easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar3(out *jwriter.Writer, in Season2Result) {
+func easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar2(out *jwriter.Writer, in Season2Result) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -402,27 +308,27 @@ func easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar3(o
 // MarshalJSON supports json.Marshaler interface
 func (v Season2Result) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar3(&w, v)
+	easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar2(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Season2Result) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar3(w, v)
+	easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar2(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Season2Result) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar3(&r, v)
+	easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar2(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Season2Result) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar3(l, v)
+	easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar2(l, v)
 }
-func easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar4(in *jlexer.Lexer, out *Season2EpDetails) {
+func easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar3(in *jlexer.Lexer, out *Season2EpDetails) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -452,7 +358,7 @@ func easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar4(i
 				out.Badge = in.Interface()
 			}
 		case "episode_id":
-			out.EpisodeID = int(in.Int())
+			out.EpisodeID = int64(in.Int64())
 		case "title":
 			out.Title = string(in.String())
 		case "short_title":
@@ -487,15 +393,15 @@ func easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar4(i
 				in.Delim('[')
 				if out.Subtitles == nil {
 					if !in.IsDelim(']') {
-						out.Subtitles = make([]Season2Subtitles, 0, 1)
+						out.Subtitles = make([]Subtitles, 0, 1)
 					} else {
-						out.Subtitles = []Season2Subtitles{}
+						out.Subtitles = []Subtitles{}
 					}
 				} else {
 					out.Subtitles = (out.Subtitles)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v7 Season2Subtitles
+					var v7 Subtitles
 					(v7).UnmarshalEasyJSON(in)
 					out.Subtitles = append(out.Subtitles, v7)
 					in.WantComma()
@@ -520,7 +426,7 @@ func easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar4(i
 		in.Consumed()
 	}
 }
-func easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar4(out *jwriter.Writer, in Season2EpDetails) {
+func easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar3(out *jwriter.Writer, in Season2EpDetails) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -543,7 +449,7 @@ func easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar4(o
 	{
 		const prefix string = ",\"episode_id\":"
 		out.RawString(prefix)
-		out.Int(int(in.EpisodeID))
+		out.Int64(int64(in.EpisodeID))
 	}
 	{
 		const prefix string = ",\"title\":"
@@ -625,27 +531,27 @@ func easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar4(o
 // MarshalJSON supports json.Marshaler interface
 func (v Season2EpDetails) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar4(&w, v)
+	easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar3(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Season2EpDetails) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar4(w, v)
+	easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar3(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Season2EpDetails) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar4(&r, v)
+	easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar3(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Season2EpDetails) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar4(l, v)
+	easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar3(l, v)
 }
-func easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar5(in *jlexer.Lexer, out *Season2Data) {
+func easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar4(in *jlexer.Lexer, out *Season2Data) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -687,7 +593,7 @@ func easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar5(i
 		case "subtitle_suggest_key":
 			out.SubtitleSuggestKey = string(in.String())
 		case "season_id":
-			out.SeasonID = int(in.Int())
+			out.SeasonID = int64(in.Int64())
 		case "open_skip_switch":
 			out.OpenSkipSwitch = bool(in.Bool())
 		case "allow_download":
@@ -824,7 +730,7 @@ func easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar5(i
 		in.Consumed()
 	}
 }
-func easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar5(out *jwriter.Writer, in Season2Data) {
+func easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar4(out *jwriter.Writer, in Season2Data) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -877,7 +783,7 @@ func easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar5(o
 	{
 		const prefix string = ",\"season_id\":"
 		out.RawString(prefix)
-		out.Int(int(in.SeasonID))
+		out.Int64(int64(in.SeasonID))
 	}
 	{
 		const prefix string = ",\"open_skip_switch\":"
@@ -1036,23 +942,23 @@ func easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar5(o
 // MarshalJSON supports json.Marshaler interface
 func (v Season2Data) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar5(&w, v)
+	easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar4(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Season2Data) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar5(w, v)
+	easyjsonFdf1eaf2EncodeGithubComJasonKhew96BiliroamingGoServerEntityBstar4(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Season2Data) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar5(&r, v)
+	easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar4(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Season2Data) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar5(l, v)
+	easyjsonFdf1eaf2DecodeGithubComJasonKhew96BiliroamingGoServerEntityBstar4(l, v)
 }

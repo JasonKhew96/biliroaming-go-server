@@ -114,8 +114,8 @@ func (b *BiliroamingGo) addCustomSubSeason2(ctx *fasthttp.RequestCtx, seasonResu
 						},
 					}, subtitles...)
 				}
-				episodeIndex++
 			}
+			episodeIndex++
 			season2Json.Data.Sections.Section[sectionIndex].EpDetails[epIndex].Subtitles = subtitles
 		}
 	}

@@ -35,6 +35,19 @@ CREATE TABLE th_season_episode_caches(
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
 );
+CREATE TABLE th_season2_caches(
+    season_id BIGINT PRIMARY KEY NOT NULL,
+    is_vip BOOLEAN NOT NULL,
+    data JSON NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+);
+CREATE TABLE th_season2_episode_caches(
+    episode_id BIGINT PRIMARY KEY NOT NULL,
+    season_id BIGINT REFERENCES th_season2_caches(season_id) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+);
 CREATE TABLE th_subtitle_caches(
     episode_id BIGINT PRIMARY KEY NOT NULL,
     data JSON NOT NULL,

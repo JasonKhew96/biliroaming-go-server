@@ -7,27 +7,19 @@ type Season2Result struct {
 	Data    Season2Data `json:"data"`
 }
 
-type Season2Subtitles struct {
-	ID        int64  `json:"id"`
-	Key       string `json:"key"`
-	Title     string `json:"title"`
-	URL       string `json:"url"`
-	IsMachine bool   `json:"is_machine"`
-}
-
 type Season2EpDetails struct {
-	HorizontalCover  string             `json:"horizontal_cover"`
-	Badge            interface{}        `json:"badge"`
-	EpisodeID        int                `json:"episode_id"`
-	Title            string             `json:"title"`
-	ShortTitle       string             `json:"short_title"`
-	LongTitle        string             `json:"long_title"`
-	LongTitleDisplay string             `json:"long_title_display"`
-	Status           int                `json:"status"`
-	Jump             interface{}        `json:"jump"`
-	Dialog           interface{}        `json:"dialog"`
-	Subtitles        []Season2Subtitles `json:"subtitles"`
-	Dimension        interface{}        `json:"dimension"`
+	HorizontalCover  string      `json:"horizontal_cover"`
+	Badge            interface{} `json:"badge"`
+	EpisodeID        int64       `json:"episode_id"`
+	Title            string      `json:"title"`
+	ShortTitle       string      `json:"short_title"`
+	LongTitle        string      `json:"long_title"`
+	LongTitleDisplay string      `json:"long_title_display"`
+	Status           int         `json:"status"`
+	Jump             interface{} `json:"jump"`
+	Dialog           interface{} `json:"dialog"`
+	Subtitles        []Subtitles `json:"subtitles"`
+	Dimension        interface{} `json:"dimension"`
 }
 type Season2Section struct {
 	Title     string             `json:"title"`
@@ -49,7 +41,7 @@ type Season2Data struct {
 	Limit              string          `json:"limit"`
 	UpdateDesc         string          `json:"update_desc"`
 	SubtitleSuggestKey string          `json:"subtitle_suggest_key"`
-	SeasonID           int             `json:"season_id"`
+	SeasonID           int64           `json:"season_id"`
 	OpenSkipSwitch     bool            `json:"open_skip_switch"`
 	AllowDownload      bool            `json:"allow_download"`
 	HorizonCover       string          `json:"horizon_cover"`

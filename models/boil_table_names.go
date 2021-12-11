@@ -4,17 +4,21 @@
 package models
 
 var TableNames = struct {
-	AccessKeys            string
-	PlayURLCaches         string
-	THSeasonCaches        string
-	THSeasonEpisodeCaches string
-	THSubtitleCaches      string
-	Users                 string
+	AccessKeys             string
+	PlayURLCaches          string
+	THSeason2Caches        string
+	THSeason2EpisodeCaches string
+	THSeasonCaches         string
+	THSeasonEpisodeCaches  string
+	THSubtitleCaches       string
+	Users                  string
 }{
-	AccessKeys:            "access_keys",
-	PlayURLCaches:         "play_url_caches",
-	THSeasonCaches:        "th_season_caches",
-	THSeasonEpisodeCaches: "th_season_episode_caches",
-	THSubtitleCaches:      "th_subtitle_caches",
-	Users:                 "users",
+	AccessKeys:             "access_keys",
+	PlayURLCaches:          "play_url_caches",
+	THSeason2Caches:        "th_season2_caches",
+	THSeason2EpisodeCaches: "th_season2_episode_caches",
+	THSeasonCaches:         "th_season_caches",
+	THSeasonEpisodeCaches:  "th_season_episode_caches",
+	THSubtitleCaches:       "th_subtitle_caches",
+	Users:                  "users",
 }

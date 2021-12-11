@@ -14,6 +14,8 @@ import "testing"
 func TestParent(t *testing.T) {
 	t.Run("AccessKeys", testAccessKeys)
 	t.Run("PlayURLCaches", testPlayURLCaches)
+	t.Run("THSeason2Caches", testTHSeason2Caches)
+	t.Run("THSeason2EpisodeCaches", testTHSeason2EpisodeCaches)
 	t.Run("THSeasonCaches", testTHSeasonCaches)
 	t.Run("THSeasonEpisodeCaches", testTHSeasonEpisodeCaches)
 	t.Run("THSubtitleCaches", testTHSubtitleCaches)
@@ -23,6 +25,8 @@ func TestParent(t *testing.T) {
 func TestDelete(t *testing.T) {
 	t.Run("AccessKeys", testAccessKeysDelete)
 	t.Run("PlayURLCaches", testPlayURLCachesDelete)
+	t.Run("THSeason2Caches", testTHSeason2CachesDelete)
+	t.Run("THSeason2EpisodeCaches", testTHSeason2EpisodeCachesDelete)
 	t.Run("THSeasonCaches", testTHSeasonCachesDelete)
 	t.Run("THSeasonEpisodeCaches", testTHSeasonEpisodeCachesDelete)
 	t.Run("THSubtitleCaches", testTHSubtitleCachesDelete)
@@ -32,6 +36,8 @@ func TestDelete(t *testing.T) {
 func TestQueryDeleteAll(t *testing.T) {
 	t.Run("AccessKeys", testAccessKeysQueryDeleteAll)
 	t.Run("PlayURLCaches", testPlayURLCachesQueryDeleteAll)
+	t.Run("THSeason2Caches", testTHSeason2CachesQueryDeleteAll)
+	t.Run("THSeason2EpisodeCaches", testTHSeason2EpisodeCachesQueryDeleteAll)
 	t.Run("THSeasonCaches", testTHSeasonCachesQueryDeleteAll)
 	t.Run("THSeasonEpisodeCaches", testTHSeasonEpisodeCachesQueryDeleteAll)
 	t.Run("THSubtitleCaches", testTHSubtitleCachesQueryDeleteAll)
@@ -41,6 +47,8 @@ func TestQueryDeleteAll(t *testing.T) {
 func TestSliceDeleteAll(t *testing.T) {
 	t.Run("AccessKeys", testAccessKeysSliceDeleteAll)
 	t.Run("PlayURLCaches", testPlayURLCachesSliceDeleteAll)
+	t.Run("THSeason2Caches", testTHSeason2CachesSliceDeleteAll)
+	t.Run("THSeason2EpisodeCaches", testTHSeason2EpisodeCachesSliceDeleteAll)
 	t.Run("THSeasonCaches", testTHSeasonCachesSliceDeleteAll)
 	t.Run("THSeasonEpisodeCaches", testTHSeasonEpisodeCachesSliceDeleteAll)
 	t.Run("THSubtitleCaches", testTHSubtitleCachesSliceDeleteAll)
@@ -50,6 +58,8 @@ func TestSliceDeleteAll(t *testing.T) {
 func TestExists(t *testing.T) {
 	t.Run("AccessKeys", testAccessKeysExists)
 	t.Run("PlayURLCaches", testPlayURLCachesExists)
+	t.Run("THSeason2Caches", testTHSeason2CachesExists)
+	t.Run("THSeason2EpisodeCaches", testTHSeason2EpisodeCachesExists)
 	t.Run("THSeasonCaches", testTHSeasonCachesExists)
 	t.Run("THSeasonEpisodeCaches", testTHSeasonEpisodeCachesExists)
 	t.Run("THSubtitleCaches", testTHSubtitleCachesExists)
@@ -59,6 +69,8 @@ func TestExists(t *testing.T) {
 func TestFind(t *testing.T) {
 	t.Run("AccessKeys", testAccessKeysFind)
 	t.Run("PlayURLCaches", testPlayURLCachesFind)
+	t.Run("THSeason2Caches", testTHSeason2CachesFind)
+	t.Run("THSeason2EpisodeCaches", testTHSeason2EpisodeCachesFind)
 	t.Run("THSeasonCaches", testTHSeasonCachesFind)
 	t.Run("THSeasonEpisodeCaches", testTHSeasonEpisodeCachesFind)
 	t.Run("THSubtitleCaches", testTHSubtitleCachesFind)
@@ -68,6 +80,8 @@ func TestFind(t *testing.T) {
 func TestBind(t *testing.T) {
 	t.Run("AccessKeys", testAccessKeysBind)
 	t.Run("PlayURLCaches", testPlayURLCachesBind)
+	t.Run("THSeason2Caches", testTHSeason2CachesBind)
+	t.Run("THSeason2EpisodeCaches", testTHSeason2EpisodeCachesBind)
 	t.Run("THSeasonCaches", testTHSeasonCachesBind)
 	t.Run("THSeasonEpisodeCaches", testTHSeasonEpisodeCachesBind)
 	t.Run("THSubtitleCaches", testTHSubtitleCachesBind)
@@ -77,6 +91,8 @@ func TestBind(t *testing.T) {
 func TestOne(t *testing.T) {
 	t.Run("AccessKeys", testAccessKeysOne)
 	t.Run("PlayURLCaches", testPlayURLCachesOne)
+	t.Run("THSeason2Caches", testTHSeason2CachesOne)
+	t.Run("THSeason2EpisodeCaches", testTHSeason2EpisodeCachesOne)
 	t.Run("THSeasonCaches", testTHSeasonCachesOne)
 	t.Run("THSeasonEpisodeCaches", testTHSeasonEpisodeCachesOne)
 	t.Run("THSubtitleCaches", testTHSubtitleCachesOne)
@@ -86,6 +102,8 @@ func TestOne(t *testing.T) {
 func TestAll(t *testing.T) {
 	t.Run("AccessKeys", testAccessKeysAll)
 	t.Run("PlayURLCaches", testPlayURLCachesAll)
+	t.Run("THSeason2Caches", testTHSeason2CachesAll)
+	t.Run("THSeason2EpisodeCaches", testTHSeason2EpisodeCachesAll)
 	t.Run("THSeasonCaches", testTHSeasonCachesAll)
 	t.Run("THSeasonEpisodeCaches", testTHSeasonEpisodeCachesAll)
 	t.Run("THSubtitleCaches", testTHSubtitleCachesAll)
@@ -95,6 +113,8 @@ func TestAll(t *testing.T) {
 func TestCount(t *testing.T) {
 	t.Run("AccessKeys", testAccessKeysCount)
 	t.Run("PlayURLCaches", testPlayURLCachesCount)
+	t.Run("THSeason2Caches", testTHSeason2CachesCount)
+	t.Run("THSeason2EpisodeCaches", testTHSeason2EpisodeCachesCount)
 	t.Run("THSeasonCaches", testTHSeasonCachesCount)
 	t.Run("THSeasonEpisodeCaches", testTHSeasonEpisodeCachesCount)
 	t.Run("THSubtitleCaches", testTHSubtitleCachesCount)
@@ -104,6 +124,8 @@ func TestCount(t *testing.T) {
 func TestHooks(t *testing.T) {
 	t.Run("AccessKeys", testAccessKeysHooks)
 	t.Run("PlayURLCaches", testPlayURLCachesHooks)
+	t.Run("THSeason2Caches", testTHSeason2CachesHooks)
+	t.Run("THSeason2EpisodeCaches", testTHSeason2EpisodeCachesHooks)
 	t.Run("THSeasonCaches", testTHSeasonCachesHooks)
 	t.Run("THSeasonEpisodeCaches", testTHSeasonEpisodeCachesHooks)
 	t.Run("THSubtitleCaches", testTHSubtitleCachesHooks)
@@ -115,6 +137,10 @@ func TestInsert(t *testing.T) {
 	t.Run("AccessKeys", testAccessKeysInsertWhitelist)
 	t.Run("PlayURLCaches", testPlayURLCachesInsert)
 	t.Run("PlayURLCaches", testPlayURLCachesInsertWhitelist)
+	t.Run("THSeason2Caches", testTHSeason2CachesInsert)
+	t.Run("THSeason2Caches", testTHSeason2CachesInsertWhitelist)
+	t.Run("THSeason2EpisodeCaches", testTHSeason2EpisodeCachesInsert)
+	t.Run("THSeason2EpisodeCaches", testTHSeason2EpisodeCachesInsertWhitelist)
 	t.Run("THSeasonCaches", testTHSeasonCachesInsert)
 	t.Run("THSeasonCaches", testTHSeasonCachesInsertWhitelist)
 	t.Run("THSeasonEpisodeCaches", testTHSeasonEpisodeCachesInsert)
@@ -129,6 +155,7 @@ func TestInsert(t *testing.T) {
 // or deadlocks can occur.
 func TestToOne(t *testing.T) {
 	t.Run("AccessKeyToUserUsingUIDUser", testAccessKeyToOneUserUsingUIDUser)
+	t.Run("THSeason2EpisodeCachToTHSeason2CachUsingSeason", testTHSeason2EpisodeCachToOneTHSeason2CachUsingSeason)
 	t.Run("THSeasonEpisodeCachToTHSeasonCachUsingSeason", testTHSeasonEpisodeCachToOneTHSeasonCachUsingSeason)
 }
 
@@ -139,6 +166,7 @@ func TestOneToOne(t *testing.T) {}
 // TestToMany tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToMany(t *testing.T) {
+	t.Run("THSeason2CachToSeasonTHSeason2EpisodeCaches", testTHSeason2CachToManySeasonTHSeason2EpisodeCaches)
 	t.Run("THSeasonCachToSeasonTHSeasonEpisodeCaches", testTHSeasonCachToManySeasonTHSeasonEpisodeCaches)
 	t.Run("UserToUIDAccessKeys", testUserToManyUIDAccessKeys)
 }
@@ -147,6 +175,7 @@ func TestToMany(t *testing.T) {
 // or deadlocks can occur.
 func TestToOneSet(t *testing.T) {
 	t.Run("AccessKeyToUserUsingUIDAccessKeys", testAccessKeyToOneSetOpUserUsingUIDUser)
+	t.Run("THSeason2EpisodeCachToTHSeason2CachUsingSeasonTHSeason2EpisodeCaches", testTHSeason2EpisodeCachToOneSetOpTHSeason2CachUsingSeason)
 	t.Run("THSeasonEpisodeCachToTHSeasonCachUsingSeasonTHSeasonEpisodeCaches", testTHSeasonEpisodeCachToOneSetOpTHSeasonCachUsingSeason)
 }
 
@@ -165,6 +194,7 @@ func TestOneToOneRemove(t *testing.T) {}
 // TestToManyAdd tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToManyAdd(t *testing.T) {
+	t.Run("THSeason2CachToSeasonTHSeason2EpisodeCaches", testTHSeason2CachToManyAddOpSeasonTHSeason2EpisodeCaches)
 	t.Run("THSeasonCachToSeasonTHSeasonEpisodeCaches", testTHSeasonCachToManyAddOpSeasonTHSeasonEpisodeCaches)
 	t.Run("UserToUIDAccessKeys", testUserToManyAddOpUIDAccessKeys)
 }
@@ -180,6 +210,8 @@ func TestToManyRemove(t *testing.T) {}
 func TestReload(t *testing.T) {
 	t.Run("AccessKeys", testAccessKeysReload)
 	t.Run("PlayURLCaches", testPlayURLCachesReload)
+	t.Run("THSeason2Caches", testTHSeason2CachesReload)
+	t.Run("THSeason2EpisodeCaches", testTHSeason2EpisodeCachesReload)
 	t.Run("THSeasonCaches", testTHSeasonCachesReload)
 	t.Run("THSeasonEpisodeCaches", testTHSeasonEpisodeCachesReload)
 	t.Run("THSubtitleCaches", testTHSubtitleCachesReload)
@@ -189,6 +221,8 @@ func TestReload(t *testing.T) {
 func TestReloadAll(t *testing.T) {
 	t.Run("AccessKeys", testAccessKeysReloadAll)
 	t.Run("PlayURLCaches", testPlayURLCachesReloadAll)
+	t.Run("THSeason2Caches", testTHSeason2CachesReloadAll)
+	t.Run("THSeason2EpisodeCaches", testTHSeason2EpisodeCachesReloadAll)
 	t.Run("THSeasonCaches", testTHSeasonCachesReloadAll)
 	t.Run("THSeasonEpisodeCaches", testTHSeasonEpisodeCachesReloadAll)
 	t.Run("THSubtitleCaches", testTHSubtitleCachesReloadAll)
@@ -198,6 +232,8 @@ func TestReloadAll(t *testing.T) {
 func TestSelect(t *testing.T) {
 	t.Run("AccessKeys", testAccessKeysSelect)
 	t.Run("PlayURLCaches", testPlayURLCachesSelect)
+	t.Run("THSeason2Caches", testTHSeason2CachesSelect)
+	t.Run("THSeason2EpisodeCaches", testTHSeason2EpisodeCachesSelect)
 	t.Run("THSeasonCaches", testTHSeasonCachesSelect)
 	t.Run("THSeasonEpisodeCaches", testTHSeasonEpisodeCachesSelect)
 	t.Run("THSubtitleCaches", testTHSubtitleCachesSelect)
@@ -207,6 +243,8 @@ func TestSelect(t *testing.T) {
 func TestUpdate(t *testing.T) {
 	t.Run("AccessKeys", testAccessKeysUpdate)
 	t.Run("PlayURLCaches", testPlayURLCachesUpdate)
+	t.Run("THSeason2Caches", testTHSeason2CachesUpdate)
+	t.Run("THSeason2EpisodeCaches", testTHSeason2EpisodeCachesUpdate)
 	t.Run("THSeasonCaches", testTHSeasonCachesUpdate)
 	t.Run("THSeasonEpisodeCaches", testTHSeasonEpisodeCachesUpdate)
 	t.Run("THSubtitleCaches", testTHSubtitleCachesUpdate)
@@ -216,6 +254,8 @@ func TestUpdate(t *testing.T) {
 func TestSliceUpdateAll(t *testing.T) {
 	t.Run("AccessKeys", testAccessKeysSliceUpdateAll)
 	t.Run("PlayURLCaches", testPlayURLCachesSliceUpdateAll)
+	t.Run("THSeason2Caches", testTHSeason2CachesSliceUpdateAll)
+	t.Run("THSeason2EpisodeCaches", testTHSeason2EpisodeCachesSliceUpdateAll)
 	t.Run("THSeasonCaches", testTHSeasonCachesSliceUpdateAll)
 	t.Run("THSeasonEpisodeCaches", testTHSeasonEpisodeCachesSliceUpdateAll)
 	t.Run("THSubtitleCaches", testTHSubtitleCachesSliceUpdateAll)

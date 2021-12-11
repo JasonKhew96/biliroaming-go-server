@@ -194,3 +194,37 @@ func (h *DbHelper) CleanupTHSubtitleCache(duration time.Duration) (int64, error)
 	startTS := time.Now().Add(-duration)
 	return models.THSubtitleCaches(models.THSubtitleCachWhere.UpdatedAt.LTE(startTS)).DeleteAll(h.ctx, h.db)
 }
+
+// GetTHSeason2Cache get season2 api cache from season id
+func (h *DbHelper) GetTHSeason2Cache(seasonID int64, isVIP bool) (*models.THSeason2Cach, error) {
+	return models.THSeason2Caches(
+		models.THSeason2CachWhere.SeasonID.EQ(seasonID),
+		models.THSeason2CachWhere.IsVip.EQ(isVIP),
+	).One(h.ctx, h.db)
+}
+
+// InsertOrUpdateTHSeason2Cache insert or update season2 api cache
+func (h *DbHelper) InsertOrUpdateTHSeason2Cache(seasonID int64, isVIP bool, data []byte) error {
+	var thSeason2CacheTable models.THSeason2Cach
+	thSeason2CacheTable.SeasonID = seasonID
+	thSeason2CacheTable.IsVip = isVIP
+	thSeason2CacheTable.Data = data
+	return thSeason2CacheTable.Upsert(h.ctx, h.db, true, []string{"season_id"}, boil.Whitelist("data", "updated_at"), boil.Greylist("is_vip"))
+}
+
+// GetTHSeason2EpisodeCache get season api cache from episode id
+func (h *DbHelper) GetTHSeason2EpisodeCache(episodeID int64, isVIP bool) (*models.THSeason2Cach, error) {
+	return models.THSeason2Caches(
+		qm.InnerJoin("th_season2_episode_caches ON th_season2_episode_caches.season_id = th_season2_caches.season_id"),
+		models.THSeason2EpisodeCachWhere.EpisodeID.EQ(episodeID),
+		models.THSeason2CachWhere.IsVip.EQ(isVIP),
+	).One(h.ctx, h.db)
+}
+
+// InsertOrUpdateTHSeason2EpisodeCache insert or update season api cache
+func (h *DbHelper) InsertOrUpdateTHSeason2EpisodeCache(episodeID int64, seasonID int64) error {
+	var thSeason2EpisodeCacheTable models.THSeason2EpisodeCach
+	thSeason2EpisodeCacheTable.EpisodeID = episodeID
+	thSeason2EpisodeCacheTable.SeasonID = seasonID
+	return thSeason2EpisodeCacheTable.Upsert(h.ctx, h.db, false, nil, boil.Infer(), boil.Infer())
+}

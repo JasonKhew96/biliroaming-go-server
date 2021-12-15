@@ -1,5 +1,5 @@
 -- +migrate Up
-CREATE TABLE th_episode_caches(
+CREATE TABLE IF NOT EXISTS th_episode_caches(
     episode_id BIGINT PRIMARY KEY NOT NULL,
     data JSON NOT NULL,
     created_at TIMESTAMP NOT NULL,
@@ -7,4 +7,4 @@ CREATE TABLE th_episode_caches(
 );
 
 -- +migrate Down
-DROP TABLE th_episode_caches;
+DROP TABLE IF EXISTS th_episode_caches;

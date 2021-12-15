@@ -10,6 +10,8 @@ func TestUpsert(t *testing.T) {
 
 	t.Run("PlayURLCaches", testPlayURLCachesUpsert)
 
+	t.Run("THEpisodeCaches", testTHEpisodeCachesUpsert)
+
 	t.Run("THSeason2Caches", testTHSeason2CachesUpsert)
 
 	t.Run("THSeason2EpisodeCaches", testTHSeason2EpisodeCachesUpsert)

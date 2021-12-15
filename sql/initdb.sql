@@ -48,6 +48,12 @@ CREATE TABLE th_season2_episode_caches(
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
 );
+CREATE TABLE th_episode_caches(
+    episode_id BIGINT PRIMARY KEY NOT NULL,
+    data JSON NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+);
 CREATE TABLE th_subtitle_caches(
     episode_id BIGINT PRIMARY KEY NOT NULL,
     data JSON NOT NULL,

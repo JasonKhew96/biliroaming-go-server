@@ -229,3 +229,16 @@ func (h *DbHelper) InsertOrUpdateTHSeason2EpisodeCache(episodeID int64, seasonID
 	thSeason2EpisodeCacheTable.SeasonID = seasonID
 	return thSeason2EpisodeCacheTable.Upsert(h.ctx, h.db, false, nil, boil.Infer(), boil.Infer())
 }
+
+// GetTHEpisodeCache get th episode api cache from episode id
+func (h *DbHelper) GetTHEpisodeCache(episodeID int64) (*models.THEpisodeCach, error) {
+	return models.THEpisodeCaches(models.THEpisodeCachWhere.EpisodeID.EQ(episodeID)).One(h.ctx, h.db)
+}
+
+// InsertOrUpdateTHEpisodeCache insert or update th episode api cache
+func (h *DbHelper) InsertOrUpdateTHEpisodeCache(episodeID int64, data []byte) error {
+	var thEpisodeCacheTable models.THEpisodeCach
+	thEpisodeCacheTable.EpisodeID = episodeID
+	thEpisodeCacheTable.Data = data
+	return thEpisodeCacheTable.Upsert(h.ctx, h.db, true, []string{"episode_id"}, boil.Whitelist("data", "updated_at"), boil.Infer())
+}

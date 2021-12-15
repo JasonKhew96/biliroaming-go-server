@@ -38,21 +38,22 @@ func (b *BiliroamingGo) insertSeason2Cache(data []byte, isVIP bool) error {
 				b.sugar.Error(err)
 			}
 			if len(ep.Subtitles) > 0 {
-				subtitles := bstar.SubtitleResult{
+				episode := bstar.EpisodeResult{
 					Code:    0,
 					Message: "0",
 					TTL:     1,
-					Data: bstar.SubtitleResultData{
-						SuggestKey: ep.Subtitles[0].Key,
-						Subtitles:  ep.Subtitles,
+					Data: bstar.EpisodeResultData{
+						SubtitleSuggestKey: ep.Subtitles[0].Key,
+						Jump:               ep.Jump,
+						Subtitles:          ep.Subtitles,
 					},
 				}
-				newSubtitle, err := easyjson.Marshal(&subtitles)
+				newSubtitle, err := easyjson.Marshal(&episode)
 				if err != nil {
 					b.sugar.Error(err)
 					continue
 				}
-				if err := b.db.InsertOrUpdateTHSubtitleCache(ep.EpisodeID, newSubtitle); err != nil {
+				if err := b.db.InsertOrUpdateTHEpisodeCache(ep.EpisodeID, newSubtitle); err != nil {
 					b.sugar.Error(err)
 				}
 			}

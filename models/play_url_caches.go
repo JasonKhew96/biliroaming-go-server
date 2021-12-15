@@ -27,7 +27,6 @@ type PlayURLCach struct {
 	ID         int        `boil:"id" json:"id" toml:"id" yaml:"id"`
 	EpisodeID  int64      `boil:"episode_id" json:"episode_id" toml:"episode_id" yaml:"episode_id"`
 	IsVip      bool       `boil:"is_vip" json:"is_vip" toml:"is_vip" yaml:"is_vip"`
-	Cid        int64      `boil:"cid" json:"cid" toml:"cid" yaml:"cid"`
 	Area       int16      `boil:"area" json:"area" toml:"area" yaml:"area"`
 	DeviceType int16      `boil:"device_type" json:"device_type" toml:"device_type" yaml:"device_type"`
 	Data       types.JSON `boil:"data" json:"data" toml:"data" yaml:"data"`
@@ -42,7 +41,6 @@ var PlayURLCachColumns = struct {
 	ID         string
 	EpisodeID  string
 	IsVip      string
-	Cid        string
 	Area       string
 	DeviceType string
 	Data       string
@@ -52,7 +50,6 @@ var PlayURLCachColumns = struct {
 	ID:         "id",
 	EpisodeID:  "episode_id",
 	IsVip:      "is_vip",
-	Cid:        "cid",
 	Area:       "area",
 	DeviceType: "device_type",
 	Data:       "data",
@@ -64,7 +61,6 @@ var PlayURLCachTableColumns = struct {
 	ID         string
 	EpisodeID  string
 	IsVip      string
-	Cid        string
 	Area       string
 	DeviceType string
 	Data       string
@@ -74,7 +70,6 @@ var PlayURLCachTableColumns = struct {
 	ID:         "play_url_caches.id",
 	EpisodeID:  "play_url_caches.episode_id",
 	IsVip:      "play_url_caches.is_vip",
-	Cid:        "play_url_caches.cid",
 	Area:       "play_url_caches.area",
 	DeviceType: "play_url_caches.device_type",
 	Data:       "play_url_caches.data",
@@ -164,7 +159,6 @@ var PlayURLCachWhere = struct {
 	ID         whereHelperint
 	EpisodeID  whereHelperint64
 	IsVip      whereHelperbool
-	Cid        whereHelperint64
 	Area       whereHelperint16
 	DeviceType whereHelperint16
 	Data       whereHelpertypes_JSON
@@ -174,7 +168,6 @@ var PlayURLCachWhere = struct {
 	ID:         whereHelperint{field: "\"play_url_caches\".\"id\""},
 	EpisodeID:  whereHelperint64{field: "\"play_url_caches\".\"episode_id\""},
 	IsVip:      whereHelperbool{field: "\"play_url_caches\".\"is_vip\""},
-	Cid:        whereHelperint64{field: "\"play_url_caches\".\"cid\""},
 	Area:       whereHelperint16{field: "\"play_url_caches\".\"area\""},
 	DeviceType: whereHelperint16{field: "\"play_url_caches\".\"device_type\""},
 	Data:       whereHelpertypes_JSON{field: "\"play_url_caches\".\"data\""},
@@ -199,8 +192,8 @@ func (*playURLCachR) NewStruct() *playURLCachR {
 type playURLCachL struct{}
 
 var (
-	playURLCachAllColumns            = []string{"id", "episode_id", "is_vip", "cid", "area", "device_type", "data", "created_at", "updated_at"}
-	playURLCachColumnsWithoutDefault = []string{"episode_id", "is_vip", "cid", "area", "device_type", "data", "created_at", "updated_at"}
+	playURLCachAllColumns            = []string{"id", "episode_id", "is_vip", "area", "device_type", "data", "created_at", "updated_at"}
+	playURLCachColumnsWithoutDefault = []string{"episode_id", "is_vip", "area", "device_type", "data", "created_at", "updated_at"}
 	playURLCachColumnsWithDefault    = []string{"id"}
 	playURLCachPrimaryKeyColumns     = []string{"id"}
 )

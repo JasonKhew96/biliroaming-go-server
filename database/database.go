@@ -102,22 +102,21 @@ func (h *DbHelper) CleanupUsers(duration time.Duration) (int64, error) {
 	return models.Users(models.UserWhere.UpdatedAt.LTE(startTS)).DeleteAll(h.ctx, h.db)
 }
 
-// GetPlayURLCache get play url caching with device type, area, cid or episode ID
-func (h *DbHelper) GetPlayURLCache(deviceType DeviceType, area Area, isVIP bool, cid int64, episodeID int64) (*models.PlayURLCach, error) {
+// GetPlayURLCache get play url caching with device type, area or episode ID
+func (h *DbHelper) GetPlayURLCache(deviceType DeviceType, area Area, isVIP bool, episodeID int64) (*models.PlayURLCach, error) {
 	return models.PlayURLCaches(
 		models.PlayURLCachWhere.DeviceType.EQ(int16(deviceType)),
 		models.PlayURLCachWhere.Area.EQ(int16(area)),
 		models.PlayURLCachWhere.IsVip.EQ(isVIP),
-		models.PlayURLCachWhere.Cid.EQ(cid),
 		models.PlayURLCachWhere.EpisodeID.EQ(episodeID),
 	).One(h.ctx, h.db)
 }
 
 // InsertOrUpdatePlayURLCache insert or update play url cache data
-func (h *DbHelper) InsertOrUpdatePlayURLCache(deviceType DeviceType, area Area, isVIP bool, cid int64, episodeID int64, data []byte) error {
+func (h *DbHelper) InsertOrUpdatePlayURLCache(deviceType DeviceType, area Area, isVIP bool, episodeID int64, data []byte) error {
 	var playUrlTable models.PlayURLCach
 
-	oldData, err := h.GetPlayURLCache(deviceType, area, isVIP, cid, episodeID)
+	oldData, err := h.GetPlayURLCache(deviceType, area, isVIP, episodeID)
 	if err == nil {
 		playUrlTable.ID = oldData.ID
 	}
@@ -125,7 +124,6 @@ func (h *DbHelper) InsertOrUpdatePlayURLCache(deviceType DeviceType, area Area, 
 	playUrlTable.DeviceType = int16(deviceType)
 	playUrlTable.Area = int16(area)
 	playUrlTable.IsVip = isVIP
-	playUrlTable.Cid = cid
 	playUrlTable.EpisodeID = episodeID
 	playUrlTable.Data = data
 	return playUrlTable.Upsert(h.ctx, h.db, true, []string{"id"}, boil.Whitelist("data", "updated_at"), boil.Greylist("device_type", "area", "is_vip", "cid"))

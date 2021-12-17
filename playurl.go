@@ -109,6 +109,10 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 }
 
 func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
+	if !b.checkRoamingVer(ctx) {
+		return
+	}
+
 	queryArgs := ctx.URI().QueryArgs()
 	args := b.processArgs(queryArgs)
 
@@ -221,6 +225,10 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 }
 
 func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
+	if !b.checkRoamingVer(ctx) {
+		return
+	}
+
 	queryArgs := ctx.URI().QueryArgs()
 	args := b.processArgs(queryArgs)
 

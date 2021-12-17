@@ -16,6 +16,8 @@ type Config struct {
 
 	BlockType BlockTypeEnum `yaml:"blockType"`
 
+	RoamingMinVer int `yaml:"roamingMinVer"`
+
 	Limiter struct {
 		IpLimit int `yaml:"ipLimit"`
 		IpBurst int `yaml:"ipBurst"`

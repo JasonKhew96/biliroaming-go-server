@@ -132,6 +132,10 @@ func (b *BiliroamingGo) addCustomSubSeason2(ctx *fasthttp.RequestCtx, seasonResu
 }
 
 func (b *BiliroamingGo) handleBstarAndroidSeason2(ctx *fasthttp.RequestCtx) {
+	if !b.checkRoamingVer(ctx) {
+		return
+	}
+
 	queryArgs := ctx.URI().QueryArgs()
 	args := b.processArgs(queryArgs)
 

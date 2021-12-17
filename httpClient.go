@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -114,6 +115,31 @@ func writeHealthJSON(ctx *fasthttp.RequestCtx, health *entity.Health) {
 		return
 	}
 	ctx.Write(respData)
+}
+
+func (b *BiliroamingGo) checkRoamingVer(ctx *fasthttp.RequestCtx) bool {
+	versionCode := ctx.Request.Header.PeekBytes([]byte("build"))
+	versionName := ctx.Request.Header.PeekBytes([]byte("x-from-biliroaming"))
+
+	if len(versionCode) == 0 && len(versionName) == 0 {
+		return true
+	}
+
+	if len(versionCode) > 0 && len(versionName) > 0 {
+		build, err := strconv.Atoi(string(versionCode))
+		if err != nil {
+			writeErrorJSON(ctx, 500, []byte("错误请求头"))
+			return false
+		}
+		if build < b.config.RoamingMinVer {
+			writeErrorJSON(ctx, 500, []byte("哔哩漫游模块版本过低"))
+			return false
+		}
+		return true
+	}
+
+	writeErrorJSON(ctx, 500, []byte("错误请求头"))
+	return false
 }
 
 func (b *BiliroamingGo) doRequest(ctx *fasthttp.RequestCtx, client *fasthttp.Client, url string, method []byte) (string, error) {

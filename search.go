@@ -45,6 +45,10 @@ func (b *BiliroamingGo) addSearchAds(data []byte, clientType ClientType) ([]byte
 }
 
 func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
+	if !b.checkRoamingVer(ctx) {
+		return
+	}
+
 	queryArgs := ctx.URI().QueryArgs()
 	args := b.processArgs(queryArgs)
 
@@ -124,6 +128,10 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 }
 
 func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
+	if !b.checkRoamingVer(ctx) {
+		return
+	}
+
 	queryArgs := ctx.URI().QueryArgs()
 	args := b.processArgs(queryArgs)
 

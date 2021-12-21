@@ -16,3 +16,581 @@ var (
 	_ *jwriter.Writer
 	_ easyjson.Marshaler
 )
+
+func easyjsonCb88a3b8DecodeGithubComJasonKhew96BiliroamingGoServerEntityWeb(in *jlexer.Lexer, out *PlayUrlResult) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "code":
+			out.Code = int(in.Int())
+		case "message":
+			out.Message = string(in.String())
+		case "result":
+			easyjsonCb88a3b8Decode(in, &out.Result)
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonCb88a3b8EncodeGithubComJasonKhew96BiliroamingGoServerEntityWeb(out *jwriter.Writer, in PlayUrlResult) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"code\":"
+		out.RawString(prefix[1:])
+		out.Int(int(in.Code))
+	}
+	{
+		const prefix string = ",\"message\":"
+		out.RawString(prefix)
+		out.String(string(in.Message))
+	}
+	{
+		const prefix string = ",\"result\":"
+		out.RawString(prefix)
+		easyjsonCb88a3b8Encode(out, in.Result)
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v PlayUrlResult) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonCb88a3b8EncodeGithubComJasonKhew96BiliroamingGoServerEntityWeb(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v PlayUrlResult) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonCb88a3b8EncodeGithubComJasonKhew96BiliroamingGoServerEntityWeb(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *PlayUrlResult) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonCb88a3b8DecodeGithubComJasonKhew96BiliroamingGoServerEntityWeb(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *PlayUrlResult) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonCb88a3b8DecodeGithubComJasonKhew96BiliroamingGoServerEntityWeb(l, v)
+}
+func easyjsonCb88a3b8Decode(in *jlexer.Lexer, out *struct {
+	AcceptFormat      string        `json:"accept_format"`
+	Code              int           `json:"code"`
+	SeekParam         string        `json:"seek_param"`
+	IsPreview         int           `json:"is_preview"`
+	Fnval             int           `json:"fnval"`
+	VideoProject      bool          `json:"video_project"`
+	Fnver             int           `json:"fnver"`
+	Type              string        `json:"type"`
+	Bp                int           `json:"bp"`
+	Result            string        `json:"result"`
+	SeekType          string        `json:"seek_type"`
+	VipType           int           `json:"vip_type"`
+	From              string        `json:"from"`
+	VideoCodecid      int           `json:"video_codecid"`
+	Durl              []interface{} `json:"durl"`
+	NoRexcode         int           `json:"no_rexcode"`
+	Format            string        `json:"format"`
+	SupportFormats    []interface{} `json:"support_formats"`
+	Message           string        `json:"message"`
+	AcceptQuality     []int         `json:"accept_quality"`
+	Quality           int           `json:"quality"`
+	Timelength        int           `json:"timelength"`
+	HasPaid           bool          `json:"has_paid"`
+	VipStatus         int           `json:"vip_status"`
+	Dash              interface{}   `json:"dash"`
+	ClipInfoList      []interface{} `json:"clip_info_list"`
+	AcceptDescription []string      `json:"accept_description"`
+	Status            int           `json:"status"`
+}) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "accept_format":
+			out.AcceptFormat = string(in.String())
+		case "code":
+			out.Code = int(in.Int())
+		case "seek_param":
+			out.SeekParam = string(in.String())
+		case "is_preview":
+			out.IsPreview = int(in.Int())
+		case "fnval":
+			out.Fnval = int(in.Int())
+		case "video_project":
+			out.VideoProject = bool(in.Bool())
+		case "fnver":
+			out.Fnver = int(in.Int())
+		case "type":
+			out.Type = string(in.String())
+		case "bp":
+			out.Bp = int(in.Int())
+		case "result":
+			out.Result = string(in.String())
+		case "seek_type":
+			out.SeekType = string(in.String())
+		case "vip_type":
+			out.VipType = int(in.Int())
+		case "from":
+			out.From = string(in.String())
+		case "video_codecid":
+			out.VideoCodecid = int(in.Int())
+		case "durl":
+			if in.IsNull() {
+				in.Skip()
+				out.Durl = nil
+			} else {
+				in.Delim('[')
+				if out.Durl == nil {
+					if !in.IsDelim(']') {
+						out.Durl = make([]interface{}, 0, 4)
+					} else {
+						out.Durl = []interface{}{}
+					}
+				} else {
+					out.Durl = (out.Durl)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v1 interface{}
+					if m, ok := v1.(easyjson.Unmarshaler); ok {
+						m.UnmarshalEasyJSON(in)
+					} else if m, ok := v1.(json.Unmarshaler); ok {
+						_ = m.UnmarshalJSON(in.Raw())
+					} else {
+						v1 = in.Interface()
+					}
+					out.Durl = append(out.Durl, v1)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+		case "no_rexcode":
+			out.NoRexcode = int(in.Int())
+		case "format":
+			out.Format = string(in.String())
+		case "support_formats":
+			if in.IsNull() {
+				in.Skip()
+				out.SupportFormats = nil
+			} else {
+				in.Delim('[')
+				if out.SupportFormats == nil {
+					if !in.IsDelim(']') {
+						out.SupportFormats = make([]interface{}, 0, 4)
+					} else {
+						out.SupportFormats = []interface{}{}
+					}
+				} else {
+					out.SupportFormats = (out.SupportFormats)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v2 interface{}
+					if m, ok := v2.(easyjson.Unmarshaler); ok {
+						m.UnmarshalEasyJSON(in)
+					} else if m, ok := v2.(json.Unmarshaler); ok {
+						_ = m.UnmarshalJSON(in.Raw())
+					} else {
+						v2 = in.Interface()
+					}
+					out.SupportFormats = append(out.SupportFormats, v2)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+		case "message":
+			out.Message = string(in.String())
+		case "accept_quality":
+			if in.IsNull() {
+				in.Skip()
+				out.AcceptQuality = nil
+			} else {
+				in.Delim('[')
+				if out.AcceptQuality == nil {
+					if !in.IsDelim(']') {
+						out.AcceptQuality = make([]int, 0, 8)
+					} else {
+						out.AcceptQuality = []int{}
+					}
+				} else {
+					out.AcceptQuality = (out.AcceptQuality)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v3 int
+					v3 = int(in.Int())
+					out.AcceptQuality = append(out.AcceptQuality, v3)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+		case "quality":
+			out.Quality = int(in.Int())
+		case "timelength":
+			out.Timelength = int(in.Int())
+		case "has_paid":
+			out.HasPaid = bool(in.Bool())
+		case "vip_status":
+			out.VipStatus = int(in.Int())
+		case "dash":
+			if m, ok := out.Dash.(easyjson.Unmarshaler); ok {
+				m.UnmarshalEasyJSON(in)
+			} else if m, ok := out.Dash.(json.Unmarshaler); ok {
+				_ = m.UnmarshalJSON(in.Raw())
+			} else {
+				out.Dash = in.Interface()
+			}
+		case "clip_info_list":
+			if in.IsNull() {
+				in.Skip()
+				out.ClipInfoList = nil
+			} else {
+				in.Delim('[')
+				if out.ClipInfoList == nil {
+					if !in.IsDelim(']') {
+						out.ClipInfoList = make([]interface{}, 0, 4)
+					} else {
+						out.ClipInfoList = []interface{}{}
+					}
+				} else {
+					out.ClipInfoList = (out.ClipInfoList)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v4 interface{}
+					if m, ok := v4.(easyjson.Unmarshaler); ok {
+						m.UnmarshalEasyJSON(in)
+					} else if m, ok := v4.(json.Unmarshaler); ok {
+						_ = m.UnmarshalJSON(in.Raw())
+					} else {
+						v4 = in.Interface()
+					}
+					out.ClipInfoList = append(out.ClipInfoList, v4)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+		case "accept_description":
+			if in.IsNull() {
+				in.Skip()
+				out.AcceptDescription = nil
+			} else {
+				in.Delim('[')
+				if out.AcceptDescription == nil {
+					if !in.IsDelim(']') {
+						out.AcceptDescription = make([]string, 0, 4)
+					} else {
+						out.AcceptDescription = []string{}
+					}
+				} else {
+					out.AcceptDescription = (out.AcceptDescription)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v5 string
+					v5 = string(in.String())
+					out.AcceptDescription = append(out.AcceptDescription, v5)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+		case "status":
+			out.Status = int(in.Int())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonCb88a3b8Encode(out *jwriter.Writer, in struct {
+	AcceptFormat      string        `json:"accept_format"`
+	Code              int           `json:"code"`
+	SeekParam         string        `json:"seek_param"`
+	IsPreview         int           `json:"is_preview"`
+	Fnval             int           `json:"fnval"`
+	VideoProject      bool          `json:"video_project"`
+	Fnver             int           `json:"fnver"`
+	Type              string        `json:"type"`
+	Bp                int           `json:"bp"`
+	Result            string        `json:"result"`
+	SeekType          string        `json:"seek_type"`
+	VipType           int           `json:"vip_type"`
+	From              string        `json:"from"`
+	VideoCodecid      int           `json:"video_codecid"`
+	Durl              []interface{} `json:"durl"`
+	NoRexcode         int           `json:"no_rexcode"`
+	Format            string        `json:"format"`
+	SupportFormats    []interface{} `json:"support_formats"`
+	Message           string        `json:"message"`
+	AcceptQuality     []int         `json:"accept_quality"`
+	Quality           int           `json:"quality"`
+	Timelength        int           `json:"timelength"`
+	HasPaid           bool          `json:"has_paid"`
+	VipStatus         int           `json:"vip_status"`
+	Dash              interface{}   `json:"dash"`
+	ClipInfoList      []interface{} `json:"clip_info_list"`
+	AcceptDescription []string      `json:"accept_description"`
+	Status            int           `json:"status"`
+}) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"accept_format\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.AcceptFormat))
+	}
+	{
+		const prefix string = ",\"code\":"
+		out.RawString(prefix)
+		out.Int(int(in.Code))
+	}
+	{
+		const prefix string = ",\"seek_param\":"
+		out.RawString(prefix)
+		out.String(string(in.SeekParam))
+	}
+	{
+		const prefix string = ",\"is_preview\":"
+		out.RawString(prefix)
+		out.Int(int(in.IsPreview))
+	}
+	{
+		const prefix string = ",\"fnval\":"
+		out.RawString(prefix)
+		out.Int(int(in.Fnval))
+	}
+	{
+		const prefix string = ",\"video_project\":"
+		out.RawString(prefix)
+		out.Bool(bool(in.VideoProject))
+	}
+	{
+		const prefix string = ",\"fnver\":"
+		out.RawString(prefix)
+		out.Int(int(in.Fnver))
+	}
+	{
+		const prefix string = ",\"type\":"
+		out.RawString(prefix)
+		out.String(string(in.Type))
+	}
+	{
+		const prefix string = ",\"bp\":"
+		out.RawString(prefix)
+		out.Int(int(in.Bp))
+	}
+	{
+		const prefix string = ",\"result\":"
+		out.RawString(prefix)
+		out.String(string(in.Result))
+	}
+	{
+		const prefix string = ",\"seek_type\":"
+		out.RawString(prefix)
+		out.String(string(in.SeekType))
+	}
+	{
+		const prefix string = ",\"vip_type\":"
+		out.RawString(prefix)
+		out.Int(int(in.VipType))
+	}
+	{
+		const prefix string = ",\"from\":"
+		out.RawString(prefix)
+		out.String(string(in.From))
+	}
+	{
+		const prefix string = ",\"video_codecid\":"
+		out.RawString(prefix)
+		out.Int(int(in.VideoCodecid))
+	}
+	{
+		const prefix string = ",\"durl\":"
+		out.RawString(prefix)
+		if in.Durl == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v6, v7 := range in.Durl {
+				if v6 > 0 {
+					out.RawByte(',')
+				}
+				if m, ok := v7.(easyjson.Marshaler); ok {
+					m.MarshalEasyJSON(out)
+				} else if m, ok := v7.(json.Marshaler); ok {
+					out.Raw(m.MarshalJSON())
+				} else {
+					out.Raw(json.Marshal(v7))
+				}
+			}
+			out.RawByte(']')
+		}
+	}
+	{
+		const prefix string = ",\"no_rexcode\":"
+		out.RawString(prefix)
+		out.Int(int(in.NoRexcode))
+	}
+	{
+		const prefix string = ",\"format\":"
+		out.RawString(prefix)
+		out.String(string(in.Format))
+	}
+	{
+		const prefix string = ",\"support_formats\":"
+		out.RawString(prefix)
+		if in.SupportFormats == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v8, v9 := range in.SupportFormats {
+				if v8 > 0 {
+					out.RawByte(',')
+				}
+				if m, ok := v9.(easyjson.Marshaler); ok {
+					m.MarshalEasyJSON(out)
+				} else if m, ok := v9.(json.Marshaler); ok {
+					out.Raw(m.MarshalJSON())
+				} else {
+					out.Raw(json.Marshal(v9))
+				}
+			}
+			out.RawByte(']')
+		}
+	}
+	{
+		const prefix string = ",\"message\":"
+		out.RawString(prefix)
+		out.String(string(in.Message))
+	}
+	{
+		const prefix string = ",\"accept_quality\":"
+		out.RawString(prefix)
+		if in.AcceptQuality == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v10, v11 := range in.AcceptQuality {
+				if v10 > 0 {
+					out.RawByte(',')
+				}
+				out.Int(int(v11))
+			}
+			out.RawByte(']')
+		}
+	}
+	{
+		const prefix string = ",\"quality\":"
+		out.RawString(prefix)
+		out.Int(int(in.Quality))
+	}
+	{
+		const prefix string = ",\"timelength\":"
+		out.RawString(prefix)
+		out.Int(int(in.Timelength))
+	}
+	{
+		const prefix string = ",\"has_paid\":"
+		out.RawString(prefix)
+		out.Bool(bool(in.HasPaid))
+	}
+	{
+		const prefix string = ",\"vip_status\":"
+		out.RawString(prefix)
+		out.Int(int(in.VipStatus))
+	}
+	{
+		const prefix string = ",\"dash\":"
+		out.RawString(prefix)
+		if m, ok := in.Dash.(easyjson.Marshaler); ok {
+			m.MarshalEasyJSON(out)
+		} else if m, ok := in.Dash.(json.Marshaler); ok {
+			out.Raw(m.MarshalJSON())
+		} else {
+			out.Raw(json.Marshal(in.Dash))
+		}
+	}
+	{
+		const prefix string = ",\"clip_info_list\":"
+		out.RawString(prefix)
+		if in.ClipInfoList == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v12, v13 := range in.ClipInfoList {
+				if v12 > 0 {
+					out.RawByte(',')
+				}
+				if m, ok := v13.(easyjson.Marshaler); ok {
+					m.MarshalEasyJSON(out)
+				} else if m, ok := v13.(json.Marshaler); ok {
+					out.Raw(m.MarshalJSON())
+				} else {
+					out.Raw(json.Marshal(v13))
+				}
+			}
+			out.RawByte(']')
+		}
+	}
+	{
+		const prefix string = ",\"accept_description\":"
+		out.RawString(prefix)
+		if in.AcceptDescription == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v14, v15 := range in.AcceptDescription {
+				if v14 > 0 {
+					out.RawByte(',')
+				}
+				out.String(string(v15))
+			}
+			out.RawByte(']')
+		}
+	}
+	{
+		const prefix string = ",\"status\":"
+		out.RawString(prefix)
+		out.Int(int(in.Status))
+	}
+	out.RawByte('}')
+}

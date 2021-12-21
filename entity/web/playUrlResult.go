@@ -18,6 +18,7 @@ type PlayUrlResult struct {
 		VipType           int           `json:"vip_type"`
 		From              string        `json:"from"`
 		VideoCodecid      int           `json:"video_codecid"`
+		Durl              []interface{} `json:"durl"`
 		NoRexcode         int           `json:"no_rexcode"`
 		Format            string        `json:"format"`
 		SupportFormats    []interface{} `json:"support_formats"`

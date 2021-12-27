@@ -145,8 +145,9 @@ func (b *BiliroamingGo) checkRoamingVer(ctx *fasthttp.RequestCtx) bool {
 func (b *BiliroamingGo) doRequest(ctx *fasthttp.RequestCtx, client *fasthttp.Client, url string, method []byte) (string, error) {
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
-	req.Header.SetUserAgentBytes(ctx.UserAgent())
 	req.SetRequestURI(url)
+	req.Header.SetBytesKV([]byte("Accept-Encoding"), []byte("br, gzip"))
+	req.Header.SetUserAgentBytes(ctx.UserAgent())
 	req.Header.SetMethodBytes(method)
 
 	b.sugar.Debugf("doRequest: %s", req.RequestURI())
@@ -165,13 +166,18 @@ func (b *BiliroamingGo) doRequest(ctx *fasthttp.RequestCtx, client *fasthttp.Cli
 		return "", fmt.Errorf("error code: %d\nbody: %s", resp.StatusCode(), string(resp.Body()))
 	}
 
-	// Do we need to decompress the response?
 	contentEncoding := resp.Header.Peek("Content-Encoding")
 	var bodyBytes []byte
 	if bytes.EqualFold(contentEncoding, []byte("gzip")) {
-		bodyBytes, _ = resp.BodyGunzip()
+		bodyBytes, err = resp.BodyGunzip()
+	} else if bytes.EqualFold(contentEncoding, []byte("br")) {
+		bodyBytes, err = resp.BodyUnbrotli()
 	} else {
 		bodyBytes = resp.Body()
+	}
+
+	if err != nil {
+		return "", err
 	}
 
 	body := string(bodyBytes)
@@ -184,8 +190,9 @@ func (b *BiliroamingGo) doRequest(ctx *fasthttp.RequestCtx, client *fasthttp.Cli
 func (b *BiliroamingGo) doRequestJson(ctx *fasthttp.RequestCtx, client *fasthttp.Client, url string, method []byte) ([]byte, error) {
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
-	req.Header.SetUserAgentBytes(ctx.UserAgent())
 	req.SetRequestURI(url)
+	req.Header.SetBytesKV([]byte("Accept-Encoding"), []byte("br, gzip"))
+	req.Header.SetUserAgentBytes(ctx.UserAgent())
 	req.Header.SetMethodBytes(method)
 
 	b.sugar.Debugf("doRequest: %s", req.RequestURI())
@@ -210,13 +217,18 @@ func (b *BiliroamingGo) doRequestJson(ctx *fasthttp.RequestCtx, client *fasthttp
 		return nil, fmt.Errorf("expected content-type json but %s", string(contentType))
 	}
 
-	// Do we need to decompress the response?
 	contentEncoding := resp.Header.Peek("Content-Encoding")
 	var bodyBytes []byte
 	if bytes.EqualFold(contentEncoding, []byte("gzip")) {
-		bodyBytes, _ = resp.BodyGunzip()
+		bodyBytes, err = resp.BodyGunzip()
+	} else if bytes.EqualFold(contentEncoding, []byte("br")) {
+		bodyBytes, err = resp.BodyUnbrotli()
 	} else {
 		bodyBytes = resp.Body()
+	}
+
+	if err != nil {
+		return nil, err
 	}
 
 	body := string(bodyBytes)

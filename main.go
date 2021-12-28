@@ -18,7 +18,7 @@ import (
 
 const (
 	MAJOR    = "2"
-	MINOR    = "6"
+	MINOR    = "7"
 	REVISION = "0"
 
 	VERSION = "v" + MAJOR + "." + MINOR + "." + REVISION

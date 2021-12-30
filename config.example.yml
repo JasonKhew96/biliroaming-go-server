@@ -74,9 +74,9 @@ reverseSearch:
 
 # 反代网页搜索域名
 reverseWebSearch:
-  cn: app.bilibili.com
-  hk: app.bilibili.com
-  tw: app.bilibili.com
+  cn: api.bilibili.com
+  hk: api.bilibili.com
+  tw: api.bilibili.com
 
 # 鉴权 + 缓存
 auth:

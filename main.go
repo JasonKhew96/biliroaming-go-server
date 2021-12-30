@@ -33,6 +33,7 @@ type biliArgs struct {
 	seasonId  int64
 	keyword   string
 	pn        int
+	page      int
 	qn        int
 	aType     int
 }
@@ -210,6 +211,8 @@ func initHttpServer(c *Config, b *BiliroamingGo) {
 		switch string(ctx.Path()) {
 		case "/pgc/player/web/playurl": // web
 			b.handleWebPlayURL(ctx)
+		case "/x/web-interface/search/type": // web
+			b.handleWebSearch(ctx)
 		case "/x/v2/search/type": // android
 			b.handleAndroidSearch(ctx)
 		case "/pgc/player/api/playurl": // android
@@ -342,6 +345,10 @@ func (b *BiliroamingGo) processArgs(args *fasthttp.Args) *biliArgs {
 	if err != nil {
 		pn = 0
 	}
+	page, err := strconv.Atoi(string(args.Peek("page")))
+	if err != nil {
+		page = 0
+	}
 	qn, err := strconv.Atoi(string(args.Peek("qn")))
 	if err != nil || qn == 0 {
 		qn = 16
@@ -359,6 +366,7 @@ func (b *BiliroamingGo) processArgs(args *fasthttp.Args) *biliArgs {
 		seasonId:  seasonId,
 		keyword:   string(args.Peek("keyword")),
 		pn:        pn,
+		page:      page,
 		qn:        qn,
 		aType:     aType,
 	}

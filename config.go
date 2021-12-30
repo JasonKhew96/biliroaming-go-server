@@ -29,7 +29,8 @@ type Config struct {
 	} `yaml:"searchLimiter"`
 
 	CustomSearch struct {
-		Data string `yaml:"data"`
+		Data    string `yaml:"data"`
+		WebData string `yaml:"webData"`
 	} `yaml:"customSearch"`
 
 	CustomSubtitle struct {
@@ -65,6 +66,12 @@ type Config struct {
 		TW string `yaml:"tw"`
 		TH string `yaml:"th"`
 	} `yaml:"reverseSearch"`
+
+	ReverseWebSearch struct {
+		CN string `yaml:"cn"`
+		HK string `yaml:"hk"`
+		TW string `yaml:"tw"`
+	} `yaml:"reverseWebSearch"`
 
 	Auth struct {
 		CN bool `yaml:"cn"`

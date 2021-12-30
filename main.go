@@ -53,15 +53,16 @@ type accessKey struct {
 
 // BiliroamingGo ...
 type BiliroamingGo struct {
-	configPath string
-	config     *Config
-	visitors   map[string]*visitor
-	accessKeys map[string]*accessKey
-	vMu        sync.RWMutex
-	aMu        sync.RWMutex
-	ctx        context.Context
-	logger     *zap.Logger
-	sugar      *zap.SugaredLogger
+	configPath    string
+	config        *Config
+	visitors      map[string]*visitor
+	searchLimiter *rate.Limiter
+	accessKeys    map[string]*accessKey
+	vMu           sync.RWMutex
+	aMu           sync.RWMutex
+	ctx           context.Context
+	logger        *zap.Logger
+	sugar         *zap.SugaredLogger
 
 	cnClient      *fasthttp.Client
 	hkClient      *fasthttp.Client
@@ -262,14 +263,18 @@ func main() {
 	sugar.Infof("Version: %s", VERSION)
 	sugar.Debug(c)
 
+	rt := rate.Every(time.Second / time.Duration(c.SearchLimiter.Limit))
+	sLimiter := rate.NewLimiter(rt, c.SearchLimiter.Burst)
+
 	b := &BiliroamingGo{
-		configPath: configPath,
-		config:     c,
-		visitors:   make(map[string]*visitor),
-		accessKeys: make(map[string]*accessKey),
-		ctx:        context.Background(),
-		logger:     logger,
-		sugar:      sugar,
+		configPath:    configPath,
+		config:        c,
+		visitors:      make(map[string]*visitor),
+		searchLimiter: sLimiter,
+		accessKeys:    make(map[string]*accessKey),
+		ctx:           context.Background(),
+		logger:        logger,
+		sugar:         sugar,
 
 		HealthPlayUrlCN: newHealth(),
 		HealthPlayUrlHK: newHealth(),

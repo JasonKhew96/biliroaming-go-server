@@ -18,6 +18,13 @@ limiter:
   # 每秒突发求请求限制
   ipBurst: 1
 
+# 搜索限制器
+searchLimiter:
+  # 每秒请求限制
+  limit: 1
+  # 每秒突发求请求限制
+  burst: 1
+
 # 自定义搜索强制插入内容
 customSearch:
   # 插入的 json 内容

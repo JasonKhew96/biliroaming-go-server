@@ -49,6 +49,11 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	if !b.searchLimiter.Allow() {
+		writeErrorJSON(ctx, -429, []byte("请求过多"))
+		return
+	}
+
 	queryArgs := ctx.URI().QueryArgs()
 	args := b.processArgs(queryArgs)
 
@@ -132,6 +137,11 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	if !b.searchLimiter.Allow() {
+		writeErrorJSON(ctx, -429, []byte("请求过多"))
+		return
+	}
+
 	queryArgs := ctx.URI().QueryArgs()
 	args := b.processArgs(queryArgs)
 
@@ -146,12 +156,6 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 	if args.keyword == "" {
 		writeErrorJSON(ctx, -400, []byte("请求错误"))
 		return
-	}
-
-	if b.getAuthByArea(args.area) {
-		if ok, _ := b.doAuth(ctx, args.accessKey, args.area); !ok {
-			return
-		}
 	}
 
 	v := url.Values{}

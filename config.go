@@ -23,6 +23,11 @@ type Config struct {
 		IpBurst int `yaml:"ipBurst"`
 	} `yaml:"limiter"`
 
+	SearchLimiter struct {
+		Limit int `yaml:"limit"`
+		Burst int `yaml:"burst"`
+	} `yaml:"searchLimiter"`
+
 	CustomSearch struct {
 		Data string `yaml:"data"`
 	} `yaml:"customSearch"`

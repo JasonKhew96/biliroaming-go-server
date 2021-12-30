@@ -267,7 +267,7 @@ func (b *BiliroamingGo) handleWebSearch(ctx *fasthttp.RequestCtx) {
 
 	v := url.Values{}
 	v.Set("area", args.area)
-	v.Set("context", "media_bangumi")
+	v.Set("search_type", "media_bangumi")
 	v.Set("keyword", args.keyword)
 	v.Set("page", strconv.Itoa(args.page))
 

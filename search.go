@@ -7,8 +7,8 @@ import (
 	"net/url"
 	"strconv"
 
+	"github.com/JasonKhew96/biliroaming-go-server/entity/android"
 	"github.com/JasonKhew96/biliroaming-go-server/entity/bstar"
-	"github.com/JasonKhew96/biliroaming-go-server/entity/web"
 	"github.com/mailru/easyjson"
 	"github.com/valyala/fasthttp"
 	"golang.org/x/net/idna"
@@ -34,7 +34,7 @@ func (b *BiliroamingGo) addSearchAds(data []byte, clientType ClientType) ([]byte
 		searchResult.Data.Total++
 		return easyjson.Marshal(searchResult)
 	default:
-		searchResult := &web.SearchResult{}
+		searchResult := &android.SearchResult{}
 		if err := easyjson.Unmarshal(data, searchResult); err != nil {
 			return nil, err
 		}

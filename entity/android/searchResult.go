@@ -1,4 +1,4 @@
-package web
+package android
 
 type SearchResult struct {
 	Code    int    `json:"code"`

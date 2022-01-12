@@ -70,7 +70,7 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 		// unknown error
 		b.sugar.Error("GetUserFromKey error ", err)
 		return nil, err
-	} else if err == nil && keyData.UpdatedAt.Add(b.config.Cache.AccessKey).Before(time.Now()) {
+	} else if err == nil && keyData.UpdatedAt.After(time.Now().Add(-b.config.Cache.User)) {
 		// cached
 		b.sugar.Debug("Get vip status from cache: ", keyData)
 

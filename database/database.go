@@ -65,7 +65,7 @@ func (h *DbHelper) InsertOrUpdateKey(key string, uid int64) error {
 	var accessKeyTable models.AccessKey
 	accessKeyTable.Key = key
 	accessKeyTable.UID = uid
-	return accessKeyTable.Upsert(h.ctx, h.db, false, nil, boil.Whitelist("updated_at"), boil.Infer())
+	return accessKeyTable.Upsert(h.ctx, h.db, true, []string{"key"}, boil.Whitelist("updated_at"), boil.Infer())
 }
 
 // CleanupAccessKeys cleanup access keys if exceeds duration
@@ -93,7 +93,7 @@ func (h *DbHelper) InsertOrUpdateUser(uid int64, name string, vipDueDate time.Ti
 	userTable.UID = uid
 	userTable.Name = name
 	userTable.VipDueDate = vipDueDate
-	return userTable.Upsert(h.ctx, h.db, false, nil, boil.Whitelist("name", "vip_due_date", "updated_at"), boil.Infer())
+	return userTable.Upsert(h.ctx, h.db, true, []string{"uid"}, boil.Whitelist("name", "vip_due_date", "updated_at"), boil.Infer())
 }
 
 // CleanupUsers cleanup users if exceeds duration

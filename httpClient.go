@@ -155,7 +155,7 @@ func (b *BiliroamingGo) checkRoamingVer(ctx *fasthttp.RequestCtx) bool {
 	return false
 }
 
-func (b *BiliroamingGo) doRequest(client *fasthttp.Client, ua []byte, url string, method []byte) (string, error) {
+func (b *BiliroamingGo) doRequest(client *fasthttp.Client, ua []byte, url string, method []byte) ([]byte, error) {
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
 	req.SetRequestURI(url)
@@ -170,13 +170,13 @@ func (b *BiliroamingGo) doRequest(client *fasthttp.Client, ua []byte, url string
 
 	err := client.DoRedirects(req, resp, 1)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	b.sugar.Debugf("doRedirects: %d", resp.StatusCode())
 
 	if resp.StatusCode() != fasthttp.StatusOK {
-		return "", fmt.Errorf("error code: %d\nbody: %s", resp.StatusCode(), string(resp.Body()))
+		return nil, fmt.Errorf("error code: %d\nbody: %s", resp.StatusCode(), string(resp.Body()))
 	}
 
 	contentEncoding := resp.Header.Peek("Content-Encoding")
@@ -190,14 +190,12 @@ func (b *BiliroamingGo) doRequest(client *fasthttp.Client, ua []byte, url string
 	}
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	body := string(bodyBytes)
+	b.sugar.Debug("Content: ", string(bodyBytes))
 
-	b.sugar.Debug("Content: ", body)
-
-	return body, nil
+	return bodyBytes, nil
 }
 
 func (b *BiliroamingGo) doRequestJson(client *fasthttp.Client, ua []byte, url string, method []byte) ([]byte, error) {

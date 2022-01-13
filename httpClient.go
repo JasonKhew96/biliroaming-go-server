@@ -96,7 +96,7 @@ func (b *BiliroamingGo) getReverseWebSearchProxyByArea(area string) string {
 func setDefaultHeaders(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.SetBytesKV([]byte("Access-Control-Allow-Origin"), []byte("https://www.bilibili.com"))
 	ctx.Response.Header.SetBytesKV([]byte("Access-Control-Allow-Credentials"), []byte("true"))
-	ctx.Response.Header.SetBytesKV([]byte("Server"), []byte("Potato"))
+	ctx.Response.Header.SetBytesKV([]byte("Server"), []byte(DEFAULT_NAME))
 	ctx.SetContentTypeBytes([]byte("application/json"))
 }
 

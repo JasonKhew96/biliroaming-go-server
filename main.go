@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -362,7 +363,7 @@ func (b *BiliroamingGo) processArgs(args *fasthttp.Args) *biliArgs {
 
 	queryArgs := &biliArgs{
 		accessKey: string(args.Peek("access_key")),
-		area:      string(args.Peek("area")),
+		area:      strings.ToLower(string(args.Peek("area"))),
 		cid:       cid,
 		epId:      epId,
 		seasonId:  seasonId,

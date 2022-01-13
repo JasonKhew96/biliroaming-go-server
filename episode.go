@@ -73,7 +73,7 @@ func (b *BiliroamingGo) handleBstarEpisode(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/intl/gateway/v2/ogv/view/app/episode?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data, err := b.doRequestJson(ctx, client, url, []byte(http.MethodGet))
+	data, err := b.doRequestJson(client, ctx.UserAgent(), url, []byte(http.MethodGet))
 	if err != nil {
 		b.processError(ctx, err)
 		return

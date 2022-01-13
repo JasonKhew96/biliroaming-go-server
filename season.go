@@ -78,7 +78,7 @@ func (b *BiliroamingGo) addCustomSubSeason(ctx *fasthttp.RequestCtx, seasonResul
 	b.sugar.Debugf("Getting custom subtitle from season id %d", seasonId)
 
 	requestUrl := fmt.Sprintf(b.config.CustomSubtitle.ApiUrl, seasonId)
-	customSubData, err := b.doRequestJson(ctx, b.defaultClient, requestUrl, []byte(http.MethodGet))
+	customSubData, err := b.doRequestJson(b.defaultClient, ctx.UserAgent(), requestUrl, []byte(http.MethodGet))
 	if err != nil {
 		return nil, errors.Wrap(err, "custom subtitle api")
 	}
@@ -219,7 +219,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/intl/gateway/v2/ogv/view/app/season?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data, err := b.doRequestJson(ctx, client, url, []byte(http.MethodGet))
+	data, err := b.doRequestJson(client, ctx.UserAgent(), url, []byte(http.MethodGet))
 	if err != nil {
 		b.processError(ctx, err)
 		b.updateHealth(b.HealthSeasonTH, -500, "服务器错误")

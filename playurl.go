@@ -79,7 +79,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/pgc/player/web/playurl?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data, err := b.doRequestJson(ctx, client, url, []byte(http.MethodGet))
+	data, err := b.doRequestJson(client, ctx.UserAgent(), url, []byte(http.MethodGet))
 	if err != nil {
 		b.processError(ctx, err)
 		return
@@ -186,7 +186,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/pgc/player/api/playurl?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data, err := b.doRequestJson(ctx, client, url, []byte(http.MethodGet))
+	data, err := b.doRequestJson(client, ctx.UserAgent(), url, []byte(http.MethodGet))
 	if err != nil {
 		b.processError(ctx, err)
 		b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
@@ -304,7 +304,7 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/intl/gateway/v2/ogv/playurl?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data, err := b.doRequestJson(ctx, client, url, []byte(http.MethodGet))
+	data, err := b.doRequestJson(client, ctx.UserAgent(), url, []byte(http.MethodGet))
 	if err != nil {
 		b.processError(ctx, err)
 		b.updateHealth(b.HealthPlayUrlTH, -500, "服务器错误")

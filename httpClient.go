@@ -155,12 +155,12 @@ func (b *BiliroamingGo) checkRoamingVer(ctx *fasthttp.RequestCtx) bool {
 	return false
 }
 
-func (b *BiliroamingGo) doRequest(ctx *fasthttp.RequestCtx, client *fasthttp.Client, url string, method []byte) (string, error) {
+func (b *BiliroamingGo) doRequest(client *fasthttp.Client, ua []byte, url string, method []byte) (string, error) {
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
 	req.SetRequestURI(url)
 	req.Header.SetBytesKV([]byte("Accept-Encoding"), []byte("br, gzip"))
-	req.Header.SetUserAgentBytes(ctx.UserAgent())
+	req.Header.SetUserAgentBytes(ua)
 	req.Header.SetMethodBytes(method)
 
 	b.sugar.Debugf("doRequest: %s", req.RequestURI())
@@ -200,12 +200,12 @@ func (b *BiliroamingGo) doRequest(ctx *fasthttp.RequestCtx, client *fasthttp.Cli
 	return body, nil
 }
 
-func (b *BiliroamingGo) doRequestJson(ctx *fasthttp.RequestCtx, client *fasthttp.Client, url string, method []byte) ([]byte, error) {
+func (b *BiliroamingGo) doRequestJson(client *fasthttp.Client, ua []byte, url string, method []byte) ([]byte, error) {
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
 	req.SetRequestURI(url)
 	req.Header.SetBytesKV([]byte("Accept-Encoding"), []byte("br, gzip"))
-	req.Header.SetUserAgentBytes(ctx.UserAgent())
+	req.Header.SetUserAgentBytes(ua)
 	req.Header.SetMethodBytes(method)
 
 	b.sugar.Debugf("doRequest: %s", req.RequestURI())

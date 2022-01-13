@@ -78,14 +78,14 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 	args := b.processArgs(queryArgs)
 
 	if args.area == "" || args.area == "th" {
-		writeErrorJSON(ctx, -688, []byte("地理区域限制"))
+		writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
 		return
 	}
 
 	client := b.getClientByArea(args.area)
 
 	if args.keyword == "" {
-		writeErrorJSON(ctx, -688, []byte("地理区域限制"))
+		writeErrorJSON(ctx, -400, []byte("keyword 参数缺失"))
 		return
 	}
 
@@ -167,7 +167,7 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 
 	if args.area == "" {
 		args.area = "th"
-		// writeErrorJSON(ctx, -688, []byte("地理区域限制"))
+		// writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
 		// return
 	}
 
@@ -254,14 +254,14 @@ func (b *BiliroamingGo) handleWebSearch(ctx *fasthttp.RequestCtx) {
 	args := b.processArgs(queryArgs)
 
 	if args.area == "" || args.area == "th" {
-		writeErrorJSON(ctx, -688, []byte("地理区域限制"))
+		writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
 		return
 	}
 
 	client := b.getClientByArea(args.area)
 
 	if args.keyword == "" {
-		writeErrorJSON(ctx, -688, []byte("地理区域限制"))
+		writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
 		return
 	}
 

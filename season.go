@@ -136,7 +136,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 
 	if args.area == "" {
 		args.area = "th"
-		// writeErrorJSON(ctx, -688, []byte("地理区域限制"))
+		// writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
 		// return
 	}
 

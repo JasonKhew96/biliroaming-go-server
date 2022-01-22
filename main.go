@@ -24,7 +24,7 @@ const (
 
 	VERSION = "v" + MAJOR + "." + MINOR + "." + REVISION
 
-	DEFAULT_NAME = "biliroaming-go-server"
+	DEFAULT_NAME = "biliroaming-go-server " + VERSION
 )
 
 // biliArgs query arguments struct

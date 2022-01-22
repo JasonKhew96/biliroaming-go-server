@@ -204,6 +204,8 @@ func initHttpServer(c *Config, b *BiliroamingGo) {
 	fsHandler := fs.NewRequestHandler()
 
 	mux := func(ctx *fasthttp.RequestCtx) {
+		ctx.Response.Header.SetBytesKV([]byte("Server"), []byte(DEFAULT_NAME))
+
 		clientIP := realip.FromRequest(ctx)
 		limiter := b.getVisitor(clientIP)
 		if !limiter.Allow() {

@@ -79,7 +79,7 @@ func (b *BiliroamingGo) addCustomSubSeason2(ctx *fasthttp.RequestCtx, seasonResu
 	b.sugar.Debugf("Getting custom subtitle from season id %d", seasonId)
 
 	requestUrl := fmt.Sprintf(b.config.CustomSubtitle.ApiUrl, seasonId)
-	customSubData, err := b.doRequestJson(b.defaultClient, ctx.UserAgent(), requestUrl, []byte(http.MethodGet))
+	customSubData, err := b.doRequestJson(b.defaultClient, []byte(DEFAULT_NAME), requestUrl, []byte(http.MethodGet))
 	if err != nil {
 		return nil, errors.Wrap(err, "custom subtitle api")
 	}

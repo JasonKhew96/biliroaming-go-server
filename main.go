@@ -114,11 +114,11 @@ func (b *BiliroamingGo) getKey(key string) (*accessKey, bool) {
 	return k, exists
 }
 
-func (b *BiliroamingGo) setKey(key string, isLogin bool, status *userStatus) {
+func (b *BiliroamingGo) setKey(key string, status *userStatus) {
 	b.aMu.Lock()
 	defer b.aMu.Unlock()
 	b.accessKeys[key] = &accessKey{
-		isLogin:     isLogin,
+		isLogin:     status.isLogin,
 		isVip:       status.isVip,
 		isBlacklist: status.isBlacklist,
 		isWhitelist: status.isWhitelist,

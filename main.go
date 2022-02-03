@@ -9,7 +9,6 @@ import (
 	"sync"
 	"time"
 
-	realip "github.com/Ferluci/fast-realip"
 	"github.com/JasonKhew96/biliroaming-go-server/database"
 	"github.com/JasonKhew96/biliroaming-go-server/entity"
 	"github.com/valyala/fasthttp"
@@ -41,13 +40,8 @@ type biliArgs struct {
 	aType     int
 }
 
-// ip string
-type visitor struct {
-	limiter  *rate.Limiter
-	lastSeen time.Time
-}
-
 type accessKey struct {
+	uid         int64
 	isLogin     bool
 	isVip       bool
 	isBlacklist bool
@@ -59,7 +53,7 @@ type accessKey struct {
 type BiliroamingGo struct {
 	configPath    string
 	config        *Config
-	visitors      map[string]*visitor
+	visitors      map[int64]*visitor
 	searchLimiter *rate.Limiter
 	accessKeys    map[string]*accessKey
 	vMu           sync.RWMutex
@@ -87,24 +81,6 @@ type BiliroamingGo struct {
 	HealthSearchTH *entity.Health
 
 	db *database.DbHelper
-}
-
-// get visitor limiter
-func (b *BiliroamingGo) getVisitor(ip string) *rate.Limiter {
-	b.vMu.Lock()
-	defer b.vMu.Unlock()
-	u, exists := b.visitors[ip]
-	if !exists {
-		rt := rate.Every(time.Second / time.Duration(b.config.Limiter.IpLimit))
-		uLimiter := rate.NewLimiter(rt, b.config.Limiter.IpBurst)
-		b.visitors[ip] = &visitor{
-			limiter: uLimiter,
-		}
-		return uLimiter
-	}
-
-	u.lastSeen = time.Now()
-	return u.limiter
 }
 
 func (b *BiliroamingGo) getKey(key string) (*accessKey, bool) {
@@ -206,13 +182,6 @@ func initHttpServer(c *Config, b *BiliroamingGo) {
 	mux := func(ctx *fasthttp.RequestCtx) {
 		ctx.Response.Header.SetBytesKV([]byte("Server"), []byte(DEFAULT_NAME))
 
-		clientIP := realip.FromRequest(ctx)
-		limiter := b.getVisitor(clientIP)
-		if !limiter.Allow() {
-			ctx.Error(fasthttp.StatusMessage(fasthttp.StatusTooManyRequests), fasthttp.StatusTooManyRequests)
-			return
-		}
-
 		switch string(ctx.Path()) {
 		case "/pgc/player/web/playurl": // web
 			b.handleWebPlayURL(ctx)
@@ -277,7 +246,7 @@ func main() {
 	b := &BiliroamingGo{
 		configPath:    configPath,
 		config:        c,
-		visitors:      make(map[string]*visitor),
+		visitors:      make(map[int64]*visitor),
 		searchLimiter: sLimiter,
 		accessKeys:    make(map[string]*accessKey),
 		ctx:           context.Background(),

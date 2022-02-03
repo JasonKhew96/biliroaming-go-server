@@ -28,6 +28,7 @@ type userStatus struct {
 	isVip       bool
 	isBlacklist bool
 	isWhitelist bool
+	uid         int64
 }
 
 func (b *BiliroamingGo) getAuthByArea(area string) bool {
@@ -65,6 +66,7 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 		isVip:       false,
 		isBlacklist: false,
 		isWhitelist: false,
+		uid:         -1,
 	}
 
 	keyData, err := b.db.GetUserFromKey(accessKey)
@@ -76,6 +78,7 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 		// cached
 		b.sugar.Debug("Get vip status from cache: ", keyData)
 
+		userStatus.uid = keyData.UID
 		userStatus.isLogin = true
 
 		if b.config.BlockType == BlockTypeEnabled {
@@ -112,6 +115,7 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 	}
 	b.sugar.Debugf("mid: %d, name: %s, due_date: %s", data.Data.Mid, data.Data.Name, time.Unix(data.Data.VIP.DueDate/1000, 0).String())
 
+	userStatus.uid = data.Data.Mid
 	userStatus.isLogin = true
 
 	vipDue := time.Unix(data.Data.VIP.DueDate/1000, 0)
@@ -181,6 +185,10 @@ func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string)
 
 	key, ok := b.getKey(accessKey)
 	if ok {
+		if !b.doCheckUidLimiter(ctx, key.uid) {
+			writeErrorJSON(ctx, -412, []byte("请求过快"))
+			return false, nil
+		}
 		if key.isBlacklist {
 			writeErrorJSON(ctx, -101, []byte("黑名单"))
 			return false, nil
@@ -207,6 +215,11 @@ func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string)
 
 	if status.isBlacklist {
 		writeErrorJSON(ctx, -101, []byte("黑名单"))
+		return false, nil
+	}
+
+	if !b.doCheckUidLimiter(ctx, status.uid) {
+		writeErrorJSON(ctx, -412, []byte("请求过快"))
 		return false, nil
 	}
 

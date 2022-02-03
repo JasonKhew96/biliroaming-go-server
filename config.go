@@ -19,8 +19,8 @@ type Config struct {
 	RoamingMinVer int `yaml:"roamingMinVer"`
 
 	Limiter struct {
-		IpLimit int `yaml:"ipLimit"`
-		IpBurst int `yaml:"ipBurst"`
+		Limit int `yaml:"limit"`
+		Burst int `yaml:"burst"`
 	} `yaml:"limiter"`
 
 	SearchLimiter struct {

@@ -12,8 +12,8 @@ func (b *BiliroamingGo) getVisitor(uid int64) *rate.Limiter {
 	defer b.vMu.Unlock()
 	u, exists := b.visitors[uid]
 	if !exists {
-		rt := rate.Every(time.Second / time.Duration(b.config.Limiter.IpLimit))
-		uLimiter := rate.NewLimiter(rt, b.config.Limiter.IpBurst)
+		rt := rate.Every(time.Second / time.Duration(b.config.Limiter.Limit))
+		uLimiter := rate.NewLimiter(rt, b.config.Limiter.Burst)
 		b.visitors[uid] = &visitor{
 			limiter: uLimiter,
 		}

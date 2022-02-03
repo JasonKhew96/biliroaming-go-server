@@ -24,6 +24,7 @@ const (
 )
 
 type userStatus struct {
+	isLogin     bool
 	isVip       bool
 	isBlacklist bool
 	isWhitelist bool
@@ -60,6 +61,7 @@ func (b *BiliroamingGo) checkBWlist(ctx *fasthttp.RequestCtx, uid int64) (*entit
 
 func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*userStatus, error) {
 	userStatus := &userStatus{
+		isLogin:     false,
 		isVip:       false,
 		isBlacklist: false,
 		isWhitelist: false,
@@ -69,16 +71,18 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		// unknown error
 		b.sugar.Error("GetUserFromKey error ", err)
-		return nil, err
+		return userStatus, err
 	} else if err == nil && keyData.UpdatedAt.After(time.Now().Add(-b.config.Cache.User)) {
 		// cached
 		b.sugar.Debug("Get vip status from cache: ", keyData)
+
+		userStatus.isLogin = true
 
 		if b.config.BlockType == BlockTypeEnabled {
 			b.sugar.Debugf("isBlacklist %d %s", keyData.UID, accessKey)
 			bwlist, err := b.checkBWlist(ctx, keyData.UID)
 			if err != nil {
-				return nil, err
+				return userStatus, err
 			}
 
 			if bwlist.Code == 0 {
@@ -96,27 +100,29 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 
 	body, err := b.getMyInfo(ctx, accessKey)
 	if err != nil {
-		return nil, err
+		return userStatus, err
 	}
 	data := &entity.AccInfo{}
 	err = easyjson.Unmarshal(body, data)
 	if err != nil {
-		return nil, err
+		return userStatus, err
 	}
 	if data.Code != 0 {
-		return nil, errors.New(data.Message)
+		return userStatus, errors.New(data.Message)
 	}
 	b.sugar.Debugf("mid: %d, name: %s, due_date: %s", data.Data.Mid, data.Data.Name, time.Unix(data.Data.VIP.DueDate/1000, 0).String())
+
+	userStatus.isLogin = true
 
 	vipDue := time.Unix(data.Data.VIP.DueDate/1000, 0)
 	err = b.db.InsertOrUpdateUser(data.Data.Mid, data.Data.Name, vipDue)
 	if err != nil {
-		return nil, err
+		return userStatus, err
 	}
 
 	err = b.db.InsertOrUpdateKey(accessKey, data.Data.Mid)
 	if err != nil {
-		return nil, err
+		return userStatus, err
 	}
 
 	if vipDue.After(time.Now()) {
@@ -126,7 +132,7 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 	if b.config.BlockType == BlockTypeEnabled {
 		bwlist, err := b.checkBWlist(ctx, data.Data.Mid)
 		if err != nil {
-			return nil, err
+			return userStatus, err
 		}
 		if bwlist.Code == 0 {
 			userStatus.isBlacklist = bwlist.Data.IsBlacklist
@@ -163,6 +169,11 @@ func (b *BiliroamingGo) getMyInfo(ctx *fasthttp.RequestCtx, accessKey string) ([
 }
 
 func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string) (bool, *userStatus) {
+	if len(accessKey) == 0 {
+		writeErrorJSON(ctx, -101, []byte("帐号未登录"))
+		return false, nil
+	}
+
 	if len(accessKey) != 32 {
 		writeErrorJSON(ctx, -2, []byte("Access Key错误"))
 		return false, nil
@@ -187,12 +198,12 @@ func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string)
 
 	status, err := b.isAuth(ctx, accessKey)
 	if err != nil {
-		b.setKey(accessKey, false, &userStatus{})
+		b.setKey(accessKey, status.isLogin, &userStatus{})
 		writeErrorJSON(ctx, -101, []byte("账号未登录"))
 		return false, nil
 	}
 
-	b.setKey(accessKey, true, status)
+	b.setKey(accessKey, status.isLogin, status)
 
 	if status.isBlacklist {
 		writeErrorJSON(ctx, -101, []byte("黑名单"))

@@ -34,7 +34,7 @@ customSearch:
 
 # 自定义插入字幕
 customSubtitle:
-  apiUrl: 'https://example.com/path?season_id=%s'
+  apiUrl: 'https://example.com/path?season_id=%d'
   teamName: '蒙古上单字幕组'
 
 # 缓存时间

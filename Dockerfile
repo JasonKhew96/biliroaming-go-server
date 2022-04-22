@@ -1,4 +1,4 @@
-FROM golang:alpine AS builder
+FROM golang:bullseye AS builder
 
 WORKDIR /tmp/builder/
 

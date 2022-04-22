@@ -18,6 +18,11 @@ type Config struct {
 
 	RoamingMinVer int `yaml:"roamingMinVer"`
 
+	ThRedirect struct {
+		Aid int `yaml:"aid"`
+		Cid int `yaml:"cid"`
+	} `yaml:"thRedirect"`
+
 	Limiter struct {
 		Limit int `yaml:"limit"`
 		Burst int `yaml:"burst"`

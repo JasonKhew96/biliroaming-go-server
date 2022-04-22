@@ -62,8 +62,8 @@ func (b *BiliroamingGo) insertSeasonCache(data []byte, isVIP bool) error {
 	return nil
 }
 
-func (b *BiliroamingGo) addCustomSubSeason(ctx *fasthttp.RequestCtx, seasonResult []byte) ([]byte, error) {
-	b.sugar.Debugf("Getting custom subtitle")
+func (b *BiliroamingGo) replaceSeason(ctx *fasthttp.RequestCtx, seasonResult []byte) ([]byte, error) {
+	b.sugar.Debugf("Replace season")
 	seasonJson := &bstar.SeasonResult{}
 	err := easyjson.Unmarshal(seasonResult, seasonJson)
 	if err != nil {
@@ -75,7 +75,7 @@ func (b *BiliroamingGo) addCustomSubSeason(ctx *fasthttp.RequestCtx, seasonResul
 	}
 
 	seasonId := seasonJson.Result.SeasonID
-	b.sugar.Debugf("Getting custom subtitle from season id %d", seasonId)
+	b.sugar.Debugf("Replace season from season id %d", seasonId)
 
 	requestUrl := fmt.Sprintf(b.config.CustomSubtitle.ApiUrl, seasonId)
 	customSubData, err := b.doRequestJson(b.defaultClient, []byte(DEFAULT_NAME), requestUrl, []byte(http.MethodGet))
@@ -114,6 +114,15 @@ func (b *BiliroamingGo) addCustomSubSeason(ctx *fasthttp.RequestCtx, seasonResul
 			}
 		}
 		seasonJson.Result.Modules[0].Data.Episodes[i].Subtitles = subtitles
+	}
+
+	if b.config.ThRedirect.Aid != 0 && b.config.ThRedirect.Cid != 0 {
+		for i, m := range seasonJson.Result.Modules {
+			for j := range m.Data.Episodes {
+				seasonJson.Result.Modules[i].Data.Episodes[j].Aid = b.config.ThRedirect.Aid
+				seasonJson.Result.Modules[i].Data.Episodes[j].Cid = b.config.ThRedirect.Cid
+			}
+		}
 	}
 
 	newSeasonBytes, err := easyjson.Marshal(seasonJson)
@@ -235,7 +244,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 	}
 
 	if b.config.CustomSubtitle.ApiUrl != "" {
-		newData, err := b.addCustomSubSeason(ctx, data)
+		newData, err := b.replaceSeason(ctx, data)
 		if err != nil {
 			b.sugar.Error(err)
 		}

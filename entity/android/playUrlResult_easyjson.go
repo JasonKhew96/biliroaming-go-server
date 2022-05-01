@@ -138,6 +138,35 @@ func easyjsonCb88a3b8DecodeGithubComJasonKhew96BiliroamingGoServerEntityAndroid(
 			} else {
 				out.Dash = in.Interface()
 			}
+		case "durl":
+			if in.IsNull() {
+				in.Skip()
+				out.DUrl = nil
+			} else {
+				in.Delim('[')
+				if out.DUrl == nil {
+					if !in.IsDelim(']') {
+						out.DUrl = make([]interface{}, 0, 4)
+					} else {
+						out.DUrl = []interface{}{}
+					}
+				} else {
+					out.DUrl = (out.DUrl)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v3 interface{}
+					if m, ok := v3.(easyjson.Unmarshaler); ok {
+						m.UnmarshalEasyJSON(in)
+					} else if m, ok := v3.(json.Unmarshaler); ok {
+						_ = m.UnmarshalJSON(in.Raw())
+					} else {
+						v3 = in.Interface()
+					}
+					out.DUrl = append(out.DUrl, v3)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
 		case "clip_info_list":
 			if in.IsNull() {
 				in.Skip()
@@ -154,15 +183,15 @@ func easyjsonCb88a3b8DecodeGithubComJasonKhew96BiliroamingGoServerEntityAndroid(
 					out.ClipInfoList = (out.ClipInfoList)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v3 interface{}
-					if m, ok := v3.(easyjson.Unmarshaler); ok {
+					var v4 interface{}
+					if m, ok := v4.(easyjson.Unmarshaler); ok {
 						m.UnmarshalEasyJSON(in)
-					} else if m, ok := v3.(json.Unmarshaler); ok {
+					} else if m, ok := v4.(json.Unmarshaler); ok {
 						_ = m.UnmarshalJSON(in.Raw())
 					} else {
-						v3 = in.Interface()
+						v4 = in.Interface()
 					}
-					out.ClipInfoList = append(out.ClipInfoList, v3)
+					out.ClipInfoList = append(out.ClipInfoList, v4)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -183,9 +212,9 @@ func easyjsonCb88a3b8DecodeGithubComJasonKhew96BiliroamingGoServerEntityAndroid(
 					out.AcceptDescription = (out.AcceptDescription)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v4 string
-					v4 = string(in.String())
-					out.AcceptDescription = append(out.AcceptDescription, v4)
+					var v5 string
+					v5 = string(in.String())
+					out.AcceptDescription = append(out.AcceptDescription, v5)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -293,16 +322,16 @@ func easyjsonCb88a3b8EncodeGithubComJasonKhew96BiliroamingGoServerEntityAndroid(
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v5, v6 := range in.SupportFormats {
-				if v5 > 0 {
+			for v6, v7 := range in.SupportFormats {
+				if v6 > 0 {
 					out.RawByte(',')
 				}
-				if m, ok := v6.(easyjson.Marshaler); ok {
+				if m, ok := v7.(easyjson.Marshaler); ok {
 					m.MarshalEasyJSON(out)
-				} else if m, ok := v6.(json.Marshaler); ok {
+				} else if m, ok := v7.(json.Marshaler); ok {
 					out.Raw(m.MarshalJSON())
 				} else {
-					out.Raw(json.Marshal(v6))
+					out.Raw(json.Marshal(v7))
 				}
 			}
 			out.RawByte(']')
@@ -320,11 +349,11 @@ func easyjsonCb88a3b8EncodeGithubComJasonKhew96BiliroamingGoServerEntityAndroid(
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v7, v8 := range in.AcceptQuality {
-				if v7 > 0 {
+			for v8, v9 := range in.AcceptQuality {
+				if v8 > 0 {
 					out.RawByte(',')
 				}
-				out.Int(int(v8))
+				out.Int(int(v9))
 			}
 			out.RawByte(']')
 		}
@@ -349,7 +378,7 @@ func easyjsonCb88a3b8EncodeGithubComJasonKhew96BiliroamingGoServerEntityAndroid(
 		out.RawString(prefix)
 		out.Int(int(in.VipStatus))
 	}
-	{
+	if in.Dash != nil {
 		const prefix string = ",\"dash\":"
 		out.RawString(prefix)
 		if m, ok := in.Dash.(easyjson.Marshaler); ok {
@@ -360,6 +389,26 @@ func easyjsonCb88a3b8EncodeGithubComJasonKhew96BiliroamingGoServerEntityAndroid(
 			out.Raw(json.Marshal(in.Dash))
 		}
 	}
+	if len(in.DUrl) != 0 {
+		const prefix string = ",\"durl\":"
+		out.RawString(prefix)
+		{
+			out.RawByte('[')
+			for v10, v11 := range in.DUrl {
+				if v10 > 0 {
+					out.RawByte(',')
+				}
+				if m, ok := v11.(easyjson.Marshaler); ok {
+					m.MarshalEasyJSON(out)
+				} else if m, ok := v11.(json.Marshaler); ok {
+					out.Raw(m.MarshalJSON())
+				} else {
+					out.Raw(json.Marshal(v11))
+				}
+			}
+			out.RawByte(']')
+		}
+	}
 	{
 		const prefix string = ",\"clip_info_list\":"
 		out.RawString(prefix)
@@ -367,16 +416,16 @@ func easyjsonCb88a3b8EncodeGithubComJasonKhew96BiliroamingGoServerEntityAndroid(
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v9, v10 := range in.ClipInfoList {
-				if v9 > 0 {
+			for v12, v13 := range in.ClipInfoList {
+				if v12 > 0 {
 					out.RawByte(',')
 				}
-				if m, ok := v10.(easyjson.Marshaler); ok {
+				if m, ok := v13.(easyjson.Marshaler); ok {
 					m.MarshalEasyJSON(out)
-				} else if m, ok := v10.(json.Marshaler); ok {
+				} else if m, ok := v13.(json.Marshaler); ok {
 					out.Raw(m.MarshalJSON())
 				} else {
-					out.Raw(json.Marshal(v10))
+					out.Raw(json.Marshal(v13))
 				}
 			}
 			out.RawByte(']')
@@ -389,11 +438,11 @@ func easyjsonCb88a3b8EncodeGithubComJasonKhew96BiliroamingGoServerEntityAndroid(
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v11, v12 := range in.AcceptDescription {
-				if v11 > 0 {
+			for v14, v15 := range in.AcceptDescription {
+				if v14 > 0 {
 					out.RawByte(',')
 				}
-				out.String(string(v12))
+				out.String(string(v15))
 			}
 			out.RawByte(']')
 		}

@@ -24,7 +24,8 @@ type PlayUrlResult struct {
 	Timelength        int           `json:"timelength"`
 	HasPaid           bool          `json:"has_paid"`
 	VipStatus         int           `json:"vip_status"`
-	Dash              interface{}   `json:"dash"`
+	Dash              interface{}   `json:"dash,omitempty"`
+	DUrl              []interface{} `json:"durl,omitempty"`
 	ClipInfoList      []interface{} `json:"clip_info_list"`
 	AcceptDescription []string      `json:"accept_description"`
 	Status            int           `json:"status"`

@@ -20,3 +20,14 @@ const (
 	DeviceTypeWeb DeviceType = iota
 	DeviceTypeAndroid
 )
+
+// FormatType 格式种类
+type FormatType int
+
+// FormatType
+const (
+	FormatTypeUnknown FormatType = iota
+	FormatTypeFlv 
+	FormatTypeMp4
+	FormatTypeDash
+)

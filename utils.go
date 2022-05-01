@@ -89,6 +89,36 @@ func getAreaCode(area string) database.Area {
 	}
 }
 
+// getFormatType ...
+//    [   0] - FLV
+//    [   1] - MP4
+//    [   2] - ?
+//    [   4] - ?
+//    [   8] - ?
+//    [  16] - DASH
+// 	  [  32] - ?
+// 	  [  64] - [DASH |QN 125] HDR
+//    [ 128] - [FOURK|QN 120] 4K
+//    [ 256] - [DASH |      ] DOLBY AUDIO
+//    [ 512] - [DASH |      ] DOLBY VISION
+//    [1024] - [DASH |QN 127] 8K
+//    [2048] - [DASH |      ] AV1
+//
+//    FLV     0
+//    MP4     1
+//    DASH 4048
+func getFormatType(fnval int) database.FormatType {
+	if fnval == 0 {
+		return database.FormatTypeFlv
+	} else if fnval & 1 == 1 {
+		return database.FormatTypeMp4
+	} else if fnval & 16 == 16 {
+		return database.FormatTypeDash
+	} else {
+		return database.FormatTypeUnknown
+	}
+}
+
 func isResponseLimited(data []byte) (bool, error) {
 	resp := &entity.SimpleResponse{}
 	if err := easyjson.Unmarshal(data, resp); err != nil {

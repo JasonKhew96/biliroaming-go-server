@@ -96,8 +96,8 @@ func getAreaCode(area string) database.Area {
 //    [   4] - ?
 //    [   8] - ?
 //    [  16] - DASH
-// 	  [  32] - ?
-// 	  [  64] - [DASH |QN 125] HDR
+//    [  32] - ?
+//    [  64] - [DASH |QN 125] HDR
 //    [ 128] - [FOURK|QN 120] 4K
 //    [ 256] - [DASH |      ] DOLBY AUDIO
 //    [ 512] - [DASH |      ] DOLBY VISION

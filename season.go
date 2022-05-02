@@ -116,10 +116,12 @@ func (b *BiliroamingGo) replaceSeason(ctx *fasthttp.RequestCtx, seasonResult []b
 		seasonJson.Result.Modules[0].Data.Episodes[i].Subtitles = subtitles
 	}
 
-	if b.config.ThRedirect.Aid != 0 && b.config.ThRedirect.Cid != 0 {
-		for i, m := range seasonJson.Result.Modules {
-			for j := range m.Data.Episodes {
+	for i, m := range seasonJson.Result.Modules {
+		for j := range m.Data.Episodes {
+			if b.config.ThRedirect.Aid != 0 {
 				seasonJson.Result.Modules[i].Data.Episodes[j].Aid = b.config.ThRedirect.Aid
+			}
+			if b.config.ThRedirect.Cid != 0 {
 				seasonJson.Result.Modules[i].Data.Episodes[j].Cid = b.config.ThRedirect.Cid
 			}
 		}

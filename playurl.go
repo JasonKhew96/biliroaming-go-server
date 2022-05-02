@@ -65,6 +65,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	case database.FormatTypeMp4:
 		v.Set("fnval", "1")
 	case database.FormatTypeDash:
+		fallthrough
 	default:
 		v.Set("fnval", "4048")
 	}
@@ -175,6 +176,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	case database.FormatTypeMp4:
 		v.Set("fnval", "1")
 	case database.FormatTypeDash:
+		fallthrough
 	default:
 		v.Set("fnval", "4048")
 	}
@@ -304,6 +306,7 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	case database.FormatTypeMp4:
 		v.Set("fnval", "1")
 	case database.FormatTypeDash:
+		fallthrough
 	default:
 		v.Set("fnval", "4048")
 	}

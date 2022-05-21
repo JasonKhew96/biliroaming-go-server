@@ -57,6 +57,7 @@ type biliArgs struct {
 	qn        int
 	aType     int
 	fnval     int
+	sign      string
 }
 
 // SignParams sign params according to client type
@@ -246,6 +247,7 @@ func (b *BiliroamingGo) processArgs(args *fasthttp.Args) *biliArgs {
 		qn:        qn,
 		aType:     aType,
 		fnval:     fnval,
+		sign:      string(args.Peek("sign")),
 	}
 
 	b.sugar.Debug("Request args ", args.String())

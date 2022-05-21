@@ -26,7 +26,8 @@ type ClientType int
 
 // ClientType
 const (
-	ClientTypeAndroid ClientType = iota
+	ClientTypeUnknown ClientType = iota
+	ClientTypeAndroid
 	ClientTypeBstarA
 	ClientTypeWeb
 )
@@ -56,6 +57,7 @@ type biliArgs struct {
 	qn        int
 	aType     int
 	fnval     int
+	appkey    string
 	ts        int64
 	sign      string
 }
@@ -75,6 +77,15 @@ func signParams(values url.Values, clientType ClientType, timestamp int64) (stri
 	data := []byte(encoded)
 	values.Set("sign", fmt.Sprintf("%x", md5.Sum(data)))
 	return values.Encode(), nil
+}
+
+func getClientTypeFromAppkey(appkey string) ClientType {
+	if appkey == appkeyAndroid {
+		return ClientTypeAndroid
+	} else if appkey == appkeyBstarA {
+		return ClientTypeBstarA
+	}
+	return ClientTypeUnknown
 }
 
 func getSecrets(clientType ClientType) (appkey, appsec string) {
@@ -248,6 +259,7 @@ func (b *BiliroamingGo) processArgs(args *fasthttp.Args) *biliArgs {
 		qn:        qn,
 		aType:     aType,
 		fnval:     fnval,
+		appkey:    string(args.Peek("appkey")),
 		ts:        ts,
 		sign:      string(args.Peek("sign")),
 	}

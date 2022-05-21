@@ -23,6 +23,35 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	// 验证 sign
+	if args.appkey != "" && args.sign != "" && args.ts != 0 {
+		if args.ts <= time.Now().Add(-time.Minute).Unix() {
+			writeErrorJSON(ctx, -10403, []byte("参数错误！"))
+			return
+		}
+
+		values, err := url.ParseQuery(queryArgs.String())
+		if err != nil {
+			b.processError(ctx, err)
+			b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
+			return
+		}
+
+		values.Del("sign")
+
+		sign, err := getSign(values, getClientTypeFromAppkey(args.appkey), args.ts)
+		if err != nil {
+			b.processError(ctx, err)
+			b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
+			return
+		}
+
+		if sign != args.sign {
+			writeErrorJSON(ctx, -10403, []byte("参数错误！"))
+			return
+		}
+	}
+
 	formatType := getFormatType(args.fnval)
 
 	var isVIP bool
@@ -132,6 +161,38 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	if args.area == "" {
 		writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
 		return
+	}
+
+	// 验证 sign
+	if args.appkey == "" && args.sign == "" && args.ts == 0 {
+		writeErrorJSON(ctx, -10403, []byte("参数错误！"))
+		return
+	} else {
+		if args.ts <= time.Now().Add(-time.Minute).Unix() {
+			writeErrorJSON(ctx, -10403, []byte("参数错误！"))
+			return
+		}
+
+		values, err := url.ParseQuery(queryArgs.String())
+		if err != nil {
+			b.processError(ctx, err)
+			b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
+			return
+		}
+
+		values.Del("sign")
+
+		sign, err := getSign(values, getClientTypeFromAppkey(args.appkey), args.ts)
+		if err != nil {
+			b.processError(ctx, err)
+			b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
+			return
+		}
+
+		if sign != args.sign {
+			writeErrorJSON(ctx, -10403, []byte("参数错误！"))
+			return
+		}
 	}
 
 	client := b.getClientByArea(args.area)
@@ -262,6 +323,38 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		args.area = "th"
 		// writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
 		// return
+	}
+
+	// 验证 sign
+	if args.appkey == "" && args.sign == "" && args.ts == 0 {
+		writeErrorJSON(ctx, -10403, []byte("参数错误！"))
+		return
+	} else {
+		if args.ts <= time.Now().Add(-time.Minute).Unix() {
+			writeErrorJSON(ctx, -10403, []byte("参数错误！"))
+			return
+		}
+
+		values, err := url.ParseQuery(queryArgs.String())
+		if err != nil {
+			b.processError(ctx, err)
+			b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
+			return
+		}
+
+		values.Del("sign")
+
+		sign, err := getSign(values, ClientTypeBstarA, args.ts)
+		if err != nil {
+			b.processError(ctx, err)
+			b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
+			return
+		}
+
+		if sign != args.sign {
+			writeErrorJSON(ctx, -10403, []byte("参数错误！"))
+			return
+		}
 	}
 
 	client := b.getClientByArea(args.area)

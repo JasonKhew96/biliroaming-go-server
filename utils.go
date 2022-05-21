@@ -68,6 +68,15 @@ func SignParams(values url.Values, clientType ClientType) (string, error) {
 }
 
 func signParams(values url.Values, clientType ClientType, timestamp int64) (string, error) {
+	sign, err := getSign(values, clientType, timestamp)
+	if err != nil {
+		return "", err
+	}
+	values.Set("sign", sign)
+	return values.Encode(), nil
+}
+
+func getSign(values url.Values, clientType ClientType, timestamp int64) (string, error) {
 	appkey, appsec := getSecrets(clientType)
 
 	values.Set("ts", strconv.FormatInt(timestamp, 10))
@@ -75,8 +84,7 @@ func signParams(values url.Values, clientType ClientType, timestamp int64) (stri
 
 	encoded := values.Encode() + appsec
 	data := []byte(encoded)
-	values.Set("sign", fmt.Sprintf("%x", md5.Sum(data)))
-	return values.Encode(), nil
+	return fmt.Sprintf("%x", md5.Sum(data)), nil
 }
 
 func getClientTypeFromAppkey(appkey string) ClientType {

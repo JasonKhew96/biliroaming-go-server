@@ -57,6 +57,7 @@ type biliArgs struct {
 	qn        int
 	aType     int
 	fnval     int
+	ts        int64
 	sign      string
 }
 
@@ -234,6 +235,10 @@ func (b *BiliroamingGo) processArgs(args *fasthttp.Args) *biliArgs {
 	if err != nil || fnval == 0 {
 		fnval = 4048
 	}
+	ts, err := strconv.ParseInt(string(args.Peek("ts")), 10, 64)
+	if err != nil {
+		ts = 0
+	}
 
 	queryArgs := &biliArgs{
 		accessKey: string(args.Peek("access_key")),
@@ -247,6 +252,7 @@ func (b *BiliroamingGo) processArgs(args *fasthttp.Args) *biliArgs {
 		qn:        qn,
 		aType:     aType,
 		fnval:     fnval,
+		ts:        ts,
 		sign:      string(args.Peek("sign")),
 	}
 

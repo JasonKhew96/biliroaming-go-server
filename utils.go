@@ -2,7 +2,6 @@ package main
 
 import (
 	"crypto/md5"
-	"errors"
 	"fmt"
 	"net/url"
 	"regexp"
@@ -67,10 +66,7 @@ func SignParams(values url.Values, clientType ClientType) (string, error) {
 }
 
 func signParams(values url.Values, clientType ClientType, timestamp int64) (string, error) {
-	appkey, appsec, err := getSecrets(clientType)
-	if err != nil {
-		return "", err
-	}
+	appkey, appsec := getSecrets(clientType)
 
 	values.Set("ts", strconv.FormatInt(timestamp, 10))
 	values.Set("appkey", appkey)
@@ -81,14 +77,14 @@ func signParams(values url.Values, clientType ClientType, timestamp int64) (stri
 	return values.Encode(), nil
 }
 
-func getSecrets(clientType ClientType) (appkey, appsec string, err error) {
+func getSecrets(clientType ClientType) (appkey, appsec string) {
 	switch clientType {
 	case ClientTypeAndroid:
-		return appkeyAndroid, appsecAndroid, nil
+		return appkeyAndroid, appsecAndroid
 	case ClientTypeBstarA:
-		return appkeyBstarA, appsecBstarA, nil
+		return appkeyBstarA, appsecBstarA
 	default:
-		return "", "", errors.New("unknown client type")
+		return "", ""
 	}
 }
 

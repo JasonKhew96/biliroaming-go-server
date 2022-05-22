@@ -28,20 +28,35 @@ type ClientType int
 const (
 	ClientTypeUnknown ClientType = iota
 	ClientTypeAndroid
+	ClientTypeAndroidI
+	ClientTypeAndroidB
+	ClientTypeAndroidTV
+	ClientTypeBiliLink
+	ClientTypeBiliThings
 	ClientTypeBstarA
 	ClientTypeWeb
 )
 
 // appkey
 const (
-	appkeyAndroid = "1d8b6e7d45233436"
-	appkeyBstarA  = "7d089525d3611b1c"
+	appkeyAndroid    = "1d8b6e7d45233436"
+	appkeyAndroidI   = "bb3101000e232e27"
+	appkeyAndroidB   = "07da50c9a0bf829f"
+	appkeyAndroidTV  = "4409e2ce8ffd12b8"
+	appkeyBiliLink   = "37207f2beaebf8d7"
+	appkeyBiliThings = "8d23902c1688a798"
+	appkeyBstarA     = "7d089525d3611b1c"
 )
 
 // appsec
 const (
-	appsecAndroid = "560c52ccd288fed045859ed18bffd973"
-	appsecBstarA  = "acd495b248ec528c2eed1e862d393126"
+	appsecAndroid    = "560c52ccd288fed045859ed18bffd973"
+	appsecAndroidI   = "36efcfed79309338ced0380abd824ac1"
+	appsecAndroidB   = "25bdede4e1581c836cab73a48790ca6e"
+	appsecAndroidTV  = "59b43e04ad6965f34319062b478f83dd"
+	appsecBiliLink   = "e988e794d4d4b6dd43bc0e89d6e90c43"
+	appsecBiliThings = "710f0212e62bd499b8d3ac6e1db9302a"
+	appsecBstarA     = "acd495b248ec528c2eed1e862d393126"
 )
 
 // biliArgs query arguments struct
@@ -90,6 +105,16 @@ func getSign(values url.Values, clientType ClientType, timestamp int64) (string,
 func getClientTypeFromAppkey(appkey string) ClientType {
 	if appkey == appkeyAndroid {
 		return ClientTypeAndroid
+	} else if appkey == appkeyAndroidI {
+		return ClientTypeAndroidI
+	} else if appkey == appkeyAndroidB {
+		return ClientTypeAndroidB
+	} else if appkey == appkeyAndroidTV {
+		return ClientTypeAndroidTV
+	} else if appkey == appkeyBiliLink {
+		return ClientTypeBiliLink
+	} else if appkey == appkeyBiliThings {
+		return ClientTypeBiliThings
 	} else if appkey == appkeyBstarA {
 		return ClientTypeBstarA
 	}
@@ -100,6 +125,16 @@ func getSecrets(clientType ClientType) (appkey, appsec string) {
 	switch clientType {
 	case ClientTypeAndroid:
 		return appkeyAndroid, appsecAndroid
+	case ClientTypeAndroidI:
+		return appkeyAndroidI, appsecAndroidI
+	case ClientTypeAndroidB:
+		return appkeyAndroidB, appsecAndroidB
+	case ClientTypeAndroidTV:
+		return appkeyAndroidTV, appsecAndroidTV
+	case ClientTypeBiliLink:
+		return appkeyBiliLink, appsecBiliLink
+	case ClientTypeBiliThings:
+		return appkeyBiliThings, appsecBiliThings
 	case ClientTypeBstarA:
 		return appkeyBstarA, appsecBstarA
 	default:

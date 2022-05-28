@@ -25,38 +25,54 @@ var reMid = regexp.MustCompile(`(&|\\u0026)mid=\d+`)
 type ClientType int
 
 // ClientType
+// taken from https://github.com/yujincheng08/BiliRoaming/wiki/%E8%87%AA%E5%BB%BA%E8%A7%A3%E6%9E%90%E6%9C%8D%E5%8A%A1%E5%99%A8#api-%E8%AF%B7%E6%B1%82%E7%AD%BE%E5%90%8D
 const (
-	ClientTypeUnknown ClientType = iota
-	ClientTypeAndroid
-	ClientTypeAndroidI
-	ClientTypeAndroidB
-	ClientTypeAndroidTV
-	ClientTypeBiliLink
-	ClientTypeBiliThings
-	ClientTypeBstarA
-	ClientTypeWeb
+	ClientTypeUnknown            ClientType = iota // unknown
+	ClientTypeAi4cCreatorAndroid                   // ai4c_creator_android
+	ClientTypeAndroid                              // android
+	ClientTypeAndroidB                             // android_b
+	ClientTypeAndroidBiliThings                    // android_bilithings
+	ClientTypeAndroidHD                            // android_hd
+	ClientTypeAndroidI                             // android_i
+	ClientTypeAndroidMallTicket                    // android_mall_ticket
+	ClientTypeAndroidOttSdk                        // android_ott_sdk
+	ClientTypeAndroidTV                            // android_tv
+	ClientTypeBiliLink                             // biliLink
+	ClientTypeBiliScan                             // biliScan
+	ClientTypeBstarA                               // bstar_a
+	ClientTypeWeb                                  // web
 )
 
 // appkey
 const (
-	appkeyAndroid    = "1d8b6e7d45233436"
-	appkeyAndroidI   = "bb3101000e232e27"
-	appkeyAndroidB   = "07da50c9a0bf829f"
-	appkeyAndroidTV  = "4409e2ce8ffd12b8"
-	appkeyBiliLink   = "37207f2beaebf8d7"
-	appkeyBiliThings = "8d23902c1688a798"
-	appkeyBstarA     = "7d089525d3611b1c"
+	appkeyAi4cCreatorAndroid = "9d5889cf67e615cd"
+	appkeyAndroid            = "1d8b6e7d45233436"
+	appkeyAndroidB           = "07da50c9a0bf829f"
+	appkeyAndroidBiliThings  = "8d23902c1688a798"
+	appkeyAndroidHD          = "dfca71928277209b"
+	appkeyAndroidI           = "bb3101000e232e27"
+	appkeyAndroidMallTicket  = "4c6e1021617d40d9"
+	appkeyAndroidOttSdk      = "c034e8b74130a886"
+	appkeyAndroidTV          = "4409e2ce8ffd12b8"
+	appkeyBiliLink           = "37207f2beaebf8d7"
+	appkeyBiliScan           = "9a75abf7de2d8947"
+	appkeyBstarA             = "7d089525d3611b1c"
 )
 
 // appsec
 const (
-	appsecAndroid    = "560c52ccd288fed045859ed18bffd973"
-	appsecAndroidI   = "36efcfed79309338ced0380abd824ac1"
-	appsecAndroidB   = "25bdede4e1581c836cab73a48790ca6e"
-	appsecAndroidTV  = "59b43e04ad6965f34319062b478f83dd"
-	appsecBiliLink   = "e988e794d4d4b6dd43bc0e89d6e90c43"
-	appsecBiliThings = "710f0212e62bd499b8d3ac6e1db9302a"
-	appsecBstarA     = "acd495b248ec528c2eed1e862d393126"
+	appsecAi4cCreatorAndroid = "8fd9bb32efea8cef801fd895bef2713d"
+	appsecAndroid            = "560c52ccd288fed045859ed18bffd973"
+	appsecAndroidB           = "25bdede4e1581c836cab73a48790ca6e"
+	appsecAndroidBiliThings  = "710f0212e62bd499b8d3ac6e1db9302a"
+	appsecAndroidHD          = "b5475a8825547a4fc26c7d518eaaa02e"
+	appsecAndroidI           = "36efcfed79309338ced0380abd824ac1"
+	appsecAndroidMallTicket  = "e559a59044eb2701b7a8628c86aa12ae"
+	appsecAndroidOttSdk      = "e4e8966b1e71847dc4a3830f2d078523"
+	appsecAndroidTV          = "59b43e04ad6965f34319062b478f83dd"
+	appsecBiliLink           = "e988e794d4d4b6dd43bc0e89d6e90c43"
+	appsecBiliScan           = "35ca1c82be6c2c242ecc04d88c735f31"
+	appsecBstarA             = "acd495b248ec528c2eed1e862d393126"
 )
 
 // biliArgs query arguments struct
@@ -103,38 +119,60 @@ func getSign(values url.Values, clientType ClientType, timestamp int64) (string,
 }
 
 func getClientTypeFromAppkey(appkey string) ClientType {
-	if appkey == appkeyAndroid {
+	switch appkey {
+	case appkeyAi4cCreatorAndroid:
+		return ClientTypeAi4cCreatorAndroid
+	case appkeyAndroid:
 		return ClientTypeAndroid
-	} else if appkey == appkeyAndroidI {
-		return ClientTypeAndroidI
-	} else if appkey == appkeyAndroidB {
+	case appkeyAndroidB:
 		return ClientTypeAndroidB
-	} else if appkey == appkeyAndroidTV {
+	case appkeyAndroidBiliThings:
+		return ClientTypeAndroidBiliThings
+	case appkeyAndroidHD:
+		return ClientTypeAndroidHD
+	case appkeyAndroidI:
+		return ClientTypeAndroidI
+	case appkeyAndroidMallTicket:
+		return ClientTypeAndroidMallTicket
+	case appkeyAndroidOttSdk:
+		return ClientTypeAndroidOttSdk
+	case appkeyAndroidTV:
 		return ClientTypeAndroidTV
-	} else if appkey == appkeyBiliLink {
+	case appkeyBiliLink:
 		return ClientTypeBiliLink
-	} else if appkey == appkeyBiliThings {
-		return ClientTypeBiliThings
-	} else if appkey == appkeyBstarA {
+	case appkeyBiliScan:
+		return ClientTypeBiliScan
+	case appkeyBstarA:
 		return ClientTypeBstarA
+	default:
+		return ClientTypeUnknown
 	}
-	return ClientTypeUnknown
 }
 
 func getSecrets(clientType ClientType) (appkey, appsec string) {
 	switch clientType {
+	case ClientTypeAi4cCreatorAndroid:
+		return appkeyAi4cCreatorAndroid, appsecAi4cCreatorAndroid
 	case ClientTypeAndroid:
 		return appkeyAndroid, appsecAndroid
-	case ClientTypeAndroidI:
-		return appkeyAndroidI, appsecAndroidI
 	case ClientTypeAndroidB:
 		return appkeyAndroidB, appsecAndroidB
+	case ClientTypeAndroidBiliThings:
+		return appkeyAndroidBiliThings, appsecAndroidBiliThings
+	case ClientTypeAndroidHD:
+		return appkeyAndroidHD, appsecAndroidHD
+	case ClientTypeAndroidI:
+		return appkeyAndroidI, appsecAndroidI
+	case ClientTypeAndroidMallTicket:
+		return appkeyAndroidMallTicket, appsecAndroidMallTicket
+	case ClientTypeAndroidOttSdk:
+		return appkeyAndroidOttSdk, appsecAndroidOttSdk
 	case ClientTypeAndroidTV:
 		return appkeyAndroidTV, appsecAndroidTV
 	case ClientTypeBiliLink:
 		return appkeyBiliLink, appsecBiliLink
-	case ClientTypeBiliThings:
-		return appkeyBiliThings, appsecBiliThings
+	case ClientTypeBiliScan:
+		return appkeyBiliScan, appsecBiliScan
 	case ClientTypeBstarA:
 		return appkeyBstarA, appsecBstarA
 	default:

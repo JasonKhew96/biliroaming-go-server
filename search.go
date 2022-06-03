@@ -201,7 +201,7 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 
 	reverseProxy := b.getReverseProxyByArea(args.area)
 	if reverseProxy == "" {
-		reverseProxy = "api.biliintl.com"
+		reverseProxy = "app.biliintl.com"
 	}
 	domain, err := idna.New().ToASCII(reverseProxy)
 	if err != nil {

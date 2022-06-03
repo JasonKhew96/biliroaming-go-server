@@ -37,6 +37,7 @@ const (
 	ClientTypeAndroidMallTicket                    // android_mall_ticket
 	ClientTypeAndroidOttSdk                        // android_ott_sdk
 	ClientTypeAndroidTV                            // android_tv
+	ClientTypeAnguAndroid                          // angu_android
 	ClientTypeBiliLink                             // biliLink
 	ClientTypeBiliScan                             // biliScan
 	ClientTypeBstarA                               // bstar_a
@@ -54,6 +55,7 @@ const (
 	appkeyAndroidMallTicket  = "4c6e1021617d40d9"
 	appkeyAndroidOttSdk      = "c034e8b74130a886"
 	appkeyAndroidTV          = "4409e2ce8ffd12b8"
+	appkeyAnguAndroid        = "50e1328c6a1075a1"
 	appkeyBiliLink           = "37207f2beaebf8d7"
 	appkeyBiliScan           = "9a75abf7de2d8947"
 	appkeyBstarA             = "7d089525d3611b1c"
@@ -70,6 +72,7 @@ const (
 	appsecAndroidMallTicket  = "e559a59044eb2701b7a8628c86aa12ae"
 	appsecAndroidOttSdk      = "e4e8966b1e71847dc4a3830f2d078523"
 	appsecAndroidTV          = "59b43e04ad6965f34319062b478f83dd"
+	appsecAnguAndroid        = "4d35e3dea073433cd24dd14b503d242e"
 	appsecBiliLink           = "e988e794d4d4b6dd43bc0e89d6e90c43"
 	appsecBiliScan           = "35ca1c82be6c2c242ecc04d88c735f31"
 	appsecBstarA             = "acd495b248ec528c2eed1e862d393126"
@@ -138,6 +141,8 @@ func getClientTypeFromAppkey(appkey string) ClientType {
 		return ClientTypeAndroidOttSdk
 	case appkeyAndroidTV:
 		return ClientTypeAndroidTV
+	case appkeyAnguAndroid:
+		return ClientTypeAnguAndroid
 	case appkeyBiliLink:
 		return ClientTypeBiliLink
 	case appkeyBiliScan:
@@ -169,6 +174,8 @@ func getSecrets(clientType ClientType) (appkey, appsec string) {
 		return appkeyAndroidOttSdk, appsecAndroidOttSdk
 	case ClientTypeAndroidTV:
 		return appkeyAndroidTV, appsecAndroidTV
+	case ClientTypeAnguAndroid:
+		return appkeyAnguAndroid, appsecAnguAndroid
 	case ClientTypeBiliLink:
 		return appkeyBiliLink, appsecBiliLink
 	case ClientTypeBiliScan:

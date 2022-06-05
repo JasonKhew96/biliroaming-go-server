@@ -127,7 +127,7 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/x/v2/search/type?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data, err := b.doRequestJson(client, ctx.UserAgent(), url, []byte(http.MethodGet))
+	data, err := b.doRequestJsonWithRetry(client, ctx.UserAgent(), url, []byte(http.MethodGet), 2)
 	if err != nil {
 		b.processError(ctx, err)
 		b.updateHealth(b.getSearchHealth(args.area), -500, "服务器错误")
@@ -216,7 +216,7 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/intl/gateway/v2/app/search/type?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data, err := b.doRequestJson(client, ctx.UserAgent(), url, []byte(http.MethodGet))
+	data, err := b.doRequestJsonWithRetry(client, ctx.UserAgent(), url, []byte(http.MethodGet), 2)
 	if err != nil {
 		b.processError(ctx, err)
 		b.updateHealth(b.HealthSearchTH, -500, "服务器错误")
@@ -299,7 +299,7 @@ func (b *BiliroamingGo) handleWebSearch(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/x/web-interface/search/type?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data, err := b.doRequestJson(client, ctx.UserAgent(), url, []byte(http.MethodGet))
+	data, err := b.doRequestJsonWithRetry(client, ctx.UserAgent(), url, []byte(http.MethodGet), 2)
 	if err != nil {
 		b.processError(ctx, err)
 		b.updateHealth(b.getSearchHealth(args.area), -500, "服务器错误")

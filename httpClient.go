@@ -25,15 +25,15 @@ func (b *BiliroamingGo) newClient(proxy string) *fasthttp.Client {
 	if proxy != "" {
 		b.sugar.Debug("New socks proxy client: ", proxy)
 		return &fasthttp.Client{
-			ReadTimeout:  10 * time.Second,
-			WriteTimeout: 10 * time.Second,
+			ReadTimeout:  5 * time.Second,
+			WriteTimeout: 5 * time.Second,
 			Dial:         fasthttpproxy.FasthttpSocksDialer(proxy),
 		}
 	}
 	b.sugar.Debug("New normal client")
 	return &fasthttp.Client{
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 10 * time.Second,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 5 * time.Second,
 	}
 }
 
@@ -195,6 +195,18 @@ func (b *BiliroamingGo) doRequest(client *fasthttp.Client, ua []byte, url string
 	b.sugar.Debug("Content: ", string(bodyBytes))
 
 	return bodyBytes, nil
+}
+
+func (b *BiliroamingGo) doRequestJsonWithRetry(client *fasthttp.Client, ua []byte, url string, method []byte, retry int) ([]byte, error) {
+	var err error
+	for i := 0; i < retry; i++ {
+		bodyBytes, err := b.doRequestJson(client, ua, url, method)
+		if err == nil {
+			return bodyBytes, nil
+		}
+		b.sugar.Errorf("doRequestJsonWithRetry: %s", err)
+	}
+	return nil, err
 }
 
 func (b *BiliroamingGo) doRequestJson(client *fasthttp.Client, ua []byte, url string, method []byte) ([]byte, error) {

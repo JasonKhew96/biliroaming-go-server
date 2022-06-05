@@ -74,7 +74,7 @@ func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/intl/gateway/v2/app/subtitle?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data, err := b.doRequestJson(client, ctx.UserAgent(), url, []byte(http.MethodGet))
+	data, err := b.doRequestJsonWithRetry(client, ctx.UserAgent(), url, []byte(http.MethodGet), 2)
 	if err != nil {
 		b.processError(ctx, err)
 		return

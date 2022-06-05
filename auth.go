@@ -48,7 +48,7 @@ func (b *BiliroamingGo) getAuthByArea(area string) bool {
 
 func (b *BiliroamingGo) checkBWlist(ctx *fasthttp.RequestCtx, uid int64) (*entity.BlackWhitelist, error) {
 	apiUrl := fmt.Sprintf("https://black.qimo.ink/status.php?uid=%d", uid)
-	data, err := b.doRequestJson(b.defaultClient, []byte(DEFAULT_NAME), apiUrl, []byte(http.MethodGet))
+	data, err := b.doRequestJsonWithRetry(b.defaultClient, []byte(DEFAULT_NAME), apiUrl, []byte(http.MethodGet), 2)
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +162,7 @@ func (b *BiliroamingGo) getMyInfo(ctx *fasthttp.RequestCtx, accessKey string) ([
 
 	b.sugar.Debug(apiURL)
 
-	body, err := b.doRequestJson(b.defaultClient, ctx.UserAgent(), apiURL, []byte(http.MethodGet))
+	body, err := b.doRequestJsonWithRetry(b.defaultClient, ctx.UserAgent(), apiURL, []byte(http.MethodGet), 2)
 	if err != nil {
 		return nil, err
 	}

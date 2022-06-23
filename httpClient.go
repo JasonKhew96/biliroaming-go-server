@@ -258,10 +258,10 @@ func (b *BiliroamingGo) doRequestJson(client *fasthttp.Client, ua []byte, url st
 	b.sugar.Debug("Content: ", body)
 
 	// Remove mid from json content
-	if strings.Contains(url, "/playurl?") {
-		body = removeMid(body)
-		b.sugar.Debug("New content: ", body)
-	}
+	// if strings.Contains(url, "/playurl?") {
+	// 	body = removeMid(body)
+	// 	b.sugar.Debug("New content: ", body)
+	// }
 
 	return []byte(body), nil
 }

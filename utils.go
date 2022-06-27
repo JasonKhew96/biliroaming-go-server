@@ -203,9 +203,9 @@ func getAreaCode(area string) database.Area {
 }
 
 // getFormatType ...
-//    [   0] - FLV
+//    [   0] - FLV (或许是 自动)
 //    [   1] - MP4
-//    [   2] - ?
+//    [   2] - ? (可能是 FLV)
 //    [   4] - ?
 //    [   8] - ?
 //    [  16] - DASH
@@ -219,6 +219,7 @@ func getAreaCode(area string) database.Area {
 //
 //    FLV     0
 //    MP4     1
+//    FLV     2
 //    DASH 4048
 func getFormatType(fnval int) database.FormatType {
 	if fnval == 0 {
@@ -319,16 +320,16 @@ func (b *BiliroamingGo) processArgs(args *fasthttp.Args) *biliArgs {
 		page = 0
 	}
 	qn, err := strconv.Atoi(string(args.Peek("qn")))
-	if err != nil || qn == 0 {
-		qn = 16
+	if err != nil {
+		qn = 0
 	}
 	aType, err := strconv.Atoi(string(args.Peek("type")))
-	if err != nil || aType == 0 {
-		aType = 7
+	if err != nil {
+		aType = 0
 	}
 	fnval, err := strconv.Atoi(string(args.Peek("fnval")))
-	if err != nil || fnval == 0 {
-		fnval = 4048
+	if err != nil {
+		fnval = 0
 	}
 	ts, err := strconv.ParseInt(string(args.Peek("ts")), 10, 64)
 	if err != nil {

@@ -30,6 +30,7 @@ type PlayURLCach struct {
 	Area       int16      `boil:"area" json:"area" toml:"area" yaml:"area"`
 	DeviceType int16      `boil:"device_type" json:"device_type" toml:"device_type" yaml:"device_type"`
 	FormatType int16      `boil:"format_type" json:"format_type" toml:"format_type" yaml:"format_type"`
+	Quality    int16      `boil:"quality" json:"quality" toml:"quality" yaml:"quality"`
 	Data       types.JSON `boil:"data" json:"data" toml:"data" yaml:"data"`
 	CreatedAt  time.Time  `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	UpdatedAt  time.Time  `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
@@ -45,6 +46,7 @@ var PlayURLCachColumns = struct {
 	Area       string
 	DeviceType string
 	FormatType string
+	Quality    string
 	Data       string
 	CreatedAt  string
 	UpdatedAt  string
@@ -55,6 +57,7 @@ var PlayURLCachColumns = struct {
 	Area:       "area",
 	DeviceType: "device_type",
 	FormatType: "format_type",
+	Quality:    "quality",
 	Data:       "data",
 	CreatedAt:  "created_at",
 	UpdatedAt:  "updated_at",
@@ -67,6 +70,7 @@ var PlayURLCachTableColumns = struct {
 	Area       string
 	DeviceType string
 	FormatType string
+	Quality    string
 	Data       string
 	CreatedAt  string
 	UpdatedAt  string
@@ -77,6 +81,7 @@ var PlayURLCachTableColumns = struct {
 	Area:       "play_url_caches.area",
 	DeviceType: "play_url_caches.device_type",
 	FormatType: "play_url_caches.format_type",
+	Quality:    "play_url_caches.quality",
 	Data:       "play_url_caches.data",
 	CreatedAt:  "play_url_caches.created_at",
 	UpdatedAt:  "play_url_caches.updated_at",
@@ -167,6 +172,7 @@ var PlayURLCachWhere = struct {
 	Area       whereHelperint16
 	DeviceType whereHelperint16
 	FormatType whereHelperint16
+	Quality    whereHelperint16
 	Data       whereHelpertypes_JSON
 	CreatedAt  whereHelpertime_Time
 	UpdatedAt  whereHelpertime_Time
@@ -177,6 +183,7 @@ var PlayURLCachWhere = struct {
 	Area:       whereHelperint16{field: "\"play_url_caches\".\"area\""},
 	DeviceType: whereHelperint16{field: "\"play_url_caches\".\"device_type\""},
 	FormatType: whereHelperint16{field: "\"play_url_caches\".\"format_type\""},
+	Quality:    whereHelperint16{field: "\"play_url_caches\".\"quality\""},
 	Data:       whereHelpertypes_JSON{field: "\"play_url_caches\".\"data\""},
 	CreatedAt:  whereHelpertime_Time{field: "\"play_url_caches\".\"created_at\""},
 	UpdatedAt:  whereHelpertime_Time{field: "\"play_url_caches\".\"updated_at\""},
@@ -199,8 +206,8 @@ func (*playURLCachR) NewStruct() *playURLCachR {
 type playURLCachL struct{}
 
 var (
-	playURLCachAllColumns            = []string{"id", "episode_id", "is_vip", "area", "device_type", "format_type", "data", "created_at", "updated_at"}
-	playURLCachColumnsWithoutDefault = []string{"episode_id", "is_vip", "area", "device_type", "format_type", "data", "created_at", "updated_at"}
+	playURLCachAllColumns            = []string{"id", "episode_id", "is_vip", "area", "device_type", "format_type", "quality", "data", "created_at", "updated_at"}
+	playURLCachColumnsWithoutDefault = []string{"episode_id", "is_vip", "area", "device_type", "format_type", "quality", "data", "created_at", "updated_at"}
 	playURLCachColumnsWithDefault    = []string{"id"}
 	playURLCachPrimaryKeyColumns     = []string{"id"}
 	playURLCachGeneratedColumns      = []string{}

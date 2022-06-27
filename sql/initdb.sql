@@ -18,6 +18,7 @@ CREATE TABLE play_url_caches(
     area SMALLINT NOT NULL,
     device_type SMALLINT NOT NULL,
     format_type SMALLINT NOT NULL,
+    quality SMALLINT NOT NULL,
     data JSON NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL

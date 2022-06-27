@@ -11,10 +11,9 @@ blockType: 1
 # 设置最低漫游版本，详情看哔哩漫游仓库 versionCode
 roamingMinVer: 0
 
-# 替换泰区 aid (评论投币) / cid (弹幕)
+# 替换泰区 aid (评论投币)
 thRedirect:
   aid: 0
-  cid: 0
 
 # 各用户(uid)限制器
 limiter:

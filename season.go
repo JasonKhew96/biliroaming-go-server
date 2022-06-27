@@ -121,9 +121,6 @@ func (b *BiliroamingGo) replaceSeason(ctx *fasthttp.RequestCtx, seasonResult []b
 			if b.config.ThRedirect.Aid != 0 {
 				seasonJson.Result.Modules[i].Data.Episodes[j].Aid = b.config.ThRedirect.Aid
 			}
-			if b.config.ThRedirect.Cid != 0 {
-				seasonJson.Result.Modules[i].Data.Episodes[j].Cid = b.config.ThRedirect.Cid
-			}
 		}
 	}
 

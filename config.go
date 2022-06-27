@@ -20,7 +20,6 @@ type Config struct {
 
 	ThRedirect struct {
 		Aid int `yaml:"aid"`
-		Cid int `yaml:"cid"`
 	} `yaml:"thRedirect"`
 
 	Limiter struct {

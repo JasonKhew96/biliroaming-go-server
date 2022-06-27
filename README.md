@@ -1,34 +1,43 @@
 # biliroaming-go-server [![go report](https://goreportcard.com/badge/github.com/JasonKhew96/biliroaming-go-server)](https://goreportcard.com/report/github.com/JasonKhew96/biliroaming-go-server) [![workflows](https://github.com/JasonKhew96/biliroaming-go-server/workflows/Go/badge.svg)](https://github.com/JasonKhew96/biliroaming-go-server/actions)
 
-
 ## 需求
+
 - 脑子
 - PostgreSQL
 - Nginx (可选)
 - Docker (推荐)
 
 ## Docker
+
 见 [JasonKhew96/biliroaming-go-server-docker](https://github.com/JasonKhew96/biliroaming-go-server-docker)
 
 ## 使用方式
+
 1. 安装并启用 [PostgreSQL](https://www.postgresql.org/)
 2. 设置 `config.yml`，见 [config.example.yml](config.example.yml)
 3. 修改 Nginx 设置文件
 4. 启用程序 (systemd/screen/nohup)
 
 ### systemd
+
 - 创建文件 `/etc/systemd/system/biliroaming-go-server.service` (可以自选名字)
-- `ExecStart` 请替换为正确的路径
+- `ExecStart`, `WorkingDirectory` 请替换为正确的路径
+
 ```
 [Unit]
-Description=哔哩漫游代理服务
+Description=Biliroaming Go Server
+After=network.target
 
 [Service]
-ExecStart=/root/server/biliroaming-go-server
+Type=simple
+Restart=always
+WorkingDirectory=/opt/biliroaming-go-server/
+ExecStart=/opt/biliroaming-go-server/biliroaming-go-server
 
 [Install]
 WantedBy=multi-user.target
 ```
+
 - 刷新后台程序 `systemctl daemon-reload`
 - 启用后台程序 `systemctl enable biliroaming-go-server.service`
 - 禁用后台程序 `systemctl disable biliroaming-go-server.service`
@@ -37,7 +46,9 @@ WantedBy=multi-user.target
 - 检查后台程序状态 `systemctl status biliroaming-go-server.service`
 
 ### Nginx 端口转发
+
 - 创建文件 `/etc/nginx/sites-available/bili.example.com` (文件名可选，域名比较方便)
+
 ```
 server {
     # https
@@ -45,7 +56,7 @@ server {
     listen  [::]:443 ssl;
 
     server_name         bili.example.com;
-    
+
     # 证书
     ssl_certificate     /etc/nginx/certs/site.crt;
     ssl_certificate_key /etc/nginx/certs/site.key;
@@ -92,6 +103,7 @@ server {
 ```
 
 ### screen
+
 - 根据 linux 发行版执行安装 screen
 - 程序路径执行 `screen -dmS "biliroaming-server" ./biliroaming-go-server`
 - 连接 screen 程序 `screen -r biliroaming-server`，连上后 `ctrl+c` 关闭程序
@@ -99,5 +111,6 @@ server {
 - screen 列出所有 `screen -ls`
 
 ### nohup
+
 - 程序路径执行 `nohup ./biliroaming-go-server &`
 - 停止程序 `kill -9 1234`，1234 替换程序为 PID

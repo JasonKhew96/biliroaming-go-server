@@ -222,11 +222,11 @@ func getAreaCode(area string) database.Area {
 //    FLV     2
 //    DASH 4048
 func getFormatType(fnval int) database.FormatType {
-	if fnval == 0 {
-		return database.FormatTypeFlv
-	} else if fnval&1 == 1 {
+    if fnval&1 == 1 {
 		return database.FormatTypeMp4
-	} else if fnval&16 == 16 {
+	} else if fnval&2 == 2 {
+		return database.FormatTypeFlv
+	} else if fnval == 0 || fnval&16 == 16 {
 		return database.FormatTypeDash
 	} else {
 		return database.FormatTypeUnknown

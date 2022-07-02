@@ -3,6 +3,8 @@ debug: false
 # 监听端口
 port: 80
 
+# 黑名单接口
+blacklistApiUrl: "https://example.com/status.php?uid=%d"
 # 黑白名单模式
 # 0 - 禁用
 # 1 - 黑白名单
@@ -39,8 +41,8 @@ customSearch:
 
 # 自定义插入字幕
 customSubtitle:
-  apiUrl: 'https://example.com/path?season_id=%d'
-  teamName: '蒙古上单字幕组'
+  apiUrl: "https://example.com/path?season_id=%d"
+  teamName: "蒙古上单字幕组"
 
 # 缓存时间
 # 实例："1h1m4s" / "5m1s" / "4s"
@@ -92,9 +94,9 @@ auth:
 
 # 数据库
 postgreSQL:
-  host: 'db'
-  user: 'postgres'
+  host: "db"
+  user: "postgres"
   # password: 'password'
-  passwordFile: '/run/secrets/db-password'
-  dbName: 'postgres'
+  passwordFile: "/run/secrets/db-password"
+  dbName: "postgres"
   port: 5432

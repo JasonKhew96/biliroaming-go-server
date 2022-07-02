@@ -175,27 +175,35 @@ func (b *BiliroamingGo) getMyInfo(ctx *fasthttp.RequestCtx, accessKey string) ([
 
 func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string) (bool, *userStatus) {
 	if len(accessKey) == 0 {
-		writeErrorJSON(ctx, -101, []byte("帐号未登录"))
+		writeErrorJSON(ctx, -401, []byte("帐号未登录"))
 		return false, nil
 	}
 
 	if len(accessKey) != 32 {
-		writeErrorJSON(ctx, -2, []byte("Access Key错误"))
+		writeErrorJSON(ctx, -403, []byte("Access Key错误"))
 		return false, nil
 	}
 
 	key, ok := b.getKey(accessKey)
 	if ok {
 		if !b.doCheckUidLimiter(ctx, key.uid) {
-			writeErrorJSON(ctx, -412, []byte("请求过快"))
+			writeErrorJSON(ctx, -429, []byte("请求过快"))
 			return false, nil
 		}
-		if key.isBlacklist {
-			writeErrorJSON(ctx, -101, []byte("黑名单"))
-			return false, nil
+		switch b.config.BlockType {
+		case BlockTypeEnabled:
+			if key.isBlacklist {
+				writeErrorJSON(ctx, -403, []byte("黑名单"))
+				return false, nil
+			}
+		case BlockTypeWhitelist:
+			if !key.isWhitelist {
+				writeErrorJSON(ctx, -403, []byte("非白名单"))
+				return false, nil
+			}
 		}
 		if !key.isLogin {
-			writeErrorJSON(ctx, -101, []byte("账号未登录"))
+			writeErrorJSON(ctx, -401, []byte("账号未登录"))
 			return false, nil
 		}
 		return key.isLogin, &userStatus{
@@ -211,7 +219,7 @@ func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string)
 		if status.isLogin {
 			return true, status
 		}
-		writeErrorJSON(ctx, -101, []byte("账号未登录"))
+		writeErrorJSON(ctx, -401, []byte("账号未登录"))
 		return false, nil
 	}
 
@@ -231,7 +239,7 @@ func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string)
 	}
 
 	if !b.doCheckUidLimiter(ctx, status.uid) {
-		writeErrorJSON(ctx, -412, []byte("请求过快"))
+		writeErrorJSON(ctx, -429, []byte("请求过快"))
 		return false, nil
 	}
 

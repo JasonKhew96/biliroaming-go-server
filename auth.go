@@ -48,7 +48,7 @@ func (b *BiliroamingGo) getAuthByArea(area string) bool {
 }
 
 func (b *BiliroamingGo) checkBWlist(ctx *fasthttp.RequestCtx, uid int64) (*entity.BlackWhitelist, error) {
-	apiUrl := fmt.Sprintf("https://black.qimo.ink/status.php?uid=%d", uid)
+	apiUrl := fmt.Sprintf(b.config.BlacklistApiUrl, uid)
 	data, err := b.doRequestJsonWithRetry(b.defaultClient, []byte(DEFAULT_NAME), apiUrl, []byte(http.MethodGet), 2)
 	if err != nil {
 		return nil, err

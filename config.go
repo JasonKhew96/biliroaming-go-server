@@ -14,7 +14,8 @@ type Config struct {
 	Debug bool `yaml:"debug"`
 	Port  int  `yaml:"port"`
 
-	BlockType BlockTypeEnum `yaml:"blockType"`
+	BlacklistApiUrl string        `yaml:"blacklistApiUrl"`
+	BlockType       BlockTypeEnum `yaml:"blockType"`
 
 	RoamingMinVer int `yaml:"roamingMinVer"`
 

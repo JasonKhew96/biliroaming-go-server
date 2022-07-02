@@ -79,6 +79,7 @@ func (b *BiliroamingGo) setKey(key string, status *userStatus) {
 	b.aMu.Lock()
 	defer b.aMu.Unlock()
 	b.accessKeys[key] = &accessKey{
+		uid:         status.uid,
 		isLogin:     status.isLogin,
 		isVip:       status.isVip,
 		isBlacklist: status.isBlacklist,

@@ -21,6 +21,7 @@ type BlockTypeEnum int
 const (
 	BlockTypeDisabled BlockTypeEnum = iota
 	BlockTypeEnabled
+	BlockTypeWhitelist
 )
 
 type userStatus struct {
@@ -81,8 +82,8 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 		userStatus.uid = keyData.UID
 		userStatus.isLogin = true
 
-		if b.config.BlockType == BlockTypeEnabled {
-			b.sugar.Debugf("isBlacklist %d %s", keyData.UID, accessKey)
+		if b.config.BlockType != BlockTypeDisabled {
+			b.sugar.Debugf("isAuth %d %s", keyData.UID, accessKey)
 			bwlist, err := b.checkBWlist(ctx, keyData.UID)
 			if err != nil {
 				return userStatus, err
@@ -133,7 +134,7 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 		userStatus.isVip = true
 	}
 
-	if b.config.BlockType == BlockTypeEnabled {
+	if b.config.BlockType != BlockTypeDisabled {
 		bwlist, err := b.checkBWlist(ctx, data.Data.Mid)
 		if err != nil {
 			return userStatus, err
@@ -216,9 +217,17 @@ func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string)
 
 	b.setKey(accessKey, status)
 
-	if status.isBlacklist {
-		writeErrorJSON(ctx, -101, []byte("黑名单"))
-		return false, nil
+	switch b.config.BlockType {
+	case BlockTypeEnabled:
+		if status.isBlacklist {
+			writeErrorJSON(ctx, -403, []byte("黑名单"))
+			return false, nil
+		}
+	case BlockTypeWhitelist:
+		if !status.isWhitelist {
+			writeErrorJSON(ctx, -403, []byte("非白名单"))
+			return false, nil
+		}
 	}
 
 	if !b.doCheckUidLimiter(ctx, status.uid) {

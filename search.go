@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -129,9 +130,13 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 
 	data, err := b.doRequestJsonWithRetry(client, ctx.UserAgent(), url, []byte(http.MethodGet), 2)
 	if err != nil {
-		b.processError(ctx, err)
-		b.updateHealth(b.getSearchHealth(args.area), -500, "服务器错误")
-		return
+		if errors.Is(err, ErrorHttpStatusLimited) {
+			data = []byte(`{"code":-412,"message":"请求被拦截","ttl":1}`)
+		} else {
+			b.processError(ctx, err)
+			b.updateHealth(b.getSearchHealth(args.area), -500, "服务器错误")
+			return
+		}
 	}
 
 	if isLimited, err := isResponseLimited(data); err != nil {
@@ -217,9 +222,13 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 
 	data, err := b.doRequestJsonWithRetry(client, ctx.UserAgent(), url, []byte(http.MethodGet), 2)
 	if err != nil {
-		b.processError(ctx, err)
-		b.updateHealth(b.HealthSearchTH, -500, "服务器错误")
-		return
+		if errors.Is(err, ErrorHttpStatusLimited) {
+			data = []byte(`{"code":-412,"message":"请求被拦截","ttl":1}`)
+		} else {
+			b.processError(ctx, err)
+			b.updateHealth(b.HealthSearchTH, -500, "服务器错误")
+			return
+		}
 	}
 
 	if isLimited, err := isResponseLimited(data); err != nil {
@@ -300,9 +309,13 @@ func (b *BiliroamingGo) handleWebSearch(ctx *fasthttp.RequestCtx) {
 
 	data, err := b.doRequestJsonWithRetry(client, ctx.UserAgent(), url, []byte(http.MethodGet), 2)
 	if err != nil {
-		b.processError(ctx, err)
-		b.updateHealth(b.getSearchHealth(args.area), -500, "服务器错误")
-		return
+		if errors.Is(err, ErrorHttpStatusLimited) {
+			data = []byte(`{"code":-412,"message":"请求被拦截","ttl":1}`)
+		} else {
+			b.processError(ctx, err)
+			b.updateHealth(b.getSearchHealth(args.area), -500, "服务器错误")
+			return
+		}
 	}
 
 	if isLimited, err := isResponseLimited(data); err != nil {

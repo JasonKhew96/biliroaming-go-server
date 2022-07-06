@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -11,6 +12,24 @@ import (
 	"github.com/mailru/easyjson"
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/fasthttpproxy"
+)
+
+type ErrorHttpStatus struct {
+	code int
+}
+
+func (e *ErrorHttpStatus) Error() string {
+    return fmt.Sprintf("status code error: %d", e.code)
+}
+
+func NewErrorHttpLimited(code int) *ErrorHttpStatus {
+	return &ErrorHttpStatus{
+		code: code,
+	}
+}
+
+var (
+	ErrorHttpStatusLimited = NewErrorHttpLimited(412)
 )
 
 func (b *BiliroamingGo) initProxy(c *Config) {
@@ -175,7 +194,7 @@ func (b *BiliroamingGo) doRequest(client *fasthttp.Client, ua []byte, url string
 	b.sugar.Debugf("doRedirects: %d", resp.StatusCode())
 
 	if resp.StatusCode() != fasthttp.StatusOK {
-		return nil, fmt.Errorf("error code: %d\nbody: %s", resp.StatusCode(), string(resp.Body()))
+		return nil, NewErrorHttpLimited(resp.StatusCode())
 	}
 
 	contentEncoding := resp.Header.Peek("Content-Encoding")
@@ -199,10 +218,14 @@ func (b *BiliroamingGo) doRequest(client *fasthttp.Client, ua []byte, url string
 
 func (b *BiliroamingGo) doRequestJsonWithRetry(client *fasthttp.Client, ua []byte, url string, method []byte, retry int) ([]byte, error) {
 	var err error
+	var bodyBytes []byte
 	for i := 0; i < retry; i++ {
-		bodyBytes, err := b.doRequestJson(client, ua, url, method)
+		bodyBytes, err = b.doRequestJson(client, ua, url, method)
 		if err == nil {
 			return bodyBytes, nil
+		}
+		if errors.Is(err, ErrorHttpStatusLimited) {
+			return nil, err
 		}
 		b.sugar.Errorf("doRequestJsonWithRetry: %s", err)
 	}
@@ -230,7 +253,7 @@ func (b *BiliroamingGo) doRequestJson(client *fasthttp.Client, ua []byte, url st
 	b.sugar.Debugf("doRedirects: %d", resp.StatusCode())
 
 	if resp.StatusCode() != fasthttp.StatusOK {
-		return nil, fmt.Errorf("error code: %d\nbody: %s", resp.StatusCode(), string(resp.Body()))
+		return nil, NewErrorHttpLimited(resp.StatusCode())
 	}
 
 	// Verify the content type

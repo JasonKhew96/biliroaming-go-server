@@ -127,8 +127,13 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 
 	data, err := b.doRequestJsonWithRetry(client, ctx.UserAgent(), url, []byte(http.MethodGet), 2)
 	if err != nil {
-		b.processError(ctx, err)
-		return
+		if errors.Is(err, ErrorHttpStatusLimited) {
+			data = []byte(`{"code":-412,"message":"请求被拦截","ttl":1}`)
+		} else {
+			b.processError(ctx, err)
+			b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
+			return
+		}
 	}
 
 	newData, err := replaceQn([]byte(data), args.qn, ClientTypeWeb)
@@ -283,9 +288,13 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 
 	data, err := b.doRequestJsonWithRetry(client, ctx.UserAgent(), url, []byte(http.MethodGet), 2)
 	if err != nil {
-		b.processError(ctx, err)
-		b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
-		return
+		if errors.Is(err, ErrorHttpStatusLimited) {
+			data = []byte(`{"code":-412,"message":"请求被拦截","ttl":1}`)
+		} else {
+			b.processError(ctx, err)
+			b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
+			return
+		}
 	}
 
 	newData, err := replaceQn([]byte(data), args.qn, ClientTypeAndroid)
@@ -449,9 +458,13 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 
 	data, err := b.doRequestJsonWithRetry(client, ctx.UserAgent(), url, []byte(http.MethodGet), 2)
 	if err != nil {
-		b.processError(ctx, err)
-		b.updateHealth(b.HealthPlayUrlTH, -500, "服务器错误")
-		return
+		if errors.Is(err, ErrorHttpStatusLimited) {
+			data = []byte(`{"code":-412,"message":"请求被拦截","ttl":1}`)
+		} else {
+			b.processError(ctx, err)
+			b.updateHealth(b.HealthPlayUrlTH, -500, "服务器错误")
+			return
+		}
 	}
 
 	newData, err := replaceQn([]byte(data), args.qn, ClientTypeBstarA)

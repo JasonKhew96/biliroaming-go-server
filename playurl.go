@@ -401,7 +401,6 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 
 	v := url.Values{}
 	v.Set("access_key", args.accessKey)
-	v.Set("area", args.area)
 	v.Set("ep_id", strconv.FormatInt(args.epId, 10))
 	v.Set("fnver", "0")
 

@@ -180,7 +180,6 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 
 	v := url.Values{}
 	v.Set("access_key", args.accessKey)
-	v.Set("area", args.area)
 	v.Set("build", "1080003")
 	v.Set("keyword", args.keyword)
 	v.Set("platform", "android")

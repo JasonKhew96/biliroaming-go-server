@@ -189,7 +189,6 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 
 	v := url.Values{}
 	v.Set("access_key", args.accessKey)
-	v.Set("area", args.area)
 	v.Set("build", "1080003")
 	v.Set("s_locale", "zh_SG")
 	if args.seasonId != 0 {

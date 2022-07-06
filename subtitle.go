@@ -42,7 +42,6 @@ func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 
 	v := url.Values{}
 	v.Set("access_key", args.accessKey)
-	v.Set("area", args.area)
 	v.Set("s_locale", "zh_SG")
 	v.Set("ep_id", strconv.FormatInt(args.epId, 10))
 	v.Set("mobi_app", "bstar_a")

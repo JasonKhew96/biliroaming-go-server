@@ -271,7 +271,7 @@ func (h *DbHelper) InsertOrUpdateSeasonAreaCache(seasonID int64, area Area, isAv
 		whitelist = append(whitelist, "th")
 		seasonAreaCacheTable.TH = null.BoolFrom(isAvailable)
 	}
-	return seasonAreaCacheTable.Upsert(h.ctx, h.db, true, []string{"season_id"}, boil.Whitelist("cn", "hk", "tw", "th", "updated_at"), boil.Infer())
+	return seasonAreaCacheTable.Upsert(h.ctx, h.db, true, []string{"season_id"}, boil.Whitelist(whitelist...), boil.Infer())
 }
 
 func (h *DbHelper) InsertOrUpdateEpisodeAreaCache(episodeID int64, area Area, isAvailable bool) error {
@@ -292,5 +292,5 @@ func (h *DbHelper) InsertOrUpdateEpisodeAreaCache(episodeID int64, area Area, is
 		whitelist = append(whitelist, "th")
 		episodeAreaCacheTable.TH = null.BoolFrom(isAvailable)
 	}
-	return episodeAreaCacheTable.Upsert(h.ctx, h.db, true, []string{"episode_id"}, boil.Whitelist("cn", "hk", "tw", "th", "updated_at"), boil.Infer())
+	return episodeAreaCacheTable.Upsert(h.ctx, h.db, true, []string{"episode_id"}, boil.Whitelist(whitelist...), boil.Infer())
 }

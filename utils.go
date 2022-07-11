@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/md5"
+	"errors"
 	"fmt"
 	"net/url"
 	"regexp"
@@ -222,7 +223,7 @@ func getAreaCode(area string) database.Area {
 //    FLV     2
 //    DASH 4048
 func getFormatType(fnval int) database.FormatType {
-    if fnval&1 == 1 {
+	if fnval&1 == 1 {
 		return database.FormatTypeMp4
 	} else if fnval&2 == 2 {
 		return database.FormatTypeFlv
@@ -242,6 +243,44 @@ func isResponseLimited(data []byte) (bool, error) {
 		return true, nil
 	}
 	return false, nil
+}
+
+func isAvailableResponse(data []byte) (bool, error) {
+	resp := &entity.SimpleResponse{}
+	if err := easyjson.Unmarshal(data, resp); err != nil {
+		return false, err
+	}
+
+	/*
+		{"code":10015002,"message":"访问权限不足","ttl":1}
+		{"code":-10403,"message":"大会员专享限制"}
+		{"code":-10403,"message":"抱歉您所使用的平台不可观看！"}
+		{"code":-10403,"message":"抱歉您所在地区不可观看！"}
+		{"code":-400,"message":"请求错误"}
+		{"code":-404,"message":"啥都木有"}
+		{"code":-404,"message":"啥都木有","ttl":1}
+	*/
+
+	if resp.Code == 0 {
+		return true, nil
+	}
+	if resp.Code == 10015002 && resp.Message == "访问权限不足" {
+		return true, nil
+	}
+	if resp.Code == -10403 && resp.Message == "大会员专享限制" {
+		return true, nil
+	}
+	if resp.Code == -10403 && resp.Message == "抱歉您所使用的平台不可观看！" {
+		return true, nil
+	}
+	if resp.Code == -10403 && resp.Message == "抱歉您所在地区不可观看！" {
+		return false, nil
+	}
+	if resp.Code == -404 && resp.Message == "啥都木有" {
+		return false, nil
+	}
+
+	return false, errors.New(fmt.Sprintf("code: %d, message: %s", resp.Code, resp.Message))
 }
 
 func isResponseNotLogin(data []byte) (bool, error) {

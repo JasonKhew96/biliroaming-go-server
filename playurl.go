@@ -14,11 +14,51 @@ import (
 	"golang.org/x/net/idna"
 )
 
+func (b *BiliroamingGo) checkEpisodeAreaCache(episodeId int64, area database.Area) bool {
+	if cache, err := b.db.GetEpisodeAreaCache(episodeId); err == nil {
+		switch area {
+		case database.AreaCN:
+			if cache.CN.Valid && !cache.CN.Bool {
+				return false
+			}
+		case database.AreaHK:
+			if cache.HK.Valid && !cache.HK.Bool {
+				return false
+			}
+		case database.AreaTW:
+			if cache.TW.Valid && !cache.TW.Bool {
+				return false
+			}
+		case database.AreaTH:
+			if cache.TH.Valid && !cache.TH.Bool {
+				return false
+			}
+		default:
+			return false
+		}
+	}
+	return true
+}
+
+func (b *BiliroamingGo) updateEpisodeCache(data []byte, episodeId int64, area database.Area) error {
+	if available, err := isAvailableResponse(data); err != nil {
+		return err
+	} else if err := b.db.InsertOrUpdateEpisodeAreaCache(episodeId, area, available); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	queryArgs := ctx.URI().QueryArgs()
 	args := b.processArgs(queryArgs)
 
 	if args.area == "" {
+		writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
+		return
+	}
+
+	if ok := b.checkEpisodeAreaCache(args.epId, getAreaCode(args.area)); !ok {
 		writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
 		return
 	}
@@ -152,6 +192,10 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	setDefaultHeaders(ctx)
 	ctx.Write(newData)
 
+	if err := b.updateEpisodeCache(data, args.epId, getAreaCode(args.area)); err != nil {
+		b.sugar.Error(err)
+	}
+
 	if b.getAuthByArea(args.area) {
 		if err := b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeWeb, formatType, int16(qn), getAreaCode(args.area), isVIP, args.epId, data); err != nil {
 			b.sugar.Error(err)
@@ -168,6 +212,11 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	args := b.processArgs(queryArgs)
 
 	if args.area == "" {
+		writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
+		return
+	}
+
+	if ok := b.checkEpisodeAreaCache(args.epId, getAreaCode(args.area)); !ok {
 		writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
 		return
 	}
@@ -321,6 +370,10 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	setDefaultHeaders(ctx)
 	ctx.Write(newData)
 
+	if err := b.updateEpisodeCache(data, args.epId, getAreaCode(args.area)); err != nil {
+		b.sugar.Error(err)
+	}
+
 	if b.getAuthByArea(args.area) {
 		if err := b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeAndroid, formatType, int16(qn), getAreaCode(args.area), isVIP, args.epId, data); err != nil {
 			b.sugar.Error(err)
@@ -340,6 +393,11 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		args.area = "th"
 		// writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
 		// return
+	}
+
+	if ok := b.checkEpisodeAreaCache(args.epId, getAreaCode(args.area)); !ok {
+		writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
+		return
 	}
 
 	// 验证 sign
@@ -483,6 +541,10 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 
 	setDefaultHeaders(ctx)
 	ctx.Write(newData)
+
+	if err := b.updateEpisodeCache(data, args.epId, getAreaCode(args.area)); err != nil {
+		b.sugar.Error(err)
+	}
 
 	if b.getAuthByArea(args.area) {
 		if err := b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeAndroid, formatType, int16(qn), getAreaCode(args.area), isVIP, args.epId, data); err != nil {

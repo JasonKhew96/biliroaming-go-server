@@ -123,7 +123,6 @@ func writeErrorJSON(ctx *fasthttp.RequestCtx, code int, msg []byte) {
 	resp := &entity.SimpleResponse{
 		Code:    code,
 		Message: string(msg),
-		TTL:     1,
 	}
 	respData, err := easyjson.Marshal(resp)
 	if err != nil {

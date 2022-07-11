@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/JasonKhew96/biliroaming-go-server/database"
 	"github.com/JasonKhew96/biliroaming-go-server/entity"
 	"github.com/JasonKhew96/biliroaming-go-server/entity/bstar"
 	"github.com/mailru/easyjson"
@@ -16,6 +17,41 @@ import (
 	"github.com/valyala/fasthttp"
 	"golang.org/x/net/idna"
 )
+
+func (b *BiliroamingGo) checkSeasonAreaCache(seasonId int64, area database.Area) bool {
+	if cache, err := b.db.GetSeasonAreaCache(seasonId); err == nil {
+		switch area {
+		case database.AreaCN:
+			if cache.CN.Valid && !cache.CN.Bool {
+				return false
+			}
+		case database.AreaHK:
+			if cache.HK.Valid && !cache.HK.Bool {
+				return false
+			}
+		case database.AreaTW:
+			if cache.TW.Valid && !cache.TW.Bool {
+				return false
+			}
+		case database.AreaTH:
+			if cache.TH.Valid && !cache.TH.Bool {
+				return false
+			}
+		default:
+			return false
+		}
+	}
+	return true
+}
+
+func (b *BiliroamingGo) updateSeasonCache(data []byte, seasonId int64, area database.Area) error {
+	if available, err := isAvailableResponse(data); err != nil {
+		return err
+	} else if err := b.db.InsertOrUpdateSeasonAreaCache(seasonId, area, available); err != nil {
+		return err
+	}
+	return nil
+}
 
 func (b *BiliroamingGo) insertSeasonCache(data []byte, isVIP bool) error {
 	seasonResult := &bstar.SeasonResult{}
@@ -30,6 +66,10 @@ func (b *BiliroamingGo) insertSeasonCache(data []byte, isVIP bool) error {
 
 	if len(seasonResult.Result.Modules) <= 0 {
 		return nil
+	}
+
+	if err := b.updateSeasonCache(data, seasonResult.Result.SeasonID, database.AreaTH); err != nil {
+		b.sugar.Error(err)
 	}
 
 	for _, mdl := range seasonResult.Result.Modules {
@@ -155,6 +195,13 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	if args.seasonId != 0 {
+		if ok := b.checkSeasonAreaCache(args.seasonId, getAreaCode(args.area)); !ok {
+			writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
+			return
+		}
+	}
+
 	if b.getAuthByArea(args.area) {
 		if ok, _ := b.doAuth(ctx, args.accessKey, args.area); !ok {
 			return
@@ -257,6 +304,12 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 
 	setDefaultHeaders(ctx)
 	ctx.Write(data)
+
+	if args.seasonId != 0 {
+		if err := b.updateSeasonCache(data, args.seasonId, getAreaCode(args.area)); err != nil {
+			b.sugar.Error(err)
+		}
+	}
 
 	if b.getAuthByArea(args.area) {
 		b.insertSeasonCache(data, false)

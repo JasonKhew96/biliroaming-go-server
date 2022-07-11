@@ -147,10 +147,15 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 		b.updateHealth(b.getSearchHealth(args.area), 0, "0")
 	}
 
-	dataByte, err := b.addSearchAds([]byte(data), ClientTypeAndroid)
-	if err != nil {
-		b.processError(ctx, err)
-		return
+	var dataByte []byte
+	if args.page == 1 {
+		dataByte, err = b.addSearchAds(data, ClientTypeAndroid)
+		if err != nil {
+			b.processError(ctx, err)
+			dataByte = data
+		}
+	} else {
+		dataByte = data
 	}
 
 	setDefaultHeaders(ctx)
@@ -239,10 +244,15 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 		b.updateHealth(b.HealthSearchTH, 0, "0")
 	}
 
-	dataByte, err := b.addSearchAds([]byte(data), ClientTypeBstarA)
-	if err != nil {
-		b.processError(ctx, err)
-		return
+	var dataByte []byte
+	if args.page == 1 {
+		dataByte, err = b.addSearchAds(data, ClientTypeBstarA)
+		if err != nil {
+			b.processError(ctx, err)
+			dataByte = data
+		}
+	} else {
+		dataByte = data
 	}
 
 	setDefaultHeaders(ctx)

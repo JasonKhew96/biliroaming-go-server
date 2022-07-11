@@ -15,16 +15,25 @@ import (
 )
 
 type ErrorHttpStatus struct {
-	code int
+	Code    int
+	Message string
 }
 
 func (e *ErrorHttpStatus) Error() string {
-    return fmt.Sprintf("status code error: %d", e.code)
+	return fmt.Sprintf("status code error %d with message %s", e.Code, e.Message)
+}
+
+func (e *ErrorHttpStatus) Is(tgt error) bool {
+	target, ok := tgt.(*ErrorHttpStatus)
+	if !ok {
+		return false
+	}
+	return e.Code == target.Code
 }
 
 func NewErrorHttpLimited(code int) *ErrorHttpStatus {
 	return &ErrorHttpStatus{
-		code: code,
+		Code: code,
 	}
 }
 

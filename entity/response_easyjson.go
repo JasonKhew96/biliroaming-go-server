@@ -40,8 +40,6 @@ func easyjson6ff3ac1dDecodeGithubComJasonKhew96BiliroamingGoServerEntity(in *jle
 			out.Code = int(in.Int())
 		case "message":
 			out.Message = string(in.String())
-		case "ttl":
-			out.TTL = int(in.Int())
 		default:
 			in.SkipRecursive()
 		}
@@ -65,11 +63,6 @@ func easyjson6ff3ac1dEncodeGithubComJasonKhew96BiliroamingGoServerEntity(out *jw
 		const prefix string = ",\"message\":"
 		out.RawString(prefix)
 		out.String(string(in.Message))
-	}
-	{
-		const prefix string = ",\"ttl\":"
-		out.RawString(prefix)
-		out.Int(int(in.TTL))
 	}
 	out.RawByte('}')
 }

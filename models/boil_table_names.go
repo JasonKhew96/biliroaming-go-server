@@ -5,7 +5,9 @@ package models
 
 var TableNames = struct {
 	AccessKeys             string
+	EpisodeAreaCaches      string
 	PlayURLCaches          string
+	SeasonAreaCaches       string
 	THEpisodeCaches        string
 	THSeason2Caches        string
 	THSeason2EpisodeCaches string
@@ -15,7 +17,9 @@ var TableNames = struct {
 	Users                  string
 }{
 	AccessKeys:             "access_keys",
+	EpisodeAreaCaches:      "episode_area_caches",
 	PlayURLCaches:          "play_url_caches",
+	SeasonAreaCaches:       "season_area_caches",
 	THEpisodeCaches:        "th_episode_caches",
 	THSeason2Caches:        "th_season2_caches",
 	THSeason2EpisodeCaches: "th_season2_episode_caches",

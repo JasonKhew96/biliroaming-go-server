@@ -8,7 +8,11 @@ import "testing"
 func TestUpsert(t *testing.T) {
 	t.Run("AccessKeys", testAccessKeysUpsert)
 
+	t.Run("EpisodeAreaCaches", testEpisodeAreaCachesUpsert)
+
 	t.Run("PlayURLCaches", testPlayURLCachesUpsert)
+
+	t.Run("SeasonAreaCaches", testSeasonAreaCachesUpsert)
 
 	t.Run("THEpisodeCaches", testTHEpisodeCachesUpsert)
 

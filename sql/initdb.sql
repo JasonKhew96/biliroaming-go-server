@@ -61,3 +61,21 @@ CREATE TABLE th_subtitle_caches(
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
 );
+CREATE TABLE season_area_caches(
+    season_id BIGINT PRIMARY KEY NOT NULL,
+    cn BOOLEAN,
+    hk BOOLEAN,
+    tw BOOLEAN,
+    th BOOLEAN,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+);
+CREATE TABLE episode_area_caches(
+    episode_id BIGINT PRIMARY KEY NOT NULL,
+    cn BOOLEAN,
+    hk BOOLEAN,
+    tw BOOLEAN,
+    th BOOLEAN,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+);

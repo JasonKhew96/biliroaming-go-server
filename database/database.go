@@ -8,6 +8,7 @@ import (
 	"github.com/JasonKhew96/biliroaming-go-server/models"
 	_ "github.com/lib/pq"
 	migrate "github.com/rubenv/sql-migrate"
+	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"golang.org/x/net/context"
@@ -242,4 +243,44 @@ func (h *DbHelper) InsertOrUpdateTHEpisodeCache(episodeID int64, data []byte) er
 	thEpisodeCacheTable.EpisodeID = episodeID
 	thEpisodeCacheTable.Data = data
 	return thEpisodeCacheTable.Upsert(h.ctx, h.db, true, []string{"episode_id"}, boil.Whitelist("data", "updated_at"), boil.Infer())
+}
+
+func (h *DbHelper) GetSeasonAreaCache(seasonID int64) (*models.SeasonAreaCach, error) {
+	return models.SeasonAreaCaches(models.SeasonAreaCachWhere.SeasonID.EQ(seasonID)).One(h.ctx, h.db)
+}
+
+func (h *DbHelper) GetEpisodeAreaCache(episodeID int64) (*models.EpisodeAreaCach, error) {
+	return models.EpisodeAreaCaches(models.EpisodeAreaCachWhere.EpisodeID.EQ(episodeID)).One(h.ctx, h.db)
+}
+
+func (h *DbHelper) InsertOrUpdateSeasonAreaCache(seasonID int64, area Area, isAvailable bool) error {
+	var seasonAreaCacheTable models.SeasonAreaCach
+	seasonAreaCacheTable.SeasonID = seasonID
+	switch area {
+	case AreaCN:
+		seasonAreaCacheTable.CN = null.BoolFrom(isAvailable)
+	case AreaHK:
+		seasonAreaCacheTable.HK = null.BoolFrom(isAvailable)
+	case AreaTW:
+		seasonAreaCacheTable.TW = null.BoolFrom(isAvailable)
+	case AreaTH:
+		seasonAreaCacheTable.TH = null.BoolFrom(isAvailable)
+	}
+	return seasonAreaCacheTable.Upsert(h.ctx, h.db, true, []string{"season_id"}, boil.Whitelist("cn", "hk", "tw", "th", "updated_at"), boil.Infer())
+}
+
+func (h *DbHelper) InsertOrUpdateEpisodeAreaCache(episodeID int64, area Area, isAvailable bool) error {
+	var episodeAreaCacheTable models.EpisodeAreaCach
+	episodeAreaCacheTable.EpisodeID = episodeID
+	switch area {
+	case AreaCN:
+		episodeAreaCacheTable.CN = null.BoolFrom(isAvailable)
+	case AreaHK:
+		episodeAreaCacheTable.HK = null.BoolFrom(isAvailable)
+	case AreaTW:
+		episodeAreaCacheTable.TW = null.BoolFrom(isAvailable)
+	case AreaTH:
+		episodeAreaCacheTable.TH = null.BoolFrom(isAvailable)
+	}
+	return episodeAreaCacheTable.Upsert(h.ctx, h.db, true, []string{"episode_id"}, boil.Whitelist("cn", "hk", "tw", "th", "updated_at"), boil.Infer())
 }

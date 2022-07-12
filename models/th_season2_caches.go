@@ -24,6 +24,7 @@ import (
 
 // THSeason2Cach is an object representing the database table.
 type THSeason2Cach struct {
+	ID        int        `boil:"id" json:"id" toml:"id" yaml:"id"`
 	SeasonID  int64      `boil:"season_id" json:"season_id" toml:"season_id" yaml:"season_id"`
 	IsVip     bool       `boil:"is_vip" json:"is_vip" toml:"is_vip" yaml:"is_vip"`
 	Data      types.JSON `boil:"data" json:"data" toml:"data" yaml:"data"`
@@ -35,12 +36,14 @@ type THSeason2Cach struct {
 }
 
 var THSeason2CachColumns = struct {
+	ID        string
 	SeasonID  string
 	IsVip     string
 	Data      string
 	CreatedAt string
 	UpdatedAt string
 }{
+	ID:        "id",
 	SeasonID:  "season_id",
 	IsVip:     "is_vip",
 	Data:      "data",
@@ -49,12 +52,14 @@ var THSeason2CachColumns = struct {
 }
 
 var THSeason2CachTableColumns = struct {
+	ID        string
 	SeasonID  string
 	IsVip     string
 	Data      string
 	CreatedAt string
 	UpdatedAt string
 }{
+	ID:        "th_season2_caches.id",
 	SeasonID:  "th_season2_caches.season_id",
 	IsVip:     "th_season2_caches.is_vip",
 	Data:      "th_season2_caches.data",
@@ -65,12 +70,14 @@ var THSeason2CachTableColumns = struct {
 // Generated where
 
 var THSeason2CachWhere = struct {
+	ID        whereHelperint
 	SeasonID  whereHelperint64
 	IsVip     whereHelperbool
 	Data      whereHelpertypes_JSON
 	CreatedAt whereHelpertime_Time
 	UpdatedAt whereHelpertime_Time
 }{
+	ID:        whereHelperint{field: "\"th_season2_caches\".\"id\""},
 	SeasonID:  whereHelperint64{field: "\"th_season2_caches\".\"season_id\""},
 	IsVip:     whereHelperbool{field: "\"th_season2_caches\".\"is_vip\""},
 	Data:      whereHelpertypes_JSON{field: "\"th_season2_caches\".\"data\""},
@@ -80,14 +87,10 @@ var THSeason2CachWhere = struct {
 
 // THSeason2CachRels is where relationship names are stored.
 var THSeason2CachRels = struct {
-	SeasonTHSeason2EpisodeCaches string
-}{
-	SeasonTHSeason2EpisodeCaches: "SeasonTHSeason2EpisodeCaches",
-}
+}{}
 
 // thSeason2CachR is where relationships are stored.
 type thSeason2CachR struct {
-	SeasonTHSeason2EpisodeCaches THSeason2EpisodeCachSlice `boil:"SeasonTHSeason2EpisodeCaches" json:"SeasonTHSeason2EpisodeCaches" toml:"SeasonTHSeason2EpisodeCaches" yaml:"SeasonTHSeason2EpisodeCaches"`
 }
 
 // NewStruct creates a new relationship struct
@@ -95,21 +98,14 @@ func (*thSeason2CachR) NewStruct() *thSeason2CachR {
 	return &thSeason2CachR{}
 }
 
-func (r *thSeason2CachR) GetSeasonTHSeason2EpisodeCaches() THSeason2EpisodeCachSlice {
-	if r == nil {
-		return nil
-	}
-	return r.SeasonTHSeason2EpisodeCaches
-}
-
 // thSeason2CachL is where Load methods for each relationship are stored.
 type thSeason2CachL struct{}
 
 var (
-	thSeason2CachAllColumns            = []string{"season_id", "is_vip", "data", "created_at", "updated_at"}
+	thSeason2CachAllColumns            = []string{"id", "season_id", "is_vip", "data", "created_at", "updated_at"}
 	thSeason2CachColumnsWithoutDefault = []string{"season_id", "is_vip", "data", "created_at", "updated_at"}
-	thSeason2CachColumnsWithDefault    = []string{}
-	thSeason2CachPrimaryKeyColumns     = []string{"season_id"}
+	thSeason2CachColumnsWithDefault    = []string{"id"}
+	thSeason2CachPrimaryKeyColumns     = []string{"id"}
 	thSeason2CachGeneratedColumns      = []string{}
 )
 
@@ -391,171 +387,6 @@ func (q thSeason2CachQuery) Exists(ctx context.Context, exec boil.ContextExecuto
 	return count > 0, nil
 }
 
-// SeasonTHSeason2EpisodeCaches retrieves all the th_season2_episode_cach's THSeason2EpisodeCaches with an executor via season_id column.
-func (o *THSeason2Cach) SeasonTHSeason2EpisodeCaches(mods ...qm.QueryMod) thSeason2EpisodeCachQuery {
-	var queryMods []qm.QueryMod
-	if len(mods) != 0 {
-		queryMods = append(queryMods, mods...)
-	}
-
-	queryMods = append(queryMods,
-		qm.Where("\"th_season2_episode_caches\".\"season_id\"=?", o.SeasonID),
-	)
-
-	return THSeason2EpisodeCaches(queryMods...)
-}
-
-// LoadSeasonTHSeason2EpisodeCaches allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (thSeason2CachL) LoadSeasonTHSeason2EpisodeCaches(ctx context.Context, e boil.ContextExecutor, singular bool, maybeTHSeason2Cach interface{}, mods queries.Applicator) error {
-	var slice []*THSeason2Cach
-	var object *THSeason2Cach
-
-	if singular {
-		object = maybeTHSeason2Cach.(*THSeason2Cach)
-	} else {
-		slice = *maybeTHSeason2Cach.(*[]*THSeason2Cach)
-	}
-
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &thSeason2CachR{}
-		}
-		args = append(args, object.SeasonID)
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &thSeason2CachR{}
-			}
-
-			for _, a := range args {
-				if a == obj.SeasonID {
-					continue Outer
-				}
-			}
-
-			args = append(args, obj.SeasonID)
-		}
-	}
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	query := NewQuery(
-		qm.From(`th_season2_episode_caches`),
-		qm.WhereIn(`th_season2_episode_caches.season_id in ?`, args...),
-	)
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.QueryContext(ctx, e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load th_season2_episode_caches")
-	}
-
-	var resultSlice []*THSeason2EpisodeCach
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice th_season2_episode_caches")
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on th_season2_episode_caches")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for th_season2_episode_caches")
-	}
-
-	if len(thSeason2EpisodeCachAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
-	}
-	if singular {
-		object.R.SeasonTHSeason2EpisodeCaches = resultSlice
-		for _, foreign := range resultSlice {
-			if foreign.R == nil {
-				foreign.R = &thSeason2EpisodeCachR{}
-			}
-			foreign.R.Season = object
-		}
-		return nil
-	}
-
-	for _, foreign := range resultSlice {
-		for _, local := range slice {
-			if local.SeasonID == foreign.SeasonID {
-				local.R.SeasonTHSeason2EpisodeCaches = append(local.R.SeasonTHSeason2EpisodeCaches, foreign)
-				if foreign.R == nil {
-					foreign.R = &thSeason2EpisodeCachR{}
-				}
-				foreign.R.Season = local
-				break
-			}
-		}
-	}
-
-	return nil
-}
-
-// AddSeasonTHSeason2EpisodeCaches adds the given related objects to the existing relationships
-// of the th_season2_cach, optionally inserting them as new records.
-// Appends related to o.R.SeasonTHSeason2EpisodeCaches.
-// Sets related.R.Season appropriately.
-func (o *THSeason2Cach) AddSeasonTHSeason2EpisodeCaches(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*THSeason2EpisodeCach) error {
-	var err error
-	for _, rel := range related {
-		if insert {
-			rel.SeasonID = o.SeasonID
-			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
-				return errors.Wrap(err, "failed to insert into foreign table")
-			}
-		} else {
-			updateQuery := fmt.Sprintf(
-				"UPDATE \"th_season2_episode_caches\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 1, []string{"season_id"}),
-				strmangle.WhereClause("\"", "\"", 2, thSeason2EpisodeCachPrimaryKeyColumns),
-			)
-			values := []interface{}{o.SeasonID, rel.EpisodeID}
-
-			if boil.IsDebug(ctx) {
-				writer := boil.DebugWriterFrom(ctx)
-				fmt.Fprintln(writer, updateQuery)
-				fmt.Fprintln(writer, values)
-			}
-			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-				return errors.Wrap(err, "failed to update foreign table")
-			}
-
-			rel.SeasonID = o.SeasonID
-		}
-	}
-
-	if o.R == nil {
-		o.R = &thSeason2CachR{
-			SeasonTHSeason2EpisodeCaches: related,
-		}
-	} else {
-		o.R.SeasonTHSeason2EpisodeCaches = append(o.R.SeasonTHSeason2EpisodeCaches, related...)
-	}
-
-	for _, rel := range related {
-		if rel.R == nil {
-			rel.R = &thSeason2EpisodeCachR{
-				Season: o,
-			}
-		} else {
-			rel.R.Season = o
-		}
-	}
-	return nil
-}
-
 // THSeason2Caches retrieves all the records using an executor.
 func THSeason2Caches(mods ...qm.QueryMod) thSeason2CachQuery {
 	mods = append(mods, qm.From("\"th_season2_caches\""))
@@ -569,7 +400,7 @@ func THSeason2Caches(mods ...qm.QueryMod) thSeason2CachQuery {
 
 // FindTHSeason2Cach retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
-func FindTHSeason2Cach(ctx context.Context, exec boil.ContextExecutor, seasonID int64, selectCols ...string) (*THSeason2Cach, error) {
+func FindTHSeason2Cach(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*THSeason2Cach, error) {
 	thSeason2CachObj := &THSeason2Cach{}
 
 	sel := "*"
@@ -577,10 +408,10 @@ func FindTHSeason2Cach(ctx context.Context, exec boil.ContextExecutor, seasonID 
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"th_season2_caches\" where \"season_id\"=$1", sel,
+		"select %s from \"th_season2_caches\" where \"id\"=$1", sel,
 	)
 
-	q := queries.Raw(query, seasonID)
+	q := queries.Raw(query, iD)
 
 	err := q.Bind(ctx, exec, thSeason2CachObj)
 	if err != nil {
@@ -956,7 +787,7 @@ func (o *THSeason2Cach) Delete(ctx context.Context, exec boil.ContextExecutor) (
 	}
 
 	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), thSeason2CachPrimaryKeyMapping)
-	sql := "DELETE FROM \"th_season2_caches\" WHERE \"season_id\"=$1"
+	sql := "DELETE FROM \"th_season2_caches\" WHERE \"id\"=$1"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1053,7 +884,7 @@ func (o THSeason2CachSlice) DeleteAll(ctx context.Context, exec boil.ContextExec
 // Reload refetches the object from the database
 // using the primary keys with an executor.
 func (o *THSeason2Cach) Reload(ctx context.Context, exec boil.ContextExecutor) error {
-	ret, err := FindTHSeason2Cach(ctx, exec, o.SeasonID)
+	ret, err := FindTHSeason2Cach(ctx, exec, o.ID)
 	if err != nil {
 		return err
 	}
@@ -1092,16 +923,16 @@ func (o *THSeason2CachSlice) ReloadAll(ctx context.Context, exec boil.ContextExe
 }
 
 // THSeason2CachExists checks if the THSeason2Cach row exists.
-func THSeason2CachExists(ctx context.Context, exec boil.ContextExecutor, seasonID int64) (bool, error) {
+func THSeason2CachExists(ctx context.Context, exec boil.ContextExecutor, iD int) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"th_season2_caches\" where \"season_id\"=$1 limit 1)"
+	sql := "select exists(select 1 from \"th_season2_caches\" where \"id\"=$1 limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
 		fmt.Fprintln(writer, sql)
-		fmt.Fprintln(writer, seasonID)
+		fmt.Fprintln(writer, iD)
 	}
-	row := exec.QueryRowContext(ctx, sql, seasonID)
+	row := exec.QueryRowContext(ctx, sql, iD)
 
 	err := row.Scan(&exists)
 	if err != nil {

@@ -72,26 +72,15 @@ var THSeasonEpisodeCachWhere = struct {
 
 // THSeasonEpisodeCachRels is where relationship names are stored.
 var THSeasonEpisodeCachRels = struct {
-	Season string
-}{
-	Season: "Season",
-}
+}{}
 
 // thSeasonEpisodeCachR is where relationships are stored.
 type thSeasonEpisodeCachR struct {
-	Season *THSeasonCach `boil:"Season" json:"Season" toml:"Season" yaml:"Season"`
 }
 
 // NewStruct creates a new relationship struct
 func (*thSeasonEpisodeCachR) NewStruct() *thSeasonEpisodeCachR {
 	return &thSeasonEpisodeCachR{}
-}
-
-func (r *thSeasonEpisodeCachR) GetSeason() *THSeasonCach {
-	if r == nil {
-		return nil
-	}
-	return r.Season
 }
 
 // thSeasonEpisodeCachL is where Load methods for each relationship are stored.
@@ -381,168 +370,6 @@ func (q thSeasonEpisodeCachQuery) Exists(ctx context.Context, exec boil.ContextE
 	}
 
 	return count > 0, nil
-}
-
-// Season pointed to by the foreign key.
-func (o *THSeasonEpisodeCach) Season(mods ...qm.QueryMod) thSeasonCachQuery {
-	queryMods := []qm.QueryMod{
-		qm.Where("\"season_id\" = ?", o.SeasonID),
-	}
-
-	queryMods = append(queryMods, mods...)
-
-	return THSeasonCaches(queryMods...)
-}
-
-// LoadSeason allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for an N-1 relationship.
-func (thSeasonEpisodeCachL) LoadSeason(ctx context.Context, e boil.ContextExecutor, singular bool, maybeTHSeasonEpisodeCach interface{}, mods queries.Applicator) error {
-	var slice []*THSeasonEpisodeCach
-	var object *THSeasonEpisodeCach
-
-	if singular {
-		object = maybeTHSeasonEpisodeCach.(*THSeasonEpisodeCach)
-	} else {
-		slice = *maybeTHSeasonEpisodeCach.(*[]*THSeasonEpisodeCach)
-	}
-
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &thSeasonEpisodeCachR{}
-		}
-		args = append(args, object.SeasonID)
-
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &thSeasonEpisodeCachR{}
-			}
-
-			for _, a := range args {
-				if a == obj.SeasonID {
-					continue Outer
-				}
-			}
-
-			args = append(args, obj.SeasonID)
-
-		}
-	}
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	query := NewQuery(
-		qm.From(`th_season_caches`),
-		qm.WhereIn(`th_season_caches.season_id in ?`, args...),
-	)
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.QueryContext(ctx, e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load THSeasonCach")
-	}
-
-	var resultSlice []*THSeasonCach
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice THSeasonCach")
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results of eager load for th_season_caches")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for th_season_caches")
-	}
-
-	if len(thSeasonEpisodeCachAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
-	}
-
-	if len(resultSlice) == 0 {
-		return nil
-	}
-
-	if singular {
-		foreign := resultSlice[0]
-		object.R.Season = foreign
-		if foreign.R == nil {
-			foreign.R = &thSeasonCachR{}
-		}
-		foreign.R.SeasonTHSeasonEpisodeCaches = append(foreign.R.SeasonTHSeasonEpisodeCaches, object)
-		return nil
-	}
-
-	for _, local := range slice {
-		for _, foreign := range resultSlice {
-			if local.SeasonID == foreign.SeasonID {
-				local.R.Season = foreign
-				if foreign.R == nil {
-					foreign.R = &thSeasonCachR{}
-				}
-				foreign.R.SeasonTHSeasonEpisodeCaches = append(foreign.R.SeasonTHSeasonEpisodeCaches, local)
-				break
-			}
-		}
-	}
-
-	return nil
-}
-
-// SetSeason of the thSeasonEpisodeCach to the related item.
-// Sets o.R.Season to related.
-// Adds o to related.R.SeasonTHSeasonEpisodeCaches.
-func (o *THSeasonEpisodeCach) SetSeason(ctx context.Context, exec boil.ContextExecutor, insert bool, related *THSeasonCach) error {
-	var err error
-	if insert {
-		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
-			return errors.Wrap(err, "failed to insert into foreign table")
-		}
-	}
-
-	updateQuery := fmt.Sprintf(
-		"UPDATE \"th_season_episode_caches\" SET %s WHERE %s",
-		strmangle.SetParamNames("\"", "\"", 1, []string{"season_id"}),
-		strmangle.WhereClause("\"", "\"", 2, thSeasonEpisodeCachPrimaryKeyColumns),
-	)
-	values := []interface{}{related.SeasonID, o.EpisodeID}
-
-	if boil.IsDebug(ctx) {
-		writer := boil.DebugWriterFrom(ctx)
-		fmt.Fprintln(writer, updateQuery)
-		fmt.Fprintln(writer, values)
-	}
-	if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-		return errors.Wrap(err, "failed to update local table")
-	}
-
-	o.SeasonID = related.SeasonID
-	if o.R == nil {
-		o.R = &thSeasonEpisodeCachR{
-			Season: related,
-		}
-	} else {
-		o.R.Season = related
-	}
-
-	if related.R == nil {
-		related.R = &thSeasonCachR{
-			SeasonTHSeasonEpisodeCaches: THSeasonEpisodeCachSlice{o},
-		}
-	} else {
-		related.R.SeasonTHSeasonEpisodeCaches = append(related.R.SeasonTHSeasonEpisodeCaches, o)
-	}
-
-	return nil
 }
 
 // THSeasonEpisodeCaches retrieves all the records using an executor.

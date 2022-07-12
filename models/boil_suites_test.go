@@ -194,8 +194,6 @@ func TestInsert(t *testing.T) {
 // or deadlocks can occur.
 func TestToOne(t *testing.T) {
 	t.Run("AccessKeyToUserUsingUIDUser", testAccessKeyToOneUserUsingUIDUser)
-	t.Run("THSeason2EpisodeCachToTHSeason2CachUsingSeason", testTHSeason2EpisodeCachToOneTHSeason2CachUsingSeason)
-	t.Run("THSeasonEpisodeCachToTHSeasonCachUsingSeason", testTHSeasonEpisodeCachToOneTHSeasonCachUsingSeason)
 }
 
 // TestOneToOne tests cannot be run in parallel
@@ -205,8 +203,6 @@ func TestOneToOne(t *testing.T) {}
 // TestToMany tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToMany(t *testing.T) {
-	t.Run("THSeason2CachToSeasonTHSeason2EpisodeCaches", testTHSeason2CachToManySeasonTHSeason2EpisodeCaches)
-	t.Run("THSeasonCachToSeasonTHSeasonEpisodeCaches", testTHSeasonCachToManySeasonTHSeasonEpisodeCaches)
 	t.Run("UserToUIDAccessKeys", testUserToManyUIDAccessKeys)
 }
 
@@ -214,8 +210,6 @@ func TestToMany(t *testing.T) {
 // or deadlocks can occur.
 func TestToOneSet(t *testing.T) {
 	t.Run("AccessKeyToUserUsingUIDAccessKeys", testAccessKeyToOneSetOpUserUsingUIDUser)
-	t.Run("THSeason2EpisodeCachToTHSeason2CachUsingSeasonTHSeason2EpisodeCaches", testTHSeason2EpisodeCachToOneSetOpTHSeason2CachUsingSeason)
-	t.Run("THSeasonEpisodeCachToTHSeasonCachUsingSeasonTHSeasonEpisodeCaches", testTHSeasonEpisodeCachToOneSetOpTHSeasonCachUsingSeason)
 }
 
 // TestToOneRemove tests cannot be run in parallel
@@ -233,8 +227,6 @@ func TestOneToOneRemove(t *testing.T) {}
 // TestToManyAdd tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToManyAdd(t *testing.T) {
-	t.Run("THSeason2CachToSeasonTHSeason2EpisodeCaches", testTHSeason2CachToManyAddOpSeasonTHSeason2EpisodeCaches)
-	t.Run("THSeasonCachToSeasonTHSeasonEpisodeCaches", testTHSeasonCachToManyAddOpSeasonTHSeasonEpisodeCaches)
 	t.Run("UserToUIDAccessKeys", testUserToManyAddOpUIDAccessKeys)
 }
 

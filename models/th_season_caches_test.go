@@ -149,7 +149,7 @@ func testTHSeasonCachesExists(t *testing.T) {
 		t.Error(err)
 	}
 
-	e, err := THSeasonCachExists(ctx, tx, o.SeasonID)
+	e, err := THSeasonCachExists(ctx, tx, o.ID)
 	if err != nil {
 		t.Errorf("Unable to check if THSeasonCach exists: %s", err)
 	}
@@ -175,7 +175,7 @@ func testTHSeasonCachesFind(t *testing.T) {
 		t.Error(err)
 	}
 
-	thSeasonCachFound, err := FindTHSeasonCach(ctx, tx, o.SeasonID)
+	thSeasonCachFound, err := FindTHSeasonCach(ctx, tx, o.ID)
 	if err != nil {
 		t.Error(err)
 	}
@@ -494,160 +494,6 @@ func testTHSeasonCachesInsertWhitelist(t *testing.T) {
 	}
 }
 
-func testTHSeasonCachToManySeasonTHSeasonEpisodeCaches(t *testing.T) {
-	var err error
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a THSeasonCach
-	var b, c THSeasonEpisodeCach
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, thSeasonCachDBTypes, true, thSeasonCachColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize THSeasonCach struct: %s", err)
-	}
-
-	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	if err = randomize.Struct(seed, &b, thSeasonEpisodeCachDBTypes, false, thSeasonEpisodeCachColumnsWithDefault...); err != nil {
-		t.Fatal(err)
-	}
-	if err = randomize.Struct(seed, &c, thSeasonEpisodeCachDBTypes, false, thSeasonEpisodeCachColumnsWithDefault...); err != nil {
-		t.Fatal(err)
-	}
-
-	b.SeasonID = a.SeasonID
-	c.SeasonID = a.SeasonID
-
-	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	check, err := a.SeasonTHSeasonEpisodeCaches().All(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	bFound, cFound := false, false
-	for _, v := range check {
-		if v.SeasonID == b.SeasonID {
-			bFound = true
-		}
-		if v.SeasonID == c.SeasonID {
-			cFound = true
-		}
-	}
-
-	if !bFound {
-		t.Error("expected to find b")
-	}
-	if !cFound {
-		t.Error("expected to find c")
-	}
-
-	slice := THSeasonCachSlice{&a}
-	if err = a.L.LoadSeasonTHSeasonEpisodeCaches(ctx, tx, false, (*[]*THSeasonCach)(&slice), nil); err != nil {
-		t.Fatal(err)
-	}
-	if got := len(a.R.SeasonTHSeasonEpisodeCaches); got != 2 {
-		t.Error("number of eager loaded records wrong, got:", got)
-	}
-
-	a.R.SeasonTHSeasonEpisodeCaches = nil
-	if err = a.L.LoadSeasonTHSeasonEpisodeCaches(ctx, tx, true, &a, nil); err != nil {
-		t.Fatal(err)
-	}
-	if got := len(a.R.SeasonTHSeasonEpisodeCaches); got != 2 {
-		t.Error("number of eager loaded records wrong, got:", got)
-	}
-
-	if t.Failed() {
-		t.Logf("%#v", check)
-	}
-}
-
-func testTHSeasonCachToManyAddOpSeasonTHSeasonEpisodeCaches(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a THSeasonCach
-	var b, c, d, e THSeasonEpisodeCach
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, thSeasonCachDBTypes, false, strmangle.SetComplement(thSeasonCachPrimaryKeyColumns, thSeasonCachColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	foreigners := []*THSeasonEpisodeCach{&b, &c, &d, &e}
-	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, thSeasonEpisodeCachDBTypes, false, strmangle.SetComplement(thSeasonEpisodeCachPrimaryKeyColumns, thSeasonEpisodeCachColumnsWithoutDefault)...); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	foreignersSplitByInsertion := [][]*THSeasonEpisodeCach{
-		{&b, &c},
-		{&d, &e},
-	}
-
-	for i, x := range foreignersSplitByInsertion {
-		err = a.AddSeasonTHSeasonEpisodeCaches(ctx, tx, i != 0, x...)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		first := x[0]
-		second := x[1]
-
-		if a.SeasonID != first.SeasonID {
-			t.Error("foreign key was wrong value", a.SeasonID, first.SeasonID)
-		}
-		if a.SeasonID != second.SeasonID {
-			t.Error("foreign key was wrong value", a.SeasonID, second.SeasonID)
-		}
-
-		if first.R.Season != &a {
-			t.Error("relationship was not added properly to the foreign slice")
-		}
-		if second.R.Season != &a {
-			t.Error("relationship was not added properly to the foreign slice")
-		}
-
-		if a.R.SeasonTHSeasonEpisodeCaches[i*2] != first {
-			t.Error("relationship struct slice not set to correct value")
-		}
-		if a.R.SeasonTHSeasonEpisodeCaches[i*2+1] != second {
-			t.Error("relationship struct slice not set to correct value")
-		}
-
-		count, err := a.SeasonTHSeasonEpisodeCaches().Count(ctx, tx)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if want := int64((i + 1) * 2); count != want {
-			t.Error("want", want, "got", count)
-		}
-	}
-}
-
 func testTHSeasonCachesReload(t *testing.T) {
 	t.Parallel()
 
@@ -722,7 +568,7 @@ func testTHSeasonCachesSelect(t *testing.T) {
 }
 
 var (
-	thSeasonCachDBTypes = map[string]string{`SeasonID`: `bigint`, `IsVip`: `boolean`, `Data`: `json`, `CreatedAt`: `timestamp without time zone`, `UpdatedAt`: `timestamp without time zone`}
+	thSeasonCachDBTypes = map[string]string{`ID`: `integer`, `SeasonID`: `bigint`, `IsVip`: `boolean`, `Data`: `json`, `CreatedAt`: `timestamp without time zone`, `UpdatedAt`: `timestamp without time zone`}
 	_                   = bytes.MinRead
 )
 

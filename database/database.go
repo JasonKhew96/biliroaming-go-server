@@ -70,8 +70,8 @@ func (h *DbHelper) InsertOrUpdateKey(key string, uid int64) error {
 }
 
 // CleanupAccessKeys cleanup access keys if exceeds duration
-func (h *DbHelper) CleanupAccessKeys(d time.Duration) (int64, error) {
-	startTS := time.Now().Add(-d)
+func (h *DbHelper) CleanupAccessKeys(duration time.Duration) (int64, error) {
+	startTS := time.Now().Add(-duration).UTC()
 	return models.AccessKeys(models.AccessKeyWhere.UpdatedAt.LTE(startTS)).DeleteAll(h.ctx, h.db)
 }
 
@@ -99,7 +99,7 @@ func (h *DbHelper) InsertOrUpdateUser(uid int64, name string, vipDueDate time.Ti
 
 // CleanupUsers cleanup users if exceeds duration
 func (h *DbHelper) CleanupUsers(duration time.Duration) (int64, error) {
-	startTS := time.Now().Add(-duration)
+	startTS := time.Now().Add(-duration).UTC()
 	return models.Users(models.UserWhere.UpdatedAt.LTE(startTS)).DeleteAll(h.ctx, h.db)
 }
 
@@ -137,7 +137,7 @@ func (h *DbHelper) InsertOrUpdatePlayURLCache(deviceType DeviceType, formatType 
 
 // CleanupPlayURLCache cleanup playurl if exceeds duration
 func (h *DbHelper) CleanupPlayURLCache(duration time.Duration) (int64, error) {
-	startTS := time.Now().Add(-duration)
+	startTS := time.Now().Add(-duration).UTC()
 	return models.PlayURLCaches(models.PlayURLCachWhere.UpdatedAt.LTE(startTS)).DeleteAll(h.ctx, h.db)
 }
 
@@ -166,7 +166,7 @@ func (h *DbHelper) InsertOrUpdateTHSeasonCache(seasonID int64, isVIP bool, data 
 
 // CleanupTHSeasonCache cleanup th season if exceeds duration
 func (h *DbHelper) CleanupTHSeasonCache(duration time.Duration) (int64, error) {
-	startTS := time.Now().Add(-duration)
+	startTS := time.Now().Add(-duration).UTC()
 	return models.THSeasonCaches(models.THSeasonCachWhere.UpdatedAt.LTE(startTS)).DeleteAll(h.ctx, h.db)
 }
 
@@ -202,7 +202,7 @@ func (h *DbHelper) InsertOrUpdateTHSubtitleCache(episodeID int64, data []byte) e
 
 // CleanupTHSubtitleCache cleanup th subtitle if exceeds duration
 func (h *DbHelper) CleanupTHSubtitleCache(duration time.Duration) (int64, error) {
-	startTS := time.Now().Add(-duration)
+	startTS := time.Now().Add(-duration).UTC()
 	return models.THSubtitleCaches(models.THSubtitleCachWhere.UpdatedAt.LTE(startTS)).DeleteAll(h.ctx, h.db)
 }
 
@@ -248,7 +248,7 @@ func (h *DbHelper) InsertOrUpdateTHSeason2EpisodeCache(episodeID int64, seasonID
 
 // CleanupTHSeason2Cache cleanup th season if exceeds duration
 func (h *DbHelper) CleanupTHSeason2Cache(duration time.Duration) (int64, error) {
-	startTS := time.Now().Add(-duration)
+	startTS := time.Now().Add(-duration).UTC()
 	return models.THSeason2Caches(models.THSeason2CachWhere.UpdatedAt.LTE(startTS)).DeleteAll(h.ctx, h.db)
 }
 

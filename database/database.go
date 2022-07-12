@@ -159,7 +159,7 @@ func (h *DbHelper) InsertOrUpdateTHSeasonCache(seasonID int64, isVIP bool, data 
 	thSeasonCacheTable.SeasonID = seasonID
 	thSeasonCacheTable.IsVip = isVIP
 	thSeasonCacheTable.Data = data
-	return thSeasonCacheTable.Upsert(h.ctx, h.db, true, []string{"season_id"}, boil.Whitelist("data", "updated_at"), boil.Greylist("is_vip"))
+	return thSeasonCacheTable.Upsert(h.ctx, h.db, true, []string{"id"}, boil.Whitelist("data", "updated_at"), boil.Infer())
 }
 
 // CleanupTHSeasonCache cleanup th season if exceeds duration
@@ -177,7 +177,7 @@ func (h *DbHelper) GetTHSeasonEpisodeCache(episodeID int64, isVIP bool) (*models
 	).One(h.ctx, h.db)
 }
 
-// InsertOrUpdateTHSeasonCache insert or update season api cache
+// InsertOrUpdateTHSeasonEpisodeCache insert or update season api cache
 func (h *DbHelper) InsertOrUpdateTHSeasonEpisodeCache(episodeID int64, seasonID int64) error {
 	var thSeasonEpisodeCacheTable models.THSeasonEpisodeCach
 	thSeasonEpisodeCacheTable.EpisodeID = episodeID
@@ -224,7 +224,7 @@ func (h *DbHelper) InsertOrUpdateTHSeason2Cache(seasonID int64, isVIP bool, data
 	thSeason2CacheTable.SeasonID = seasonID
 	thSeason2CacheTable.IsVip = isVIP
 	thSeason2CacheTable.Data = data
-	return thSeason2CacheTable.Upsert(h.ctx, h.db, true, []string{"season_id"}, boil.Whitelist("data", "updated_at"), boil.Greylist("is_vip"))
+	return thSeason2CacheTable.Upsert(h.ctx, h.db, true, []string{"id"}, boil.Whitelist("data", "updated_at"), boil.Infer())
 }
 
 // GetTHSeason2EpisodeCache get season api cache from episode id

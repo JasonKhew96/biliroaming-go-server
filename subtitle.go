@@ -57,7 +57,7 @@ func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	reverseProxy := b.getReverseProxyByArea(args.area)
+	reverseProxy := b.getReverseSearchProxyByArea(args.area)
 	if reverseProxy == "" {
 		reverseProxy = "app.biliintl.com"
 	}

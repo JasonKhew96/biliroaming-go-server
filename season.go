@@ -68,14 +68,14 @@ func (b *BiliroamingGo) insertSeasonCache(data []byte, isVIP bool) error {
 		return nil
 	}
 
-	if err := b.updateSeasonCache(data, seasonResult.Result.SeasonID, database.AreaTH); err != nil {
+	if err := b.db.InsertOrUpdateSeasonAreaCache(seasonResult.Result.SeasonID, database.AreaTH, true); err != nil {
 		b.sugar.Error(err)
 	}
 
 	for _, mdl := range seasonResult.Result.Modules {
 		for _, ep := range mdl.Data.Episodes {
-			if err := b.updateEpisodeCache(data, ep.ID, database.AreaTH); err != nil {
-				b.sugar.Error(err)
+			if err := b.db.InsertOrUpdateEpisodeAreaCache(ep.ID, database.AreaTH, true); err != nil {
+				b.sugar.Error()
 			}
 			if err := b.db.InsertOrUpdateTHSeasonEpisodeCache(ep.ID, seasonResult.Result.SeasonID); err != nil {
 				b.sugar.Error(err)
@@ -307,12 +307,6 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 
 	setDefaultHeaders(ctx)
 	ctx.Write(data)
-
-	if args.seasonId != 0 {
-		if err := b.updateSeasonCache(data, args.seasonId, getAreaCode(args.area)); err != nil {
-			b.sugar.Error(err)
-		}
-	}
 
 	if b.getAuthByArea(args.area) {
 		b.insertSeasonCache(data, false)

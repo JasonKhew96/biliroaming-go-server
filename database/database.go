@@ -150,6 +150,12 @@ func (h *DbHelper) GetTHSeasonCache(seasonID int64, isVIP bool) (*models.THSeaso
 // InsertOrUpdateTHSeasonCache insert or update season api cache
 func (h *DbHelper) InsertOrUpdateTHSeasonCache(seasonID int64, isVIP bool, data []byte) error {
 	var thSeasonCacheTable models.THSeasonCach
+
+	oldData, err := h.GetTHSeasonCache(seasonID, isVIP)
+	if err == nil {
+		thSeasonCacheTable.ID = oldData.ID
+	}
+
 	thSeasonCacheTable.SeasonID = seasonID
 	thSeasonCacheTable.IsVip = isVIP
 	thSeasonCacheTable.Data = data
@@ -209,6 +215,12 @@ func (h *DbHelper) GetTHSeason2Cache(seasonID int64, isVIP bool) (*models.THSeas
 // InsertOrUpdateTHSeason2Cache insert or update season2 api cache
 func (h *DbHelper) InsertOrUpdateTHSeason2Cache(seasonID int64, isVIP bool, data []byte) error {
 	var thSeason2CacheTable models.THSeason2Cach
+
+	oldData, err := h.GetTHSeason2Cache(seasonID, isVIP)
+	if err == nil {
+		thSeason2CacheTable.ID = oldData.ID
+	}
+
 	thSeason2CacheTable.SeasonID = seasonID
 	thSeason2CacheTable.IsVip = isVIP
 	thSeason2CacheTable.Data = data

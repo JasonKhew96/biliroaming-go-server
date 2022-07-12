@@ -106,7 +106,7 @@ func (b *BiliroamingGo) loop() {
 		} else {
 			b.sugar.Debugf("Cleanup %d playURL cache", aff)
 		}
-		if aff, err := b.db.CleanupTHSeasonCache(b.config.Cache.THSeason; err != nil {
+		if aff, err := b.db.CleanupTHSeasonCache(b.config.Cache.THSeason); err != nil {
 			b.sugar.Error(err)
 		} else {
 			b.sugar.Debugf("Cleanup %d TH season cache", aff)

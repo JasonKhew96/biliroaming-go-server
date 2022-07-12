@@ -246,6 +246,12 @@ func (h *DbHelper) InsertOrUpdateTHSeason2EpisodeCache(episodeID int64, seasonID
 	return thSeason2EpisodeCacheTable.Upsert(h.ctx, h.db, false, nil, boil.Infer(), boil.Infer())
 }
 
+// CleanupTHSeason2Cache cleanup th season if exceeds duration
+func (h *DbHelper) CleanupTHSeason2Cache(duration time.Duration) (int64, error) {
+	startTS := time.Now().Add(-duration)
+	return models.THSeason2Caches(models.THSeason2CachWhere.UpdatedAt.LTE(startTS)).DeleteAll(h.ctx, h.db)
+}
+
 // GetTHEpisodeCache get th episode api cache from episode id
 func (h *DbHelper) GetTHEpisodeCache(episodeID int64) (*models.THEpisodeCach, error) {
 	return models.THEpisodeCaches(models.THEpisodeCachWhere.EpisodeID.EQ(episodeID)).One(h.ctx, h.db)

@@ -127,11 +127,12 @@ func (h *DbHelper) InsertOrUpdatePlayURLCache(deviceType DeviceType, formatType 
 
 	playUrlTable.DeviceType = int16(deviceType)
 	playUrlTable.FormatType = int16(formatType)
+	playUrlTable.Quality = quality
 	playUrlTable.Area = int16(area)
 	playUrlTable.IsVip = isVIP
 	playUrlTable.EpisodeID = episodeID
 	playUrlTable.Data = data
-	return playUrlTable.Upsert(h.ctx, h.db, true, []string{"id"}, boil.Whitelist("data", "updated_at"), boil.Greylist("device_type", "area", "is_vip"))
+	return playUrlTable.Upsert(h.ctx, h.db, true, []string{"id"}, boil.Whitelist("data", "updated_at"), boil.Greylist("device_type", "area", "is_vip", "quality"))
 }
 
 // CleanupPlayURLCache cleanup playurl if exceeds duration
@@ -160,7 +161,7 @@ func (h *DbHelper) InsertOrUpdateTHSeasonCache(seasonID int64, isVIP bool, data 
 	thSeasonCacheTable.SeasonID = seasonID
 	thSeasonCacheTable.IsVip = isVIP
 	thSeasonCacheTable.Data = data
-	return thSeasonCacheTable.Upsert(h.ctx, h.db, true, []string{"id"}, boil.Whitelist("data", "updated_at"), boil.Infer())
+	return thSeasonCacheTable.Upsert(h.ctx, h.db, true, []string{"id"}, boil.Whitelist("data", "updated_at"), boil.Greylist("is_vip"))
 }
 
 // CleanupTHSeasonCache cleanup th season if exceeds duration
@@ -225,7 +226,7 @@ func (h *DbHelper) InsertOrUpdateTHSeason2Cache(seasonID int64, isVIP bool, data
 	thSeason2CacheTable.SeasonID = seasonID
 	thSeason2CacheTable.IsVip = isVIP
 	thSeason2CacheTable.Data = data
-	return thSeason2CacheTable.Upsert(h.ctx, h.db, true, []string{"id"}, boil.Whitelist("data", "updated_at"), boil.Infer())
+	return thSeason2CacheTable.Upsert(h.ctx, h.db, true, []string{"id"}, boil.Whitelist("data", "updated_at"), boil.Greylist("is_vip"))
 }
 
 // GetTHSeason2EpisodeCache get season api cache from episode id

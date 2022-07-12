@@ -148,7 +148,7 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 	}
 
 	var dataByte []byte
-	if args.page == 1 {
+	if args.pn == 1 {
 		dataByte, err = b.addSearchAds(data, ClientTypeAndroid)
 		if err != nil {
 			b.processError(ctx, err)
@@ -245,7 +245,7 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 	}
 
 	var dataByte []byte
-	if args.page == 1 {
+	if args.pn == 1 {
 		dataByte, err = b.addSearchAds(data, ClientTypeBstarA)
 		if err != nil {
 			b.processError(ctx, err)

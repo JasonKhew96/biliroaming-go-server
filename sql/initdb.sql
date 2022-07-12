@@ -24,7 +24,8 @@ CREATE TABLE play_url_caches(
     updated_at TIMESTAMP NOT NULL
 );
 CREATE TABLE th_season_caches(
-    season_id BIGINT PRIMARY KEY NOT NULL,
+    id SERIAL PRIMARY KEY,
+    season_id BIGINT NOT NULL,
     is_vip BOOLEAN NOT NULL,
     data JSON NOT NULL,
     created_at TIMESTAMP NOT NULL,

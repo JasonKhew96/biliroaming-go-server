@@ -256,69 +256,113 @@ func (h *DbHelper) GetEpisodeAreaCache(episodeID int64) (*models.EpisodeAreaCach
 func (h *DbHelper) InsertOrUpdateSeasonAreaCache(seasonID int64, area Area, isAvailable bool) error {
 	var seasonAreaCacheTable models.SeasonAreaCach
 	seasonAreaCacheTable.SeasonID = seasonID
+
+	boolTrue := null.BoolFrom(true)
+	boolFalse := null.BoolFrom(false)
+
 	whitelist := []string{"updated_at"}
-	switch area {
-	case AreaCN:
-		whitelist = append(whitelist, "cn", "hk", "tw", "th")
-		seasonAreaCacheTable.CN = null.BoolFrom(isAvailable)
+	if isAvailable {
+		switch area {
+		case AreaCN:
+			whitelist = append(whitelist, "cn", "hk", "tw", "th")
+			seasonAreaCacheTable.CN = boolTrue
 
-		seasonAreaCacheTable.HK = null.BoolFrom(false)
-		seasonAreaCacheTable.TW = null.BoolFrom(false)
-		seasonAreaCacheTable.TH = null.BoolFrom(false)
-	case AreaHK:
-		whitelist = append(whitelist, "hk", "cn", "th")
-		seasonAreaCacheTable.HK = null.BoolFrom(isAvailable)
+			seasonAreaCacheTable.HK = boolFalse
+			seasonAreaCacheTable.TW = boolFalse
+			seasonAreaCacheTable.TH = boolFalse
+		case AreaHK:
+			whitelist = append(whitelist, "hk", "cn", "th")
+			seasonAreaCacheTable.HK = boolTrue
 
-		seasonAreaCacheTable.CN = null.BoolFrom(false)
-		seasonAreaCacheTable.TH = null.BoolFrom(false)
-	case AreaTW:
-		whitelist = append(whitelist, "tw", "cn", "th")
-		seasonAreaCacheTable.TW = null.BoolFrom(isAvailable)
+			seasonAreaCacheTable.CN = boolFalse
+			seasonAreaCacheTable.TH = boolFalse
+		case AreaTW:
+			whitelist = append(whitelist, "tw", "cn", "th")
+			seasonAreaCacheTable.TW = boolTrue
 
-		seasonAreaCacheTable.CN = null.BoolFrom(false)
-		seasonAreaCacheTable.TH = null.BoolFrom(false)
-	case AreaTH:
-		whitelist = append(whitelist, "th", "cn", "hk", "tw")
-		seasonAreaCacheTable.TH = null.BoolFrom(isAvailable)
+			seasonAreaCacheTable.CN = boolFalse
+			seasonAreaCacheTable.TH = boolFalse
+		case AreaTH:
+			whitelist = append(whitelist, "th", "cn", "hk", "tw")
+			seasonAreaCacheTable.TH = boolTrue
 
-		seasonAreaCacheTable.CN = null.BoolFrom(false)
-		seasonAreaCacheTable.HK = null.BoolFrom(false)
-		seasonAreaCacheTable.TW = null.BoolFrom(false)
+			seasonAreaCacheTable.CN = boolFalse
+			seasonAreaCacheTable.HK = boolFalse
+			seasonAreaCacheTable.TW = boolFalse
+		}
+	} else {
+		switch area {
+		case AreaCN:
+			whitelist = append(whitelist, "cn")
+			seasonAreaCacheTable.CN = boolFalse
+		case AreaHK:
+			whitelist = append(whitelist, "hk")
+			seasonAreaCacheTable.HK = boolFalse
+		case AreaTW:
+			whitelist = append(whitelist, "tw")
+			seasonAreaCacheTable.TW = boolFalse
+		case AreaTH:
+			whitelist = append(whitelist, "th")
+			seasonAreaCacheTable.TH = boolFalse
+		}
 	}
+
 	return seasonAreaCacheTable.Upsert(h.ctx, h.db, true, []string{"season_id"}, boil.Whitelist(whitelist...), boil.Infer())
 }
 
 func (h *DbHelper) InsertOrUpdateEpisodeAreaCache(episodeID int64, area Area, isAvailable bool) error {
 	var episodeAreaCacheTable models.EpisodeAreaCach
 	episodeAreaCacheTable.EpisodeID = episodeID
+
+	boolTrue := null.BoolFrom(true)
+	boolFalse := null.BoolFrom(false)
+
 	whitelist := []string{"updated_at"}
-	switch area {
-	case AreaCN:
-		whitelist = append(whitelist, "cn", "hk", "tw", "th")
-		episodeAreaCacheTable.CN = null.BoolFrom(isAvailable)
+	if isAvailable {
+		switch area {
+		case AreaCN:
+			whitelist = append(whitelist, "cn", "hk", "tw", "th")
+			episodeAreaCacheTable.CN = boolTrue
 
-		episodeAreaCacheTable.HK = null.BoolFrom(false)
-		episodeAreaCacheTable.TW = null.BoolFrom(false)
-		episodeAreaCacheTable.TH = null.BoolFrom(false)
-	case AreaHK:
-		whitelist = append(whitelist, "hk", "cn", "th")
-		episodeAreaCacheTable.HK = null.BoolFrom(isAvailable)
+			episodeAreaCacheTable.HK = boolFalse
+			episodeAreaCacheTable.TW = boolFalse
+			episodeAreaCacheTable.TH = boolFalse
+		case AreaHK:
+			whitelist = append(whitelist, "hk", "cn", "th")
+			episodeAreaCacheTable.HK = boolTrue
 
-		episodeAreaCacheTable.CN = null.BoolFrom(false)
-		episodeAreaCacheTable.TH = null.BoolFrom(false)
-	case AreaTW:
-		whitelist = append(whitelist, "tw", "cn", "th")
-		episodeAreaCacheTable.TW = null.BoolFrom(isAvailable)
+			episodeAreaCacheTable.CN = boolFalse
+			episodeAreaCacheTable.TH = boolFalse
+		case AreaTW:
+			whitelist = append(whitelist, "tw", "cn", "th")
+			episodeAreaCacheTable.TW = boolTrue
 
-		episodeAreaCacheTable.CN = null.BoolFrom(false)
-		episodeAreaCacheTable.TH = null.BoolFrom(false)
-	case AreaTH:
-		whitelist = append(whitelist, "th", "cn", "hk", "tw")
-		episodeAreaCacheTable.TH = null.BoolFrom(isAvailable)
+			episodeAreaCacheTable.CN = boolFalse
+			episodeAreaCacheTable.TH = boolFalse
+		case AreaTH:
+			whitelist = append(whitelist, "th", "cn", "hk", "tw")
+			episodeAreaCacheTable.TH = boolTrue
 
-		episodeAreaCacheTable.CN = null.BoolFrom(false)
-		episodeAreaCacheTable.HK = null.BoolFrom(false)
-		episodeAreaCacheTable.TW = null.BoolFrom(false)
+			episodeAreaCacheTable.CN = boolFalse
+			episodeAreaCacheTable.HK = boolFalse
+			episodeAreaCacheTable.TW = boolFalse
+		}
+	} else {
+		switch area {
+		case AreaCN:
+			whitelist = append(whitelist, "cn")
+			episodeAreaCacheTable.CN = boolFalse
+		case AreaHK:
+			whitelist = append(whitelist, "hk")
+			episodeAreaCacheTable.HK = boolFalse
+		case AreaTW:
+			whitelist = append(whitelist, "tw")
+			episodeAreaCacheTable.TW = boolFalse
+		case AreaTH:
+			whitelist = append(whitelist, "th")
+			episodeAreaCacheTable.TH = boolFalse
+		}
 	}
+
 	return episodeAreaCacheTable.Upsert(h.ctx, h.db, true, []string{"episode_id"}, boil.Whitelist(whitelist...), boil.Infer())
 }

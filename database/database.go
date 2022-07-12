@@ -112,6 +112,7 @@ func (h *DbHelper) GetPlayURLCache(deviceType DeviceType, formatType FormatType,
 		models.PlayURLCachWhere.Area.EQ(int16(area)),
 		models.PlayURLCachWhere.IsVip.EQ(isVIP),
 		models.PlayURLCachWhere.EpisodeID.EQ(episodeID),
+		qm.OrderBy("updated_at DESC"),
 	).One(h.ctx, h.db)
 }
 

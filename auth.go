@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -49,7 +48,12 @@ func (b *BiliroamingGo) getAuthByArea(area string) bool {
 
 func (b *BiliroamingGo) checkBWlist(ctx *fasthttp.RequestCtx, uid int64) (*entity.BlackWhitelist, error) {
 	apiUrl := fmt.Sprintf(b.config.BlacklistApiUrl, uid)
-	data, err := b.doRequestJsonWithRetry(b.defaultClient, []byte(DEFAULT_NAME), apiUrl, []byte(http.MethodGet), 2)
+	reqParams := &HttpRequestParams{
+		Method: []byte(fasthttp.MethodGet),
+		Url:    []byte(apiUrl),
+		UserAgent: []byte(DEFAULT_NAME),
+	}
+	data, err := b.doRequestJsonWithRetry(b.defaultClient, reqParams, 2)
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +167,12 @@ func (b *BiliroamingGo) getMyInfo(ctx *fasthttp.RequestCtx, accessKey string) ([
 
 	b.sugar.Debug(apiURL)
 
-	body, err := b.doRequestJsonWithRetry(b.defaultClient, ctx.UserAgent(), apiURL, []byte(http.MethodGet), 2)
+	reqParams := &HttpRequestParams{
+		Method: []byte(fasthttp.MethodGet),
+		Url:    []byte(apiURL),
+		UserAgent: ctx.UserAgent(),
+	}
+	body, err := b.doRequestJsonWithRetry(b.defaultClient, reqParams, 2)
 	if err != nil {
 		return nil, err
 	}

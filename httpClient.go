@@ -14,6 +14,18 @@ import (
 	"github.com/valyala/fasthttp/fasthttpproxy"
 )
 
+type HttpCookiesParams struct {
+	Key   []byte
+	Value []byte
+}
+
+type HttpRequestParams struct {
+	Method    []byte
+	Url       []byte
+	UserAgent []byte
+	Cookie    []HttpCookiesParams
+}
+
 type ErrorHttpStatus struct {
 	Code    int
 	Message string
@@ -224,11 +236,11 @@ func (b *BiliroamingGo) doRequest(client *fasthttp.Client, ua []byte, url string
 	return bodyBytes, nil
 }
 
-func (b *BiliroamingGo) doRequestJsonWithRetry(client *fasthttp.Client, ua []byte, url string, method []byte, retry int) ([]byte, error) {
+func (b *BiliroamingGo) doRequestJsonWithRetry(client *fasthttp.Client, params *HttpRequestParams, retry int) ([]byte, error) {
 	var err error
 	var bodyBytes []byte
 	for i := 0; i < retry; i++ {
-		bodyBytes, err = b.doRequestJson(client, ua, url, method)
+		bodyBytes, err = b.doRequestJson(client, params)
 		if err == nil {
 			return bodyBytes, nil
 		}
@@ -240,13 +252,30 @@ func (b *BiliroamingGo) doRequestJsonWithRetry(client *fasthttp.Client, ua []byt
 	return nil, err
 }
 
-func (b *BiliroamingGo) doRequestJson(client *fasthttp.Client, ua []byte, url string, method []byte) ([]byte, error) {
+func (b *BiliroamingGo) doRequestJson(client *fasthttp.Client, params *HttpRequestParams) ([]byte, error) {
+	if params == nil {
+		return nil, errors.New("params is nil")
+	}
+	if params.Url == nil {
+		return nil, errors.New("url is empty")
+	}
+	if params.UserAgent == nil {
+		return nil, errors.New("user agent is empty")
+	}
+	if params.Method == nil {
+		params.Method = []byte(fasthttp.MethodGet)
+	}
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
-	req.SetRequestURI(url)
+	req.SetRequestURIBytes(params.Url)
 	req.Header.SetBytesKV([]byte("Accept-Encoding"), []byte("br, gzip"))
-	req.Header.SetUserAgentBytes(ua)
-	req.Header.SetMethodBytes(method)
+	req.Header.SetUserAgentBytes(params.UserAgent)
+	req.Header.SetMethodBytes(params.Method)
+	if params.Cookie != nil {
+		for _, cookie := range params.Cookie {
+			req.Header.SetCookieBytesKV(cookie.Key, cookie.Value)
+		}
+	}
 
 	b.sugar.Debugf("doRequest: %s", req.RequestURI())
 
@@ -282,6 +311,12 @@ func (b *BiliroamingGo) doRequestJson(client *fasthttp.Client, ua []byte, url st
 
 	if err != nil {
 		return nil, err
+	}
+
+	if isLimited, err := isResponseLimited(bodyBytes); err != nil {
+		return nil, err
+	} else if isLimited {
+		return nil, NewErrorHttpLimited(-412)
 	}
 
 	body := string(bodyBytes)

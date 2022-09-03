@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strconv"
 
@@ -128,7 +127,12 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/x/v2/search/type?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data, err := b.doRequestJsonWithRetry(client, ctx.UserAgent(), url, []byte(http.MethodGet), 2)
+	reqParams := &HttpRequestParams{
+		Method: []byte(fasthttp.MethodGet),
+		Url:    []byte(url),
+		UserAgent: ctx.UserAgent(),
+	}
+	data, err := b.doRequestJsonWithRetry(client, reqParams, 2)
 	if err != nil {
 		if errors.Is(err, ErrorHttpStatusLimited) {
 			data = []byte(`{"code":-412,"message":"请求被拦截","ttl":1}`)
@@ -225,7 +229,12 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/intl/gateway/v2/app/search/type?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data, err := b.doRequestJsonWithRetry(client, ctx.UserAgent(), url, []byte(http.MethodGet), 2)
+	reqParams := &HttpRequestParams{
+		Method: []byte(fasthttp.MethodGet),
+		Url:    []byte(url),
+		UserAgent: ctx.UserAgent(),
+	}
+	data, err := b.doRequestJsonWithRetry(client, reqParams, 2)
 	if err != nil {
 		if errors.Is(err, ErrorHttpStatusLimited) {
 			data = []byte(`{"code":-412,"message":"请求被拦截","ttl":1}`)
@@ -317,7 +326,22 @@ func (b *BiliroamingGo) handleWebSearch(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/x/web-interface/search/type?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data, err := b.doRequestJsonWithRetry(client, ctx.UserAgent(), url, []byte(http.MethodGet), 2)
+	reqParams := &HttpRequestParams{
+		Method: []byte(fasthttp.MethodGet),
+		Url:    []byte(url),
+		UserAgent: ctx.UserAgent(),
+	}
+	buvid3Key := []byte("buvid3")
+	buvid3Value := ctx.Request.Header.CookieBytes(buvid3Key)
+	if buvid3Value == nil || (buvid3Value != nil && len(buvid3Value) == 0) {
+		writeErrorJSON(ctx, -412, []byte("请求被拦截"))
+		return
+	}
+	reqParams.Cookie = append(reqParams.Cookie, HttpCookiesParams{
+		Key:   buvid3Key,
+		Value: buvid3Value,
+	})
+	data, err := b.doRequestJsonWithRetry(client, reqParams, 2)
 	if err != nil {
 		if errors.Is(err, ErrorHttpStatusLimited) {
 			data = []byte(`{"code":-412,"message":"请求被拦截","ttl":1}`)

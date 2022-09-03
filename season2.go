@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
@@ -79,7 +78,12 @@ func (b *BiliroamingGo) addCustomSubSeason2(ctx *fasthttp.RequestCtx, seasonResu
 	b.sugar.Debugf("Getting custom subtitle from season id %d", seasonId)
 
 	requestUrl := fmt.Sprintf(b.config.CustomSubtitle.ApiUrl, seasonId)
-	customSubData, err := b.doRequestJsonWithRetry(b.defaultClient, []byte(DEFAULT_NAME), requestUrl, []byte(http.MethodGet), 2)
+	reqParams := &HttpRequestParams{
+		Method: []byte(fasthttp.MethodGet),
+		Url:    []byte(requestUrl),
+		UserAgent: []byte(DEFAULT_NAME),
+	}
+	customSubData, err := b.doRequestJsonWithRetry(b.defaultClient, reqParams, 2)
 	if err != nil {
 		return nil, errors.Wrap(err, "custom subtitle api")
 	}
@@ -222,7 +226,12 @@ func (b *BiliroamingGo) handleBstarAndroidSeason2(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/intl/gateway/v2/ogv/view/app/season2?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data, err := b.doRequestJsonWithRetry(client, ctx.UserAgent(), url, []byte(http.MethodGet), 2)
+	reqParams := &HttpRequestParams{
+		Method: []byte(fasthttp.MethodGet),
+		Url:    []byte(url),
+		UserAgent: ctx.UserAgent(),
+	}
+	data, err := b.doRequestJsonWithRetry(client, reqParams, 2)
 	if err != nil {
 		if errors.Is(err, ErrorHttpStatusLimited) {
 			data = []byte(`{"code":-412,"message":"请求被拦截","ttl":1}`)

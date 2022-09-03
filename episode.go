@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strconv"
 	"time"
@@ -73,7 +72,12 @@ func (b *BiliroamingGo) handleBstarEpisode(ctx *fasthttp.RequestCtx) {
 	url := fmt.Sprintf("https://%s/intl/gateway/v2/ogv/view/app/episode?%s", domain, params)
 	b.sugar.Debug("New url: ", url)
 
-	data, err := b.doRequestJsonWithRetry(client, ctx.UserAgent(), url, []byte(http.MethodGet), 2)
+	reqParams := &HttpRequestParams{
+		Method: []byte(fasthttp.MethodGet),
+		Url:    []byte(url),
+		UserAgent: ctx.UserAgent(),
+	}
+	data, err := b.doRequestJsonWithRetry(client, reqParams, 2)
 	if err != nil {
 		if errors.Is(err, ErrorHttpStatusLimited) {
 			data = []byte(`{"code":-412,"message":"请求被拦截","ttl":1}`)

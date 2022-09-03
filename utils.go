@@ -2,7 +2,6 @@ package main
 
 import (
 	"crypto/md5"
-	"errors"
 	"fmt"
 	"net/url"
 	"regexp"
@@ -280,7 +279,7 @@ func isAvailableResponse(data []byte) (bool, error) {
 		return false, nil
 	}
 
-	return false, errors.New(fmt.Sprintf("code: %d, message: %s", resp.Code, resp.Message))
+	return false, fmt.Errorf("code: %d, message: %s", resp.Code, resp.Message)
 }
 
 func isResponseNotLogin(data []byte) (bool, error) {

@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"time"
 
@@ -123,7 +122,7 @@ func parseFlags() (string, error) {
 func initConfig(configPath string) (*Config, error) {
 	config := &Config{}
 
-	data, err := ioutil.ReadFile(configPath)
+	data, err := os.ReadFile(configPath)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +140,7 @@ func (c *Config) saveConfig(configPath string) error {
 		return err
 	}
 
-	if err := ioutil.WriteFile(configPath, data, 0644); err != nil {
+	if err := os.WriteFile(configPath, data, 0644); err != nil {
 		return err
 	}
 

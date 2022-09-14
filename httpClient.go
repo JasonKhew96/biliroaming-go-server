@@ -58,7 +58,7 @@ func (b *BiliroamingGo) initProxy(c *Config) {
 	b.hkClient = b.newClient(c.Proxy.HK)
 	b.twClient = b.newClient(c.Proxy.TW)
 	b.thClient = b.newClient(c.Proxy.TH)
-	b.defaultClient = &fasthttp.Client{}
+	b.defaultClient = b.newClient(c.Proxy.Default)
 }
 
 func (b *BiliroamingGo) newClient(proxy string) *fasthttp.Client {

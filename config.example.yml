@@ -64,6 +64,7 @@ proxy:
   hk: socks5://127.0.0.1:7891
   tw: socks5://127.0.0.1:7892
   th: socks5://127.0.0.1:7893
+  default: socks5://127.0.0.1:7894
 
 # 反代域名
 reverse:

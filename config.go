@@ -51,10 +51,11 @@ type Config struct {
 	} `yaml:"cache"`
 
 	Proxy struct {
-		CN string `yaml:"cn"`
-		HK string `yaml:"hk"`
-		TW string `yaml:"tw"`
-		TH string `yaml:"th"`
+		CN      string `yaml:"cn"`
+		HK      string `yaml:"hk"`
+		TW      string `yaml:"tw"`
+		TH      string `yaml:"th"`
+		Default string `yaml:"default"`
 	} `yaml:"proxy"`
 
 	Reverse struct {

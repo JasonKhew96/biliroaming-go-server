@@ -20,9 +20,9 @@ const (
 	MINOR    = "18"
 	REVISION = "0"
 
-	VERSION = "v" + MAJOR + "." + MINOR + "." + REVISION
+	VERSION = MAJOR + "." + MINOR + "." + REVISION
 
-	DEFAULT_NAME = "biliroaming-go-server " + VERSION
+	DEFAULT_NAME = "biliroaming-go-server/" + VERSION
 )
 
 type accessKey struct {

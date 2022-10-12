@@ -16,3 +16,157 @@ var (
 	_ *jwriter.Writer
 	_ easyjson.Marshaler
 )
+
+func easyjsonD8936494DecodeGithubComJasonKhew96BiliroamingGoServerEntity(in *jlexer.Lexer, out *BlackWhitelist) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "code":
+			out.Code = int(in.Int())
+		case "message":
+			out.Message = string(in.String())
+		case "data":
+			easyjsonD8936494Decode(in, &out.Data)
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonD8936494EncodeGithubComJasonKhew96BiliroamingGoServerEntity(out *jwriter.Writer, in BlackWhitelist) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"code\":"
+		out.RawString(prefix[1:])
+		out.Int(int(in.Code))
+	}
+	{
+		const prefix string = ",\"message\":"
+		out.RawString(prefix)
+		out.String(string(in.Message))
+	}
+	{
+		const prefix string = ",\"data\":"
+		out.RawString(prefix)
+		easyjsonD8936494Encode(out, in.Data)
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v BlackWhitelist) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonD8936494EncodeGithubComJasonKhew96BiliroamingGoServerEntity(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v BlackWhitelist) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonD8936494EncodeGithubComJasonKhew96BiliroamingGoServerEntity(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *BlackWhitelist) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonD8936494DecodeGithubComJasonKhew96BiliroamingGoServerEntity(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *BlackWhitelist) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonD8936494DecodeGithubComJasonKhew96BiliroamingGoServerEntity(l, v)
+}
+func easyjsonD8936494Decode(in *jlexer.Lexer, out *struct {
+	UID         int   `json:"uid"`
+	Status      int8  `json:"status"`
+	IsWhitelist bool  `json:"is_whitelist"`
+	BanUntil    int64 `json:"ban_until"`
+}) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "uid":
+			out.UID = int(in.Int())
+		case "status":
+			out.Status = int8(in.Int8())
+		case "is_whitelist":
+			out.IsWhitelist = bool(in.Bool())
+		case "ban_until":
+			out.BanUntil = int64(in.Int64())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonD8936494Encode(out *jwriter.Writer, in struct {
+	UID         int   `json:"uid"`
+	Status      int8  `json:"status"`
+	IsWhitelist bool  `json:"is_whitelist"`
+	BanUntil    int64 `json:"ban_until"`
+}) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"uid\":"
+		out.RawString(prefix[1:])
+		out.Int(int(in.UID))
+	}
+	{
+		const prefix string = ",\"status\":"
+		out.RawString(prefix)
+		out.Int8(int8(in.Status))
+	}
+	{
+		const prefix string = ",\"is_whitelist\":"
+		out.RawString(prefix)
+		out.Bool(bool(in.IsWhitelist))
+	}
+	{
+		const prefix string = ",\"ban_until\":"
+		out.RawString(prefix)
+		out.Int64(int64(in.BanUntil))
+	}
+	out.RawByte('}')
+}

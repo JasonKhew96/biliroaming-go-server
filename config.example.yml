@@ -4,7 +4,7 @@ debug: false
 port: 80
 
 # 黑名单接口
-blacklistApiUrl: "https://example.com/status.php?uid=%d"
+blacklistApiUrl: "https://example.com/api/users/%d"
 # 黑白名单模式
 # 0 - 禁用
 # 1 - 黑白名单

@@ -29,6 +29,7 @@ type userStatus struct {
 	isBlacklist bool
 	isWhitelist bool
 	uid         int64
+	banUntil    time.Time
 }
 
 func (b *BiliroamingGo) getAuthByArea(area string) bool {
@@ -49,8 +50,8 @@ func (b *BiliroamingGo) getAuthByArea(area string) bool {
 func (b *BiliroamingGo) checkBWlist(ctx *fasthttp.RequestCtx, uid int64) (*entity.BlackWhitelist, error) {
 	apiUrl := fmt.Sprintf(b.config.BlacklistApiUrl, uid)
 	reqParams := &HttpRequestParams{
-		Method: []byte(fasthttp.MethodGet),
-		Url:    []byte(apiUrl),
+		Method:    []byte(fasthttp.MethodGet),
+		Url:       []byte(apiUrl),
 		UserAgent: []byte(DEFAULT_NAME),
 	}
 	data, err := b.doRequestJsonWithRetry(b.defaultClient, reqParams, 2)
@@ -67,11 +68,7 @@ func (b *BiliroamingGo) checkBWlist(ctx *fasthttp.RequestCtx, uid int64) (*entit
 
 func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*userStatus, error) {
 	userStatus := &userStatus{
-		isLogin:     false,
-		isVip:       false,
-		isBlacklist: false,
-		isWhitelist: false,
-		uid:         -1,
+		uid: -1,
 	}
 
 	keyData, err := b.db.GetUserFromKey(accessKey)
@@ -94,8 +91,10 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 			}
 
 			if bwlist.Code == 0 {
-				userStatus.isBlacklist = bwlist.Data.IsBlacklist
-				userStatus.isWhitelist = bwlist.Data.IsWhitelist
+				userStatus.isBlacklist = bwlist.Data.Status == 1
+				userStatus.isWhitelist = bwlist.Data.Status == 2
+
+				userStatus.banUntil = time.Unix(bwlist.Data.BanUntil, 0)
 			}
 		}
 
@@ -144,8 +143,10 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 			return userStatus, err
 		}
 		if bwlist.Code == 0 {
-			userStatus.isBlacklist = bwlist.Data.IsBlacklist
-			userStatus.isWhitelist = bwlist.Data.IsWhitelist
+			userStatus.isBlacklist = bwlist.Data.Status == 1
+			userStatus.isWhitelist = bwlist.Data.Status == 2
+
+			userStatus.banUntil = time.Unix(bwlist.Data.BanUntil, 0)
 		}
 	}
 
@@ -168,8 +169,8 @@ func (b *BiliroamingGo) getMyInfo(ctx *fasthttp.RequestCtx, accessKey string) ([
 	b.sugar.Debug(apiURL)
 
 	reqParams := &HttpRequestParams{
-		Method: []byte(fasthttp.MethodGet),
-		Url:    []byte(apiURL),
+		Method:    []byte(fasthttp.MethodGet),
+		Url:       []byte(apiURL),
 		UserAgent: ctx.UserAgent(),
 	}
 	body, err := b.doRequestJsonWithRetry(b.defaultClient, reqParams, 2)
@@ -202,7 +203,7 @@ func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string)
 		switch b.config.BlockType {
 		case BlockTypeEnabled:
 			if key.isBlacklist {
-				writeErrorJSON(ctx, -403, []byte("黑名单"))
+				writeErrorJSON(ctx, -403, []byte(fmt.Sprintf("黑名单\nUID: %d\n解除时间: %s", key.uid, key.banUntil.In(time.FixedZone("Asia/Shanghai", 8)).Format("2006-01-02 15:04:05"))))
 				return false, nil
 			}
 		case BlockTypeWhitelist:
@@ -219,6 +220,7 @@ func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string)
 			isVip:       key.isVip,
 			isBlacklist: key.isBlacklist,
 			isWhitelist: key.isWhitelist,
+			banUntil:    key.banUntil,
 		}
 	}
 
@@ -237,7 +239,7 @@ func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string)
 	switch b.config.BlockType {
 	case BlockTypeEnabled:
 		if status.isBlacklist {
-			writeErrorJSON(ctx, -403, []byte("黑名单"))
+			writeErrorJSON(ctx, -403, []byte(fmt.Sprintf("黑名单\nUID: %d\n解除时间: %s", status.uid, status.banUntil.In(time.FixedZone("Asia/Shanghai", 8)).Format("2006-01-02 15:04:05"))))
 			return false, nil
 		}
 	case BlockTypeWhitelist:

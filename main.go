@@ -31,6 +31,7 @@ type accessKey struct {
 	isVip       bool
 	isBlacklist bool
 	isWhitelist bool
+	banUntil    time.Time
 	timestamp   time.Time
 }
 

@@ -85,6 +85,7 @@ func (b *BiliroamingGo) setKey(key string, status *userStatus) {
 		isVip:       status.isVip,
 		isBlacklist: status.isBlacklist,
 		isWhitelist: status.isWhitelist,
+		banUntil:    status.banUntil,
 		timestamp:   time.Now(),
 	}
 }

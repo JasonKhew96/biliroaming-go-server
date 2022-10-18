@@ -169,8 +169,8 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	b.sugar.Debug("New url: ", url)
 
 	reqParams := &HttpRequestParams{
-		Method: []byte(fasthttp.MethodGet),
-		Url:    []byte(url),
+		Method:    []byte(fasthttp.MethodGet),
+		Url:       []byte(url),
 		UserAgent: ctx.UserAgent(),
 	}
 	data, err := b.doRequestJsonWithRetry(client, reqParams, 2)
@@ -344,8 +344,8 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	b.sugar.Debug("New url: ", url)
 
 	reqParams := &HttpRequestParams{
-		Method: []byte(fasthttp.MethodGet),
-		Url:    []byte(url),
+		Method:    []byte(fasthttp.MethodGet),
+		Url:       []byte(url),
 		UserAgent: ctx.UserAgent(),
 	}
 	data, err := b.doRequestJsonWithRetry(client, reqParams, 2)
@@ -528,8 +528,8 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	b.sugar.Debug("New url: ", url)
 
 	reqParams := &HttpRequestParams{
-		Method: []byte(fasthttp.MethodGet),
-		Url:    []byte(url),
+		Method:    []byte(fasthttp.MethodGet),
+		Url:       []byte(url),
 		UserAgent: ctx.UserAgent(),
 	}
 	data, err := b.doRequestJsonWithRetry(client, reqParams, 2)

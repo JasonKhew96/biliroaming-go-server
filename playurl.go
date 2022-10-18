@@ -16,7 +16,7 @@ import (
 func (b *BiliroamingGo) checkEpisodeAreaCache(episodeId int64, area database.Area) bool {
 	if cache, err := b.db.GetEpisodeAreaCache(episodeId); err == nil {
 		// shit happened
-		if (cache.CN.Valid && !cache.CN.Bool) && (cache.HK.Valid && !cache.HK.Bool) && (cache.TW.Valid && !cache.TW.Bool) && (cache.TH.Valid && !cache.TH.Bool) {
+		if !cache.CN.Bool && !cache.HK.Bool && !cache.TW.Bool && !cache.TH.Bool {
 			return true
 		}
 		switch area {

@@ -113,12 +113,12 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		if err == nil && len(playurlCache.Data) > 0 && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
 			b.sugar.Debug("Replay from cache: ", playurlCache.Data.String())
 			setDefaultHeaders(ctx)
-			newData, err := replaceQn(playurlCache.Data, args.qn, ClientTypeWeb)
+			data, err := replaceQn(playurlCache.Data, args.qn, ClientTypeWeb)
 			if err != nil {
 				b.processError(ctx, err)
 				return
 			}
-			ctx.Write(newData)
+			ctx.Write(data)
 			return
 		} else if err != nil && !errors.Is(err, sql.ErrNoRows) {
 			b.processError(ctx, err)
@@ -184,21 +184,30 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		}
 	}
 
-	newData, err := replaceQn([]byte(data), args.qn, ClientTypeWeb)
+	setDefaultHeaders(ctx)
+
+	if isNotLogin, err := isResponseNotLogin(data); err != nil {
+		b.sugar.Error(err)
+	} else if isNotLogin {
+		ctx.Write(data)
+		return
+	}
+
+	if isLimited, err := isResponseLimited(data); err != nil {
+		b.sugar.Error(err)
+	} else if isLimited {
+		b.updateHealth(b.getPlayUrlHealth(args.area), -412, "请求被拦截")
+	} else {
+		b.updateHealth(b.getPlayUrlHealth(args.area), 0, "0")
+	}
+
+	data, err = replaceQn(data, args.qn, ClientTypeWeb)
 	if err != nil {
 		b.processError(ctx, err)
 		return
 	}
 
-	if isNotLogin, err := isResponseNotLogin(data); err != nil {
-		b.sugar.Error(err)
-	} else if isNotLogin {
-		ctx.Write(newData)
-		return
-	}
-
-	setDefaultHeaders(ctx)
-	ctx.Write(newData)
+	ctx.Write(data)
 
 	if err := b.updateEpisodeCache(data, args.epId, getAreaCode(args.area)); err != nil {
 		b.sugar.Error(err)
@@ -359,16 +368,12 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		}
 	}
 
-	newData, err := replaceQn([]byte(data), args.qn, ClientTypeAndroid)
-	if err != nil {
-		b.processError(ctx, err)
-		return
-	}
+	setDefaultHeaders(ctx)
 
 	if isNotLogin, err := isResponseNotLogin(data); err != nil {
 		b.sugar.Error(err)
 	} else if isNotLogin {
-		ctx.Write(newData)
+		ctx.Write(data)
 		return
 	}
 
@@ -380,8 +385,13 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		b.updateHealth(b.getPlayUrlHealth(args.area), 0, "0")
 	}
 
-	setDefaultHeaders(ctx)
-	ctx.Write(newData)
+	data, err = replaceQn(data, args.qn, ClientTypeAndroid)
+	if err != nil {
+		b.processError(ctx, err)
+		return
+	}
+
+	ctx.Write(data)
 
 	if err := b.updateEpisodeCache(data, args.epId, getAreaCode(args.area)); err != nil {
 		b.sugar.Error(err)
@@ -465,12 +475,12 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		if err == nil && len(playurlCache.Data) > 0 && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
 			b.sugar.Debug("Replay from cache: ", playurlCache.Data.String())
 			setDefaultHeaders(ctx)
-			newData, err := replaceQn(playurlCache.Data, args.qn, ClientTypeBstarA)
+			data, err := replaceQn(playurlCache.Data, args.qn, ClientTypeBstarA)
 			if err != nil {
 				b.processError(ctx, err)
 				return
 			}
-			ctx.Write(newData)
+			ctx.Write(data)
 			return
 		} else if err != nil && !errors.Is(err, sql.ErrNoRows) {
 			b.processError(ctx, err)
@@ -543,9 +553,12 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		}
 	}
 
-	newData, err := replaceQn([]byte(data), args.qn, ClientTypeBstarA)
-	if err != nil {
-		b.processError(ctx, err)
+	setDefaultHeaders(ctx)
+
+	if isNotLogin, err := isResponseNotLogin(data); err != nil {
+		b.sugar.Error(err)
+	} else if isNotLogin {
+		ctx.Write(data)
 		return
 	}
 
@@ -557,8 +570,13 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		b.updateHealth(b.HealthPlayUrlTH, 0, "0")
 	}
 
-	setDefaultHeaders(ctx)
-	ctx.Write(newData)
+	data, err = replaceQn(data, args.qn, ClientTypeBstarA)
+	if err != nil {
+		b.processError(ctx, err)
+		return
+	}
+
+	ctx.Write(data)
 
 	if err := b.updateEpisodeCache(data, args.epId, getAreaCode(args.area)); err != nil {
 		b.sugar.Error(err)

@@ -302,23 +302,28 @@ func removeMid(data string) string {
 	return data
 }
 
-func playUrlHasPaid(data []byte, clientType ClientType) (bool, error) {
+func playUrlHasPaid(data []byte, clientType ClientType) (bool, bool, error) {
 	switch clientType {
 	case ClientTypeAndroid:
 		var playUrl android.PlayUrlResult
 		if err := easyjson.Unmarshal([]byte(data), &playUrl); err != nil {
-			return false, err
+			return false, false, err
 		}
-		return playUrl.HasPaid, nil
+		return playUrl.Code == 0, playUrl.HasPaid, nil
 	case ClientTypeWeb:
 		var playUrl web.PlayUrlResult
 		if err := easyjson.Unmarshal([]byte(data), &playUrl); err != nil {
-			return false, err
+			return false, false, err
 		}
-		return playUrl.Result.HasPaid, nil
-	default:
-		return false, nil
+		return playUrl.Code == 0, playUrl.Result.HasPaid, nil
+	case ClientTypeBstarA:
+		var playUrl bstar.PlayUrlResult
+		if err := easyjson.Unmarshal([]byte(data), &playUrl); err != nil {
+			return false, false, err
+		}
+		return playUrl.Code == 0, false, nil
 	}
+	return false, false, nil
 }
 
 func replaceQn(data []byte, qn int, clientType ClientType) ([]byte, error) {

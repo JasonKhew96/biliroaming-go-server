@@ -200,9 +200,9 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		b.updateHealth(b.getPlayUrlHealth(args.area), 0, "0")
 	}
 
-	if hasPaid, err := playUrlHasPaid(data, ClientTypeWeb); err != nil {
+	if ok, hasPaid, err := playUrlHasPaid(data, ClientTypeWeb); err != nil {
 		b.sugar.Error(err)
-	} else if hasPaid && !status.isVip {
+	} else if ok && hasPaid != status.isVip {
 		status.isVip = true
 		if _, err := b.db.DeleteUser(status.uid); err != nil {
 			b.sugar.Error(err)
@@ -395,9 +395,9 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		b.updateHealth(b.getPlayUrlHealth(args.area), 0, "0")
 	}
 
-	if hasPaid, err := playUrlHasPaid(data, ClientTypeAndroid); err != nil {
+	if ok, hasPaid, err := playUrlHasPaid(data, ClientTypeAndroid); err != nil {
 		b.sugar.Error(err)
-	} else if hasPaid && !status.isVip {
+	} else if ok && hasPaid != status.isVip {
 		status.isVip = true
 		if _, err := b.db.DeleteUser(status.uid); err != nil {
 			b.sugar.Error(err)

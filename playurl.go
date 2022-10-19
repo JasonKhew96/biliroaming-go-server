@@ -101,15 +101,14 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		qn = 127
 	}
 
-	var isVIP bool
+	var status *userStatus
 	if b.getAuthByArea(args.area) {
-		if ok, status := b.doAuth(ctx, args.accessKey, args.area); !ok {
+		var ok bool
+		ok, status = b.doAuth(ctx, args.accessKey, args.area)
+		if !ok {
 			return
-		} else {
-			isVIP = status.isVip
 		}
-
-		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeWeb, formatType, int16(qn), getAreaCode(args.area), isVIP, args.epId)
+		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeWeb, formatType, int16(qn), getAreaCode(args.area), status.isVip, args.epId)
 		if err == nil && len(playurlCache.Data) > 0 && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
 			b.sugar.Debug("Replay from cache: ", playurlCache.Data.String())
 			setDefaultHeaders(ctx)
@@ -201,6 +200,16 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		b.updateHealth(b.getPlayUrlHealth(args.area), 0, "0")
 	}
 
+	if hasPaid, err := playUrlHasPaid(data, ClientTypeWeb); err != nil {
+		b.sugar.Error(err)
+	} else if hasPaid && !status.isVip {
+		status.isVip = true
+		if _, err := b.db.DeleteUser(status.uid); err != nil {
+			b.sugar.Error(err)
+		}
+		return
+	}
+
 	data, err = replaceQn(data, args.qn, ClientTypeWeb)
 	if err != nil {
 		b.processError(ctx, err)
@@ -214,7 +223,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	}
 
 	if b.getAuthByArea(args.area) {
-		if err := b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeWeb, formatType, int16(qn), getAreaCode(args.area), isVIP, args.epId, data); err != nil {
+		if err := b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeWeb, formatType, int16(qn), getAreaCode(args.area), status.isVip, args.epId, data); err != nil {
 			b.sugar.Error(err)
 		}
 	}
@@ -278,15 +287,15 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		qn = 127
 	}
 
-	var isVIP bool
+	var status *userStatus
 	if b.getAuthByArea(args.area) {
-		if ok, status := b.doAuth(ctx, args.accessKey, args.area); !ok {
+		var ok bool
+		ok, status = b.doAuth(ctx, args.accessKey, args.area)
+		if !ok {
 			return
-		} else {
-			isVIP = status.isVip
 		}
 
-		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeAndroid, formatType, int16(qn), getAreaCode(args.area), isVIP, args.epId)
+		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeAndroid, formatType, int16(qn), getAreaCode(args.area), status.isVip, args.epId)
 		if err == nil && len(playurlCache.Data) > 0 && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
 			b.sugar.Debug("Replay from cache: ", playurlCache.Data.String())
 			setDefaultHeaders(ctx)
@@ -385,6 +394,16 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		b.updateHealth(b.getPlayUrlHealth(args.area), 0, "0")
 	}
 
+	if hasPaid, err := playUrlHasPaid(data, ClientTypeAndroid); err != nil {
+		b.sugar.Error(err)
+	} else if hasPaid && !status.isVip {
+		status.isVip = true
+		if _, err := b.db.DeleteUser(status.uid); err != nil {
+			b.sugar.Error(err)
+		}
+		return
+	}
+
 	data, err = replaceQn(data, args.qn, ClientTypeAndroid)
 	if err != nil {
 		b.processError(ctx, err)
@@ -398,7 +417,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	}
 
 	if b.getAuthByArea(args.area) {
-		if err := b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeAndroid, formatType, int16(qn), getAreaCode(args.area), isVIP, args.epId, data); err != nil {
+		if err := b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeAndroid, formatType, int16(qn), getAreaCode(args.area), status.isVip, args.epId, data); err != nil {
 			b.sugar.Error(err)
 		}
 	}

@@ -97,6 +97,11 @@ func (h *DbHelper) InsertOrUpdateUser(uid int64, name string, vipDueDate time.Ti
 	return userTable.Upsert(h.ctx, h.db, true, []string{"uid"}, boil.Whitelist("name", "vip_due_date", "updated_at"), boil.Infer())
 }
 
+// DeleteUser delete user from uid
+func (h *DbHelper) DeleteUser(uid int64) (int64, error) {
+	return models.Users(models.UserWhere.UID.EQ(uid)).DeleteAll(h.ctx, h.db)
+}
+
 // CleanupUsers cleanup users if exceeds duration
 func (h *DbHelper) CleanupUsers(duration time.Duration) (int64, error) {
 	startTS := time.Now().Add(-duration).UTC()

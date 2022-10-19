@@ -203,24 +203,25 @@ func getAreaCode(area string) database.Area {
 }
 
 // getFormatType ...
-//    [   0] - FLV (或许是 自动)
-//    [   1] - MP4
-//    [   2] - ? (可能是 FLV)
-//    [   4] - ?
-//    [   8] - ?
-//    [  16] - DASH
-//    [  32] - ?
-//    [  64] - [DASH |QN 125] HDR
-//    [ 128] - [FOURK|QN 120] 4K
-//    [ 256] - [DASH |      ] DOLBY AUDIO
-//    [ 512] - [DASH |      ] DOLBY VISION
-//    [1024] - [DASH |QN 127] 8K
-//    [2048] - [DASH |      ] AV1
 //
-//    FLV     0
-//    MP4     1
-//    FLV     2
-//    DASH 4048
+//	[   0] - FLV (或许是 自动)
+//	[   1] - MP4
+//	[   2] - ? (可能是 FLV)
+//	[   4] - ?
+//	[   8] - ?
+//	[  16] - DASH
+//	[  32] - ?
+//	[  64] - [DASH |QN 125] HDR
+//	[ 128] - [FOURK|QN 120] 4K
+//	[ 256] - [DASH |      ] DOLBY AUDIO
+//	[ 512] - [DASH |      ] DOLBY VISION
+//	[1024] - [DASH |QN 127] 8K
+//	[2048] - [DASH |      ] AV1
+//
+//	FLV     0
+//	MP4     1
+//	FLV     2
+//	DASH 4048
 func getFormatType(fnval int) database.FormatType {
 	if fnval&1 == 1 {
 		return database.FormatTypeMp4
@@ -299,6 +300,25 @@ func removeMid(data string) string {
 		data = strings.ReplaceAll(data, s[0], "")
 	}
 	return data
+}
+
+func playUrlHasPaid(data []byte, clientType ClientType) (bool, error) {
+	switch clientType {
+	case ClientTypeAndroid:
+		var playUrl android.PlayUrlResult
+		if err := easyjson.Unmarshal([]byte(data), &playUrl); err != nil {
+			return false, err
+		}
+		return playUrl.HasPaid, nil
+	case ClientTypeWeb:
+		var playUrl web.PlayUrlResult
+		if err := easyjson.Unmarshal([]byte(data), &playUrl); err != nil {
+			return false, err
+		}
+		return playUrl.Result.HasPaid, nil
+	default:
+		return false, nil
+	}
 }
 
 func replaceQn(data []byte, qn int, clientType ClientType) ([]byte, error) {

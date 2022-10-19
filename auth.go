@@ -217,9 +217,11 @@ func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string)
 			return false, nil
 		}
 		return key.isLogin, &userStatus{
+			isLogin:     key.isLogin,
 			isVip:       key.isVip,
 			isBlacklist: key.isBlacklist,
 			isWhitelist: key.isWhitelist,
+			uid:         key.uid,
 			banUntil:    key.banUntil,
 		}
 	}

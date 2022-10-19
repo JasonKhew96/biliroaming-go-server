@@ -99,6 +99,9 @@ func (h *DbHelper) InsertOrUpdateUser(uid int64, name string, vipDueDate time.Ti
 
 // DeleteUser delete user from uid
 func (h *DbHelper) DeleteUser(uid int64) (int64, error) {
+	if _, err := models.AccessKeys(models.AccessKeyWhere.UID.EQ(uid)).DeleteAll(h.ctx, h.db); err != nil {
+		return -1, err
+	}
 	return models.Users(models.UserWhere.UID.EQ(uid)).DeleteAll(h.ctx, h.db)
 }
 

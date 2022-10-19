@@ -302,20 +302,20 @@ func removeMid(data string) string {
 	return data
 }
 
-func playUrlHasPaid(data []byte, clientType ClientType) (bool, bool, error) {
+func playUrlVipStatus(data []byte, clientType ClientType) (bool, bool, error) {
 	switch clientType {
 	case ClientTypeAndroid:
 		var playUrl android.PlayUrlResult
 		if err := easyjson.Unmarshal([]byte(data), &playUrl); err != nil {
 			return false, false, err
 		}
-		return playUrl.Code == 0, playUrl.HasPaid, nil
+		return playUrl.Code == 0, playUrl.VipStatus == 1, nil
 	case ClientTypeWeb:
 		var playUrl web.PlayUrlResult
 		if err := easyjson.Unmarshal([]byte(data), &playUrl); err != nil {
 			return false, false, err
 		}
-		return playUrl.Code == 0, playUrl.Result.HasPaid, nil
+		return playUrl.Code == 0, playUrl.Result.VipStatus == 1, nil
 	case ClientTypeBstarA:
 		var playUrl bstar.PlayUrlResult
 		if err := easyjson.Unmarshal([]byte(data), &playUrl); err != nil {

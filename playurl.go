@@ -207,6 +207,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		if _, err := b.db.DeleteUser(status.uid); err != nil {
 			b.sugar.Error(err)
 		}
+		writeErrorJSON(ctx, -10403, []byte("检测到大会员状态变动！"))
 		return
 	}
 
@@ -401,6 +402,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		if _, err := b.db.DeleteUser(status.uid); err != nil {
 			b.sugar.Error(err)
 		}
+		writeErrorJSON(ctx, -10403, []byte("检测到大会员状态变动！"))
 		return
 	}
 

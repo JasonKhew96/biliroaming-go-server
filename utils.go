@@ -309,13 +309,13 @@ func playUrlVipStatus(data []byte, clientType ClientType) (bool, bool, error) {
 		if err := easyjson.Unmarshal([]byte(data), &playUrl); err != nil {
 			return false, false, err
 		}
-		return playUrl.Code == 0, playUrl.VipStatus == 1, nil
+		return playUrl.Code == 0, playUrl.VipStatus != 0, nil
 	case ClientTypeWeb:
 		var playUrl web.PlayUrlResult
 		if err := easyjson.Unmarshal([]byte(data), &playUrl); err != nil {
 			return false, false, err
 		}
-		return playUrl.Code == 0, playUrl.Result.VipStatus == 1, nil
+		return playUrl.Code == 0, playUrl.Result.VipStatus != 0, nil
 	case ClientTypeBstarA:
 		var playUrl bstar.PlayUrlResult
 		if err := easyjson.Unmarshal([]byte(data), &playUrl); err != nil {

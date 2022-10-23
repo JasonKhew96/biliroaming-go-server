@@ -203,9 +203,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	if ok, isStatusVip, err := playUrlVipStatus(data, ClientTypeWeb); err != nil {
 		b.sugar.Error(err)
 	} else if ok && isStatusVip != status.isVip {
-		if _, ok := b.accessKeys[args.accessKey]; ok {
-			delete(b.accessKeys, args.accessKey)
-		}
+		delete(b.accessKeys, args.accessKey)
 		if ok, _ := b.doAuth(ctx, args.accessKey, args.area, true); !ok {
 			return
 		}
@@ -400,9 +398,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	if ok, isStatusVip, err := playUrlVipStatus(data, ClientTypeAndroid); err != nil {
 		b.sugar.Error(err)
 	} else if ok && isStatusVip != status.isVip {
-		if _, ok := b.accessKeys[args.accessKey]; ok {
-			delete(b.accessKeys, args.accessKey)
-		}
+		delete(b.accessKeys, args.accessKey)
 		if ok, _ := b.doAuth(ctx, args.accessKey, args.area, true); !ok {
 			return
 		}

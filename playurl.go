@@ -206,10 +206,10 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		if _, ok := b.accessKeys[args.accessKey]; ok {
 			delete(b.accessKeys, args.accessKey)
 		}
-		if _, err := b.db.DeleteUser(status.uid); err != nil {
-			b.sugar.Error(err)
+		if ok, _ := b.doAuth(ctx, args.accessKey, args.area); !ok {
+			return
 		}
-		writeErrorJSON(ctx, -10403, []byte("检测到大会员状态变动！"))
+		writeErrorJSON(ctx, -10403, []byte("检测到大会员状态变动！请重试！"))
 		return
 	}
 
@@ -403,10 +403,10 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		if _, ok := b.accessKeys[args.accessKey]; ok {
 			delete(b.accessKeys, args.accessKey)
 		}
-		if _, err := b.db.DeleteUser(status.uid); err != nil {
-			b.sugar.Error(err)
+		if ok, _ := b.doAuth(ctx, args.accessKey, args.area); !ok {
+			return
 		}
-		writeErrorJSON(ctx, -10403, []byte("检测到大会员状态变动！"))
+		writeErrorJSON(ctx, -10403, []byte("检测到大会员状态变动！请重试！"))
 		return
 	}
 

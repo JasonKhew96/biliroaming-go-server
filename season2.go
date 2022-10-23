@@ -157,7 +157,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason2(ctx *fasthttp.RequestCtx) {
 	}
 
 	if b.getAuthByArea(args.area) {
-		if ok, _ := b.doAuth(ctx, args.accessKey, args.area); !ok {
+		if ok, _ := b.doAuth(ctx, args.accessKey, args.area, false); !ok {
 			return
 		}
 		if args.seasonId != 0 {

@@ -66,7 +66,7 @@ func (b *BiliroamingGo) checkBWlist(ctx *fasthttp.RequestCtx, uid int64) (*entit
 	return blackwhitelist, nil
 }
 
-func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*userStatus, error) {
+func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string, isForced bool) (*userStatus, error) {
 	userStatus := &userStatus{
 		uid: -1,
 	}
@@ -76,7 +76,7 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string) (*use
 		// unknown error
 		b.sugar.Error("GetUserFromKey error ", err)
 		return userStatus, err
-	} else if err == nil && keyData.UpdatedAt.After(time.Now().Add(-b.config.Cache.User)) {
+	} else if err == nil && !isForced && keyData.UpdatedAt.After(time.Now().Add(-b.config.Cache.User)) {
 		// cached
 		b.sugar.Debug("Get vip status from cache: ", keyData)
 
@@ -183,7 +183,7 @@ func (b *BiliroamingGo) getMyInfo(ctx *fasthttp.RequestCtx, accessKey string) ([
 	return body, nil
 }
 
-func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string) (bool, *userStatus) {
+func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string, isForced bool) (bool, *userStatus) {
 	if len(accessKey) == 0 {
 		writeErrorJSON(ctx, -401, []byte("帐号未登录"))
 		return false, nil
@@ -226,7 +226,7 @@ func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string)
 		}
 	}
 
-	status, err := b.isAuth(ctx, accessKey)
+	status, err := b.isAuth(ctx, accessKey, isForced)
 	if err != nil {
 		b.setKey(accessKey, status)
 		if status.isLogin {

@@ -104,7 +104,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	var status *userStatus
 	if b.getAuthByArea(args.area) {
 		var ok bool
-		ok, status = b.doAuth(ctx, args.accessKey, args.area)
+		ok, status = b.doAuth(ctx, args.accessKey, args.area, false)
 		if !ok {
 			return
 		}
@@ -206,7 +206,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		if _, ok := b.accessKeys[args.accessKey]; ok {
 			delete(b.accessKeys, args.accessKey)
 		}
-		if ok, _ := b.doAuth(ctx, args.accessKey, args.area); !ok {
+		if ok, _ := b.doAuth(ctx, args.accessKey, args.area, true); !ok {
 			return
 		}
 		writeErrorJSON(ctx, -10403, []byte("检测到大会员状态变动！请重试！"))
@@ -293,7 +293,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	var status *userStatus
 	if b.getAuthByArea(args.area) {
 		var ok bool
-		ok, status = b.doAuth(ctx, args.accessKey, args.area)
+		ok, status = b.doAuth(ctx, args.accessKey, args.area, false)
 		if !ok {
 			return
 		}
@@ -403,7 +403,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		if _, ok := b.accessKeys[args.accessKey]; ok {
 			delete(b.accessKeys, args.accessKey)
 		}
-		if ok, _ := b.doAuth(ctx, args.accessKey, args.area); !ok {
+		if ok, _ := b.doAuth(ctx, args.accessKey, args.area, true); !ok {
 			return
 		}
 		writeErrorJSON(ctx, -10403, []byte("检测到大会员状态变动！请重试！"))
@@ -490,7 +490,7 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 
 	var isVIP bool
 	if b.getAuthByArea(args.area) {
-		if ok, status := b.doAuth(ctx, args.accessKey, args.area); !ok {
+		if ok, status := b.doAuth(ctx, args.accessKey, args.area, false); !ok {
 			return
 		} else {
 			isVIP = status.isVip

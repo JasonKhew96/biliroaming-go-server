@@ -28,7 +28,7 @@ func (b *BiliroamingGo) handleBstarEpisode(ctx *fasthttp.RequestCtx) {
 	client := b.getClientByArea(args.area)
 
 	if b.getAuthByArea(args.area) {
-		// if ok, _ := b.doAuth(ctx, accessKey, area); !ok {
+		// if ok, _ := b.doAuth(ctx, accessKey, area, false); !ok {
 		// 	return
 		// }
 		episodeCache, err := b.db.GetTHEpisodeCache(args.epId)

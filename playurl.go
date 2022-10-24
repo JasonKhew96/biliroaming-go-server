@@ -112,7 +112,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeWeb, formatType, int16(qn), getAreaCode(args.area), status.isVip, args.epId)
 		if err == nil && len(playurlCache.Data) > 0 && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
 			if b.config.VipOnly && !status.isVip {
-				writeErrorJSON(ctx, -10403, []byte("抱歉，本解析服务器仅限大会员使用而已！"))
+				writeErrorJSON(ctx, -10403, []byte("抱歉，本解析服务器仅限大会员用户使用而已！"))
 				return
 			}
 
@@ -223,7 +223,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	}
 
 	if b.config.VipOnly && !status.isVip {
-		writeErrorJSON(ctx, -10403, []byte("抱歉，本解析服务器仅限大会员使用而已！"))
+		writeErrorJSON(ctx, -10403, []byte("抱歉，本解析服务器仅限大会员用户使用而已！"))
 		return
 	}
 
@@ -310,7 +310,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeAndroid, formatType, int16(qn), getAreaCode(args.area), status.isVip, args.epId)
 		if err == nil && len(playurlCache.Data) > 0 && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
 			if b.config.VipOnly && !status.isVip {
-				writeErrorJSON(ctx, -10403, []byte("抱歉，本解析服务器仅限大会员使用而已！"))
+				writeErrorJSON(ctx, -10403, []byte("抱歉，本解析服务器仅限大会员用户使用而已！"))
 				return
 			}
 
@@ -428,7 +428,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	}
 
 	if b.config.VipOnly && !status.isVip {
-		writeErrorJSON(ctx, -10403, []byte("抱歉，本解析服务器仅限大会员使用而已！"))
+		writeErrorJSON(ctx, -10403, []byte("抱歉，本解析服务器仅限大会员用户使用而已！"))
 		return
 	}
 
@@ -519,7 +519,7 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeAndroid, formatType, int16(qn), getAreaCode(args.area), isVIP, args.epId)
 		if err == nil && len(playurlCache.Data) > 0 && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
 			if b.config.VipOnly && !status.isVip {
-				writeErrorJSON(ctx, -10403, []byte("抱歉，本解析服务器仅限大会员使用而已！"))
+				writeErrorJSON(ctx, -10403, []byte("抱歉，本解析服务器仅限大会员用户使用而已！"))
 				return
 			}
 
@@ -637,7 +637,7 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	}
 
 	if b.config.VipOnly && !status.isVip {
-		writeErrorJSON(ctx, -10403, []byte("抱歉，本解析服务器仅限大会员使用而已！"))
+		writeErrorJSON(ctx, -10403, []byte("抱歉，本解析服务器仅限大会员用户使用而已！"))
 		return
 	}
 

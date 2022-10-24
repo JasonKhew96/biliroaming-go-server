@@ -208,7 +208,7 @@ func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string,
 			}
 		case BlockTypeWhitelist:
 			if !key.isWhitelist {
-				writeErrorJSON(ctx, -403, []byte("非白名单"))
+				writeErrorJSON(ctx, -403, []byte("抱歉，本解析服务器仅限白名单用户使用而已！"))
 				return false, nil
 			}
 		}
@@ -246,7 +246,7 @@ func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string,
 		}
 	case BlockTypeWhitelist:
 		if !status.isWhitelist {
-			writeErrorJSON(ctx, -403, []byte("非白名单"))
+			writeErrorJSON(ctx, -403, []byte("抱歉，本解析服务器仅限白名单用户使用而已！"))
 			return false, nil
 		}
 	}

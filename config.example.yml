@@ -4,7 +4,7 @@ debug: false
 port: 80
 
 # 仅限大会员用户使用
-vip_only: false
+vipOnly: false
 
 # 黑名单接口
 blacklistApiUrl: "https://example.com/api/users/%d"

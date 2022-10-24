@@ -13,7 +13,7 @@ type Config struct {
 	Debug bool `yaml:"debug"`
 	Port  int  `yaml:"port"`
 
-	VipOnly bool `yaml:"vip_only"`
+	VipOnly bool `yaml:"vipOnly"`
 
 	BlacklistApiUrl string        `yaml:"blacklistApiUrl"`
 	BlockType       BlockTypeEnum `yaml:"blockType"`

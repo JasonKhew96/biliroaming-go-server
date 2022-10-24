@@ -3,6 +3,9 @@ debug: false
 # 监听端口
 port: 80
 
+# 仅限大会员用户使用
+vip_only: false
+
 # 黑名单接口
 blacklistApiUrl: "https://example.com/api/users/%d"
 # 黑白名单模式

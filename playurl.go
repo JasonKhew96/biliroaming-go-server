@@ -108,8 +108,14 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		if !ok {
 			return
 		}
+
 		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeWeb, formatType, int16(qn), getAreaCode(args.area), status.isVip, args.epId)
 		if err == nil && len(playurlCache.Data) > 0 && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
+			if b.config.VipOnly && !status.isVip {
+				writeErrorJSON(ctx, -10403, []byte("抱歉，本解析服务器仅限大会员使用而已！"))
+				return
+			}
+
 			b.sugar.Debug("Replay from cache: ", playurlCache.Data.String())
 			setDefaultHeaders(ctx)
 			data, err := replaceQn(playurlCache.Data, args.qn, ClientTypeWeb)
@@ -200,6 +206,27 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		b.updateHealth(b.getPlayUrlHealth(args.area), 0, "0")
 	}
 
+	data, err = replaceQn(data, args.qn, ClientTypeWeb)
+	if err != nil {
+		b.processError(ctx, err)
+		return
+	}
+
+	if err := b.updateEpisodeCache(data, args.epId, getAreaCode(args.area)); err != nil {
+		b.sugar.Error(err)
+	}
+
+	if b.getAuthByArea(args.area) {
+		if err := b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeWeb, formatType, int16(qn), getAreaCode(args.area), status.isVip, args.epId, data); err != nil {
+			b.sugar.Error(err)
+		}
+	}
+
+	if b.config.VipOnly && !status.isVip {
+		writeErrorJSON(ctx, -10403, []byte("抱歉，本解析服务器仅限大会员使用而已！"))
+		return
+	}
+
 	if ok, isStatusVip, err := playUrlVipStatus(data, ClientTypeWeb); err != nil {
 		b.sugar.Error(err)
 	} else if ok && isStatusVip != status.isVip {
@@ -211,23 +238,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	data, err = replaceQn(data, args.qn, ClientTypeWeb)
-	if err != nil {
-		b.processError(ctx, err)
-		return
-	}
-
 	ctx.Write(data)
-
-	if err := b.updateEpisodeCache(data, args.epId, getAreaCode(args.area)); err != nil {
-		b.sugar.Error(err)
-	}
-
-	if b.getAuthByArea(args.area) {
-		if err := b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeWeb, formatType, int16(qn), getAreaCode(args.area), status.isVip, args.epId, data); err != nil {
-			b.sugar.Error(err)
-		}
-	}
 }
 
 func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
@@ -298,6 +309,11 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 
 		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeAndroid, formatType, int16(qn), getAreaCode(args.area), status.isVip, args.epId)
 		if err == nil && len(playurlCache.Data) > 0 && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
+			if b.config.VipOnly && !status.isVip {
+				writeErrorJSON(ctx, -10403, []byte("抱歉，本解析服务器仅限大会员使用而已！"))
+				return
+			}
+
 			b.sugar.Debug("Replay from cache: ", playurlCache.Data.String())
 			setDefaultHeaders(ctx)
 			newData, err := replaceQn(playurlCache.Data, args.qn, ClientTypeAndroid)
@@ -395,6 +411,27 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		b.updateHealth(b.getPlayUrlHealth(args.area), 0, "0")
 	}
 
+	data, err = replaceQn(data, args.qn, ClientTypeAndroid)
+	if err != nil {
+		b.processError(ctx, err)
+		return
+	}
+
+	if err := b.updateEpisodeCache(data, args.epId, getAreaCode(args.area)); err != nil {
+		b.sugar.Error(err)
+	}
+
+	if b.getAuthByArea(args.area) {
+		if err := b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeAndroid, formatType, int16(qn), getAreaCode(args.area), status.isVip, args.epId, data); err != nil {
+			b.sugar.Error(err)
+		}
+	}
+
+	if b.config.VipOnly && !status.isVip {
+		writeErrorJSON(ctx, -10403, []byte("抱歉，本解析服务器仅限大会员使用而已！"))
+		return
+	}
+
 	if ok, isStatusVip, err := playUrlVipStatus(data, ClientTypeAndroid); err != nil {
 		b.sugar.Error(err)
 	} else if ok && isStatusVip != status.isVip {
@@ -406,23 +443,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	data, err = replaceQn(data, args.qn, ClientTypeAndroid)
-	if err != nil {
-		b.processError(ctx, err)
-		return
-	}
-
 	ctx.Write(data)
-
-	if err := b.updateEpisodeCache(data, args.epId, getAreaCode(args.area)); err != nil {
-		b.sugar.Error(err)
-	}
-
-	if b.getAuthByArea(args.area) {
-		if err := b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeAndroid, formatType, int16(qn), getAreaCode(args.area), status.isVip, args.epId, data); err != nil {
-			b.sugar.Error(err)
-		}
-	}
 }
 
 func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
@@ -485,8 +506,11 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	}
 
 	var isVIP bool
+	var status *userStatus
 	if b.getAuthByArea(args.area) {
-		if ok, status := b.doAuth(ctx, args.accessKey, args.area, false); !ok {
+		var ok bool
+		ok, status = b.doAuth(ctx, args.accessKey, args.area, false)
+		if !ok {
 			return
 		} else {
 			isVIP = status.isVip
@@ -494,6 +518,11 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 
 		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeAndroid, formatType, int16(qn), getAreaCode(args.area), isVIP, args.epId)
 		if err == nil && len(playurlCache.Data) > 0 && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
+			if b.config.VipOnly && !status.isVip {
+				writeErrorJSON(ctx, -10403, []byte("抱歉，本解析服务器仅限大会员使用而已！"))
+				return
+			}
+
 			b.sugar.Debug("Replay from cache: ", playurlCache.Data.String())
 			setDefaultHeaders(ctx)
 			data, err := replaceQn(playurlCache.Data, args.qn, ClientTypeBstarA)
@@ -597,8 +626,6 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	ctx.Write(data)
-
 	if err := b.updateEpisodeCache(data, args.epId, getAreaCode(args.area)); err != nil {
 		b.sugar.Error(err)
 	}
@@ -608,4 +635,11 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 			b.sugar.Error(err)
 		}
 	}
+
+	if b.config.VipOnly && !status.isVip {
+		writeErrorJSON(ctx, -10403, []byte("抱歉，本解析服务器仅限大会员使用而已！"))
+		return
+	}
+
+	ctx.Write(data)
 }

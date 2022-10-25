@@ -79,8 +79,8 @@ func (b *BiliroamingGo) addCustomSubSeason2(ctx *fasthttp.RequestCtx, seasonResu
 
 	requestUrl := fmt.Sprintf(b.config.CustomSubtitle.ApiUrl, seasonId)
 	reqParams := &HttpRequestParams{
-		Method: []byte(fasthttp.MethodGet),
-		Url:    []byte(requestUrl),
+		Method:    []byte(fasthttp.MethodGet),
+		Url:       []byte(requestUrl),
 		UserAgent: []byte(DEFAULT_NAME),
 	}
 	customSubData, err := b.doRequestJsonWithRetry(b.defaultClient, reqParams, 2)
@@ -145,14 +145,14 @@ func (b *BiliroamingGo) handleBstarAndroidSeason2(ctx *fasthttp.RequestCtx) {
 
 	if args.area == "" {
 		args.area = "th"
-		// writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
+		// writeErrorJSON(ctx, ERROR_CODE_GEO_RESTRICED, MSG_ERROR_GEO_RESTRICTED)
 		// return
 	}
 
 	client := b.getClientByArea(args.area)
 
 	if args.seasonId == 0 && args.epId == 0 {
-		writeErrorJSON(ctx, -400, []byte("请求错误"))
+		writeErrorJSON(ctx, ERROR_CODE_MISSING_SS_OR_EP, MSG_ERROR_MISSING_SS_OR_EP)
 		return
 	}
 
@@ -169,7 +169,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason2(ctx *fasthttp.RequestCtx) {
 				return
 			} else if err != nil && !errors.Is(err, sql.ErrNoRows) {
 				b.processError(ctx, err)
-				b.updateHealth(b.HealthSeasonTH, -500, "服务器错误")
+				b.updateHealth(b.HealthSeasonTH, ERROR_CODE_INTERNAL_SERVER, MSG_ERROR_INTERNAL_SERVER)
 				return
 			}
 		}
@@ -182,7 +182,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason2(ctx *fasthttp.RequestCtx) {
 				return
 			} else if err != nil && !errors.Is(err, sql.ErrNoRows) {
 				b.processError(ctx, err)
-				b.updateHealth(b.HealthSeasonTH, -500, "服务器错误")
+				b.updateHealth(b.HealthSeasonTH, ERROR_CODE_INTERNAL_SERVER, MSG_ERROR_INTERNAL_SERVER)
 				return
 			}
 		}
@@ -227,17 +227,17 @@ func (b *BiliroamingGo) handleBstarAndroidSeason2(ctx *fasthttp.RequestCtx) {
 	b.sugar.Debug("New url: ", url)
 
 	reqParams := &HttpRequestParams{
-		Method: []byte(fasthttp.MethodGet),
-		Url:    []byte(url),
+		Method:    []byte(fasthttp.MethodGet),
+		Url:       []byte(url),
 		UserAgent: ctx.UserAgent(),
 	}
 	data, err := b.doRequestJsonWithRetry(client, reqParams, 2)
 	if err != nil {
 		if errors.Is(err, ErrorHttpStatusLimited) {
-			data = []byte(`{"code":-412,"message":"请求被拦截","ttl":1}`)
+			data = []byte(`{"code":-412,"message":"请求被拦截"}`)
 		} else {
 			b.processError(ctx, err)
-			b.updateHealth(b.HealthSeasonTH, -500, "服务器错误")
+			b.updateHealth(b.HealthSeasonTH, ERROR_CODE_INTERNAL_SERVER, MSG_ERROR_INTERNAL_SERVER)
 			return
 		}
 	}
@@ -245,7 +245,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason2(ctx *fasthttp.RequestCtx) {
 	if isLimited, err := isResponseLimited(data); err != nil {
 		b.sugar.Error(err)
 	} else if isLimited {
-		b.updateHealth(b.HealthSeasonTH, -412, "请求被拦截")
+		b.updateHealth(b.HealthSeasonTH, ERROR_CODE_TOO_MANY_REQUESTS, MSG_ERROR_TOO_MANY_REQUESTS)
 	} else {
 		b.updateHealth(b.HealthSeasonTH, 0, "0")
 	}

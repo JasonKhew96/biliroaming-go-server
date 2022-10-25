@@ -70,7 +70,7 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 	}
 
 	if !b.searchLimiter.Allow() {
-		writeErrorJSON(ctx, -429, []byte("请求过多"))
+		writeErrorJSON(ctx, ERROR_CODE_TOO_MANY_REQUESTS, MSG_ERROR_TOO_MANY_REQUESTS)
 		return
 	}
 
@@ -78,14 +78,14 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 	args := b.processArgs(queryArgs)
 
 	if args.area == "" || args.area == "th" {
-		writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
+		writeErrorJSON(ctx, ERROR_CODE_GEO_RESTRICED, MSG_ERROR_GEO_RESTRICTED)
 		return
 	}
 
 	client := b.getClientByArea(args.area)
 
 	if args.keyword == "" {
-		writeErrorJSON(ctx, -400, []byte("keyword 参数缺失"))
+		writeErrorJSON(ctx, ERROR_CODE_MISSING_KEYWORD, MSG_ERROR_MISSING_KEYWORD)
 		return
 	}
 
@@ -128,17 +128,17 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 	b.sugar.Debug("New url: ", url)
 
 	reqParams := &HttpRequestParams{
-		Method: []byte(fasthttp.MethodGet),
-		Url:    []byte(url),
+		Method:    []byte(fasthttp.MethodGet),
+		Url:       []byte(url),
 		UserAgent: ctx.UserAgent(),
 	}
 	data, err := b.doRequestJsonWithRetry(client, reqParams, 2)
 	if err != nil {
 		if errors.Is(err, ErrorHttpStatusLimited) {
-			data = []byte(`{"code":-412,"message":"请求被拦截","ttl":1}`)
+			data = []byte(`{"code":-412,"message":"请求被拦截"}`)
 		} else {
 			b.processError(ctx, err)
-			b.updateHealth(b.getSearchHealth(args.area), -500, "服务器错误")
+			b.updateHealth(b.getSearchHealth(args.area), ERROR_CODE_INTERNAL_SERVER, MSG_ERROR_INTERNAL_SERVER)
 			return
 		}
 	}
@@ -146,7 +146,7 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 	if isLimited, err := isResponseLimited(data); err != nil {
 		b.sugar.Error(err)
 	} else if isLimited {
-		b.updateHealth(b.getSearchHealth(args.area), -412, "请求被拦截")
+		b.updateHealth(b.getSearchHealth(args.area), ERROR_CODE_TOO_MANY_REQUESTS, MSG_ERROR_TOO_MANY_REQUESTS)
 	} else {
 		b.updateHealth(b.getSearchHealth(args.area), 0, "0")
 	}
@@ -172,7 +172,7 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 	}
 
 	if !b.searchLimiter.Allow() {
-		writeErrorJSON(ctx, -429, []byte("请求过多"))
+		writeErrorJSON(ctx, ERROR_CODE_TOO_MANY_REQUESTS, MSG_ERROR_TOO_MANY_REQUESTS)
 		return
 	}
 
@@ -181,14 +181,14 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 
 	if args.area == "" {
 		args.area = "th"
-		// writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
+		// writeErrorJSON(ctx, ERROR_CODE_GEO_RESTRICED, MSG_ERROR_GEO_RESTRICTED)
 		// return
 	}
 
 	client := b.getClientByArea(args.area)
 
 	if args.keyword == "" {
-		writeErrorJSON(ctx, -400, []byte("请求错误"))
+		writeErrorJSON(ctx, ERROR_CODE_MISSING_KEYWORD, MSG_ERROR_MISSING_KEYWORD)
 		return
 	}
 
@@ -230,17 +230,17 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 	b.sugar.Debug("New url: ", url)
 
 	reqParams := &HttpRequestParams{
-		Method: []byte(fasthttp.MethodGet),
-		Url:    []byte(url),
+		Method:    []byte(fasthttp.MethodGet),
+		Url:       []byte(url),
 		UserAgent: ctx.UserAgent(),
 	}
 	data, err := b.doRequestJsonWithRetry(client, reqParams, 2)
 	if err != nil {
 		if errors.Is(err, ErrorHttpStatusLimited) {
-			data = []byte(`{"code":-412,"message":"请求被拦截","ttl":1}`)
+			data = []byte(`{"code":-412,"message":"请求被拦截"}`)
 		} else {
 			b.processError(ctx, err)
-			b.updateHealth(b.HealthSearchTH, -500, "服务器错误")
+			b.updateHealth(b.HealthSearchTH, ERROR_CODE_INTERNAL_SERVER, MSG_ERROR_INTERNAL_SERVER)
 			return
 		}
 	}
@@ -248,7 +248,7 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 	if isLimited, err := isResponseLimited(data); err != nil {
 		b.sugar.Error(err)
 	} else if isLimited {
-		b.updateHealth(b.HealthSearchTH, -412, "请求被拦截")
+		b.updateHealth(b.HealthSearchTH, ERROR_CODE_TOO_MANY_REQUESTS, MSG_ERROR_TOO_MANY_REQUESTS)
 	} else {
 		b.updateHealth(b.HealthSearchTH, 0, "0")
 	}
@@ -274,7 +274,7 @@ func (b *BiliroamingGo) handleWebSearch(ctx *fasthttp.RequestCtx) {
 	}
 
 	if !b.searchLimiter.Allow() {
-		writeErrorJSON(ctx, -429, []byte("请求过多"))
+		writeErrorJSON(ctx, ERROR_CODE_TOO_MANY_REQUESTS, MSG_ERROR_TOO_MANY_REQUESTS)
 		return
 	}
 
@@ -282,14 +282,14 @@ func (b *BiliroamingGo) handleWebSearch(ctx *fasthttp.RequestCtx) {
 	args := b.processArgs(queryArgs)
 
 	if args.area == "" || args.area == "th" {
-		writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
+		writeErrorJSON(ctx, ERROR_CODE_GEO_RESTRICED, MSG_ERROR_GEO_RESTRICTED)
 		return
 	}
 
 	client := b.getClientByArea(args.area)
 
 	if args.keyword == "" {
-		writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
+		writeErrorJSON(ctx, ERROR_CODE_GEO_RESTRICED, MSG_ERROR_GEO_RESTRICTED)
 		return
 	}
 
@@ -327,14 +327,14 @@ func (b *BiliroamingGo) handleWebSearch(ctx *fasthttp.RequestCtx) {
 	b.sugar.Debug("New url: ", url)
 
 	reqParams := &HttpRequestParams{
-		Method: []byte(fasthttp.MethodGet),
-		Url:    []byte(url),
+		Method:    []byte(fasthttp.MethodGet),
+		Url:       []byte(url),
 		UserAgent: ctx.UserAgent(),
 	}
 	buvid3Key := []byte("buvid3")
 	buvid3Value := ctx.Request.Header.CookieBytes(buvid3Key)
 	if buvid3Value == nil || (buvid3Value != nil && len(buvid3Value) == 0) {
-		writeErrorJSON(ctx, -412, []byte("请求被拦截"))
+		writeErrorJSON(ctx, ERROR_CODE_MISSING_COOKIE, MSG_ERROR_MISSING_COOKIE)
 		return
 	}
 	reqParams.Cookie = append(reqParams.Cookie, HttpCookiesParams{
@@ -344,10 +344,10 @@ func (b *BiliroamingGo) handleWebSearch(ctx *fasthttp.RequestCtx) {
 	data, err := b.doRequestJsonWithRetry(client, reqParams, 2)
 	if err != nil {
 		if errors.Is(err, ErrorHttpStatusLimited) {
-			data = []byte(`{"code":-412,"message":"请求被拦截","ttl":1}`)
+			data = []byte(`{"code":-412,"message":"请求被拦截"}`)
 		} else {
 			b.processError(ctx, err)
-			b.updateHealth(b.getSearchHealth(args.area), -500, "服务器错误")
+			b.updateHealth(b.getSearchHealth(args.area), ERROR_CODE_INTERNAL_SERVER, MSG_ERROR_INTERNAL_SERVER)
 			return
 		}
 	}
@@ -355,7 +355,7 @@ func (b *BiliroamingGo) handleWebSearch(ctx *fasthttp.RequestCtx) {
 	if isLimited, err := isResponseLimited(data); err != nil {
 		b.sugar.Error(err)
 	} else if isLimited {
-		b.updateHealth(b.getSearchHealth(args.area), -412, "请求被拦截")
+		b.updateHealth(b.getSearchHealth(args.area), ERROR_CODE_TOO_MANY_REQUESTS, MSG_ERROR_TOO_MANY_REQUESTS)
 	} else {
 		b.updateHealth(b.getSearchHealth(args.area), 0, "0")
 	}

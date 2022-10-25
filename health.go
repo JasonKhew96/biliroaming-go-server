@@ -66,12 +66,12 @@ func (b *BiliroamingGo) handleApiHealth(ctx *fasthttp.RequestCtx) {
 	argType := string(queryArgs.PeekBytes([]byte("type")))
 
 	if argArea == "" {
-		writeErrorJSON(ctx, -400, []byte("area 参数缺失"))
+		writeErrorJSON(ctx, ERROR_CODE_MISSING_AREA, MSG_ERROR_MISSING_AREA)
 		return
 	}
 
 	if argType == "" {
-		writeErrorJSON(ctx, -400, []byte("type 参数缺失"))
+		writeErrorJSON(ctx, ERROR_CODE_MISSING_TYPE, MSG_ERROR_MISSING_TYPE)
 		return
 	}
 
@@ -83,6 +83,6 @@ func (b *BiliroamingGo) handleApiHealth(ctx *fasthttp.RequestCtx) {
 	case "season":
 		writeHealthJSON(ctx, b.HealthSeasonTH)
 	default:
-		writeErrorJSON(ctx, -400, []byte("参数错误"))
+		writeErrorJSON(ctx, ERROR_CODE_PARAMETERS, MSG_ERROR_PARAMETERS)
 	}
 }

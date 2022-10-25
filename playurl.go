@@ -57,26 +57,26 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	args := b.processArgs(queryArgs)
 
 	if args.area == "" {
-		writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
+		writeErrorJSON(ctx, ERROR_CODE_GEO_RESTRICED, MSG_ERROR_GEO_RESTRICTED)
 		return
 	}
 
 	if ok := b.checkEpisodeAreaCache(args.epId, getAreaCode(args.area)); !ok {
-		writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
+		writeErrorJSON(ctx, ERROR_CODE_GEO_RESTRICED, MSG_ERROR_GEO_RESTRICTED)
 		return
 	}
 
 	// 验证 sign
 	if args.appkey != "" && args.sign != "" && args.ts != 0 {
 		if args.ts <= time.Now().Add(-time.Minute).Unix() {
-			writeErrorJSON(ctx, -10403, []byte("参数错误！"))
+			writeErrorJSON(ctx, ERROR_CODE_PARAMETERS, MSG_ERROR_PARAMETERS)
 			return
 		}
 
 		values, err := url.ParseQuery(queryArgs.String())
 		if err != nil {
 			b.processError(ctx, err)
-			b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
+			b.updateHealth(b.getPlayUrlHealth(args.area), ERROR_CODE_INTERNAL_SERVER, MSG_ERROR_INTERNAL_SERVER)
 			return
 		}
 
@@ -85,12 +85,12 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		sign, err := getSign(values, getClientTypeFromAppkey(args.appkey), args.ts)
 		if err != nil {
 			b.processError(ctx, err)
-			b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
+			b.updateHealth(b.getPlayUrlHealth(args.area), ERROR_CODE_INTERNAL_SERVER, MSG_ERROR_INTERNAL_SERVER)
 			return
 		}
 
 		if sign != args.sign {
-			writeErrorJSON(ctx, -10403, []byte("参数错误！"))
+			writeErrorJSON(ctx, ERROR_CODE_PARAMETERS, MSG_ERROR_PARAMETERS)
 			return
 		}
 	}
@@ -112,7 +112,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeWeb, formatType, int16(qn), getAreaCode(args.area), status.isVip, args.epId)
 		if err == nil && len(playurlCache.Data) > 0 && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
 			if b.config.VipOnly && !status.isVip {
-				writeErrorJSON(ctx, -10403, []byte("抱歉，本解析服务器仅限大会员用户使用而已！"))
+				writeErrorJSON(ctx, ERROR_CODE_VIP_ONLY, MSG_ERROR_VIP_ONLY)
 				return
 			}
 
@@ -127,7 +127,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 			return
 		} else if err != nil && !errors.Is(err, sql.ErrNoRows) {
 			b.processError(ctx, err)
-			b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
+			b.updateHealth(b.getPlayUrlHealth(args.area), ERROR_CODE_INTERNAL_SERVER, MSG_ERROR_INTERNAL_SERVER)
 			return
 		}
 	}
@@ -181,10 +181,10 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	data, err := b.doRequestJsonWithRetry(client, reqParams, 2)
 	if err != nil {
 		if errors.Is(err, ErrorHttpStatusLimited) {
-			data = []byte(`{"code":-412,"message":"请求被拦截","ttl":1}`)
+			data = []byte(`{"code":-412,"message":"请求被拦截"}`)
 		} else {
 			b.processError(ctx, err)
-			b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
+			b.updateHealth(b.getPlayUrlHealth(args.area), ERROR_CODE_INTERNAL_SERVER, MSG_ERROR_INTERNAL_SERVER)
 			return
 		}
 	}
@@ -201,7 +201,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	if isLimited, err := isResponseLimited(data); err != nil {
 		b.sugar.Error(err)
 	} else if isLimited {
-		b.updateHealth(b.getPlayUrlHealth(args.area), -412, "请求被拦截")
+		b.updateHealth(b.getPlayUrlHealth(args.area), ERROR_CODE_TOO_MANY_REQUESTS, MSG_ERROR_TOO_MANY_REQUESTS)
 	} else {
 		b.updateHealth(b.getPlayUrlHealth(args.area), 0, "0")
 	}
@@ -223,7 +223,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	}
 
 	if b.config.VipOnly && !status.isVip {
-		writeErrorJSON(ctx, -10403, []byte("抱歉，本解析服务器仅限大会员用户使用而已！"))
+		writeErrorJSON(ctx, ERROR_CODE_VIP_ONLY, MSG_ERROR_VIP_ONLY)
 		return
 	}
 
@@ -234,7 +234,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		if ok, _ := b.doAuth(ctx, args.accessKey, args.area, true); !ok {
 			return
 		}
-		writeErrorJSON(ctx, -10403, []byte("检测到大会员状态变动！请重试！"))
+		writeErrorJSON(ctx, ERROR_CODE_VIP_STATUS, MSG_ERROR_VIP_STATUS)
 		return
 	}
 
@@ -250,29 +250,29 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	args := b.processArgs(queryArgs)
 
 	if args.area == "" {
-		writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
+		writeErrorJSON(ctx, ERROR_CODE_GEO_RESTRICED, MSG_ERROR_GEO_RESTRICTED)
 		return
 	}
 
 	if ok := b.checkEpisodeAreaCache(args.epId, getAreaCode(args.area)); !ok {
-		writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
+		writeErrorJSON(ctx, ERROR_CODE_GEO_RESTRICED, MSG_ERROR_GEO_RESTRICTED)
 		return
 	}
 
 	// 验证 sign
 	if args.appkey == "" && args.sign == "" && args.ts == 0 {
-		writeErrorJSON(ctx, -10403, []byte("参数错误！"))
+		writeErrorJSON(ctx, ERROR_CODE_PARAMETERS, MSG_ERROR_PARAMETERS)
 		return
 	} else {
 		if args.ts <= time.Now().Add(-time.Minute).Unix() {
-			writeErrorJSON(ctx, -10403, []byte("参数错误！"))
+			writeErrorJSON(ctx, ERROR_CODE_PARAMETERS, MSG_ERROR_PARAMETERS)
 			return
 		}
 
 		values, err := url.ParseQuery(queryArgs.String())
 		if err != nil {
 			b.processError(ctx, err)
-			b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
+			b.updateHealth(b.getPlayUrlHealth(args.area), ERROR_CODE_INTERNAL_SERVER, MSG_ERROR_INTERNAL_SERVER)
 			return
 		}
 
@@ -281,12 +281,12 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		sign, err := getSign(values, getClientTypeFromAppkey(args.appkey), args.ts)
 		if err != nil {
 			b.processError(ctx, err)
-			b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
+			b.updateHealth(b.getPlayUrlHealth(args.area), ERROR_CODE_INTERNAL_SERVER, MSG_ERROR_INTERNAL_SERVER)
 			return
 		}
 
 		if sign != args.sign {
-			writeErrorJSON(ctx, -10403, []byte("参数错误！"))
+			writeErrorJSON(ctx, ERROR_CODE_PARAMETERS, MSG_ERROR_PARAMETERS)
 			return
 		}
 	}
@@ -310,7 +310,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeAndroid, formatType, int16(qn), getAreaCode(args.area), status.isVip, args.epId)
 		if err == nil && len(playurlCache.Data) > 0 && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
 			if b.config.VipOnly && !status.isVip {
-				writeErrorJSON(ctx, -10403, []byte("抱歉，本解析服务器仅限大会员用户使用而已！"))
+				writeErrorJSON(ctx, ERROR_CODE_VIP_ONLY, MSG_ERROR_VIP_ONLY)
 				return
 			}
 
@@ -325,7 +325,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 			return
 		} else if err != nil && !errors.Is(err, sql.ErrNoRows) {
 			b.processError(ctx, err)
-			b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
+			b.updateHealth(b.getPlayUrlHealth(args.area), ERROR_CODE_INTERNAL_SERVER, MSG_ERROR_INTERNAL_SERVER)
 			return
 		}
 	}
@@ -386,10 +386,10 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	data, err := b.doRequestJsonWithRetry(client, reqParams, 2)
 	if err != nil {
 		if errors.Is(err, ErrorHttpStatusLimited) {
-			data = []byte(`{"code":-412,"message":"请求被拦截","ttl":1}`)
+			data = []byte(`{"code":-412,"message":"请求被拦截"}`)
 		} else {
 			b.processError(ctx, err)
-			b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
+			b.updateHealth(b.getPlayUrlHealth(args.area), ERROR_CODE_INTERNAL_SERVER, MSG_ERROR_INTERNAL_SERVER)
 			return
 		}
 	}
@@ -406,7 +406,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	if isLimited, err := isResponseLimited(data); err != nil {
 		b.sugar.Error(err)
 	} else if isLimited {
-		b.updateHealth(b.getPlayUrlHealth(args.area), -412, "请求被拦截")
+		b.updateHealth(b.getPlayUrlHealth(args.area), ERROR_CODE_TOO_MANY_REQUESTS, MSG_ERROR_TOO_MANY_REQUESTS)
 	} else {
 		b.updateHealth(b.getPlayUrlHealth(args.area), 0, "0")
 	}
@@ -428,7 +428,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	}
 
 	if b.config.VipOnly && !status.isVip {
-		writeErrorJSON(ctx, -10403, []byte("抱歉，本解析服务器仅限大会员用户使用而已！"))
+		writeErrorJSON(ctx, ERROR_CODE_VIP_ONLY, MSG_ERROR_VIP_ONLY)
 		return
 	}
 
@@ -439,7 +439,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		if ok, _ := b.doAuth(ctx, args.accessKey, args.area, true); !ok {
 			return
 		}
-		writeErrorJSON(ctx, -10403, []byte("检测到大会员状态变动！请重试！"))
+		writeErrorJSON(ctx, ERROR_CODE_VIP_STATUS, MSG_ERROR_VIP_STATUS)
 		return
 	}
 
@@ -456,29 +456,29 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 
 	if args.area == "" {
 		args.area = "th"
-		// writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
+		// writeErrorJSON(ctx, ERROR_CODE_GEO_RESTRICED, MSG_ERROR_GEO_RESTRICTED)
 		// return
 	}
 
 	if ok := b.checkEpisodeAreaCache(args.epId, getAreaCode(args.area)); !ok {
-		writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
+		writeErrorJSON(ctx, ERROR_CODE_GEO_RESTRICED, MSG_ERROR_GEO_RESTRICTED)
 		return
 	}
 
 	// 验证 sign
 	if args.appkey == "" && args.sign == "" && args.ts == 0 {
-		writeErrorJSON(ctx, -10403, []byte("参数错误！"))
+		writeErrorJSON(ctx, ERROR_CODE_PARAMETERS, MSG_ERROR_PARAMETERS)
 		return
 	} else {
 		if args.ts <= time.Now().Add(-time.Minute).Unix() {
-			writeErrorJSON(ctx, -10403, []byte("参数错误！"))
+			writeErrorJSON(ctx, ERROR_CODE_PARAMETERS, MSG_ERROR_PARAMETERS)
 			return
 		}
 
 		values, err := url.ParseQuery(queryArgs.String())
 		if err != nil {
 			b.processError(ctx, err)
-			b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
+			b.updateHealth(b.getPlayUrlHealth(args.area), ERROR_CODE_INTERNAL_SERVER, MSG_ERROR_INTERNAL_SERVER)
 			return
 		}
 
@@ -487,12 +487,12 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		sign, err := getSign(values, ClientTypeBstarA, args.ts)
 		if err != nil {
 			b.processError(ctx, err)
-			b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
+			b.updateHealth(b.getPlayUrlHealth(args.area), ERROR_CODE_INTERNAL_SERVER, MSG_ERROR_INTERNAL_SERVER)
 			return
 		}
 
 		if sign != args.sign {
-			writeErrorJSON(ctx, -10403, []byte("参数错误！"))
+			writeErrorJSON(ctx, ERROR_CODE_PARAMETERS, MSG_ERROR_PARAMETERS)
 			return
 		}
 	}
@@ -519,7 +519,7 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		playurlCache, err := b.db.GetPlayURLCache(database.DeviceTypeAndroid, formatType, int16(qn), getAreaCode(args.area), isVIP, args.epId)
 		if err == nil && len(playurlCache.Data) > 0 && playurlCache.UpdatedAt.After(time.Now().Add(-b.config.Cache.PlayUrl)) {
 			if b.config.VipOnly && !status.isVip {
-				writeErrorJSON(ctx, -10403, []byte("抱歉，本解析服务器仅限大会员用户使用而已！"))
+				writeErrorJSON(ctx, ERROR_CODE_VIP_ONLY, MSG_ERROR_VIP_ONLY)
 				return
 			}
 
@@ -534,7 +534,7 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 			return
 		} else if err != nil && !errors.Is(err, sql.ErrNoRows) {
 			b.processError(ctx, err)
-			b.updateHealth(b.getPlayUrlHealth(args.area), -500, "服务器错误")
+			b.updateHealth(b.getPlayUrlHealth(args.area), ERROR_CODE_INTERNAL_SERVER, MSG_ERROR_INTERNAL_SERVER)
 			return
 		}
 	}
@@ -595,10 +595,10 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	data, err := b.doRequestJsonWithRetry(client, reqParams, 2)
 	if err != nil {
 		if errors.Is(err, ErrorHttpStatusLimited) {
-			data = []byte(`{"code":-412,"message":"请求被拦截","ttl":1}`)
+			data = []byte(`{"code":-412,"message":"请求被拦截"}`)
 		} else {
 			b.processError(ctx, err)
-			b.updateHealth(b.HealthPlayUrlTH, -500, "服务器错误")
+			b.updateHealth(b.HealthPlayUrlTH, ERROR_CODE_INTERNAL_SERVER, MSG_ERROR_INTERNAL_SERVER)
 			return
 		}
 	}
@@ -615,7 +615,7 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	if isLimited, err := isResponseLimited(data); err != nil {
 		b.sugar.Error(err)
 	} else if isLimited {
-		b.updateHealth(b.HealthPlayUrlTH, -412, "请求被拦截")
+		b.updateHealth(b.HealthPlayUrlTH, ERROR_CODE_TOO_MANY_REQUESTS, MSG_ERROR_TOO_MANY_REQUESTS)
 	} else {
 		b.updateHealth(b.HealthPlayUrlTH, 0, "0")
 	}
@@ -637,7 +637,7 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	}
 
 	if b.config.VipOnly && !status.isVip {
-		writeErrorJSON(ctx, -10403, []byte("抱歉，本解析服务器仅限大会员用户使用而已！"))
+		writeErrorJSON(ctx, ERROR_CODE_VIP_ONLY, MSG_ERROR_VIP_ONLY)
 		return
 	}
 

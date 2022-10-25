@@ -139,15 +139,15 @@ func setDefaultHeaders(ctx *fasthttp.RequestCtx) {
 	ctx.SetContentTypeBytes([]byte("application/json"))
 }
 
-func writeErrorJSON(ctx *fasthttp.RequestCtx, code int, msg []byte) {
+func writeErrorJSON(ctx *fasthttp.RequestCtx, code int, msg string) {
 	setDefaultHeaders(ctx)
 	resp := &entity.SimpleResponse{
 		Code:    code,
-		Message: string(msg),
+		Message: fmt.Sprintf("解析服务器: %s", msg),
 	}
 	respData, err := easyjson.Marshal(resp)
 	if err != nil {
-		ctx.Write([]byte(`{"code":-500,"message":"服务器错误","ttl":1}`))
+		ctx.Write([]byte(`{"code":500,"message":"解析服务器发送错误"}`))
 		return
 	}
 	ctx.Write(respData)
@@ -157,12 +157,12 @@ func writeErrorJSON(ctx *fasthttp.RequestCtx, code int, msg []byte) {
 func writeHealthJSON(ctx *fasthttp.RequestCtx, health *entity.Health) {
 	setDefaultHeaders(ctx)
 	if health == nil {
-		ctx.Write([]byte(`{"code":-500,"message":"服务器错误","ttl":1}`))
+		ctx.Write([]byte(`{"code":500,"message":"解析服务器发送错误"}`))
 		return
 	}
 	respData, err := easyjson.Marshal(health)
 	if err != nil {
-		ctx.Write([]byte(`{"code":-500,"message":"服务器错误","ttl":1}`))
+		ctx.Write([]byte(`{"code":500,"message":"解析服务器发送错误"}`))
 		return
 	}
 	ctx.Write(respData)
@@ -179,17 +179,17 @@ func (b *BiliroamingGo) checkRoamingVer(ctx *fasthttp.RequestCtx) bool {
 	if len(versionCode) > 0 && len(versionName) > 0 {
 		build, err := strconv.Atoi(string(versionCode))
 		if err != nil {
-			writeErrorJSON(ctx, 500, []byte("错误请求头"))
+			writeErrorJSON(ctx, ERROR_CODE_HEADER_WRONG, MSG_ERROR_HEADER_WRONG)
 			return false
 		}
 		if build < b.config.RoamingMinVer {
-			writeErrorJSON(ctx, 500, []byte("哔哩漫游模块版本过低"))
+			writeErrorJSON(ctx, ERROR_CODE_HEADER_MIN_VERSION, MSG_ERROR_HEADER_MIN_VERSION)
 			return false
 		}
 		return true
 	}
 
-	writeErrorJSON(ctx, 500, []byte("错误请求头"))
+	writeErrorJSON(ctx, ERROR_CODE_HEADER_WRONG, MSG_ERROR_HEADER_WRONG)
 	return false
 }
 

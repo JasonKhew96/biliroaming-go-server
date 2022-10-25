@@ -21,7 +21,7 @@ func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 
 	if args.area == "" {
 		args.area = "th"
-		// writeErrorJSON(ctx, -10403, []byte("抱歉您所在地区不可观看！"))
+		// writeErrorJSON(ctx, ERROR_CODE_GEO_RESTRICED, MSG_ERROR_GEO_RESTRICTED)
 		// return
 	}
 
@@ -74,14 +74,14 @@ func (b *BiliroamingGo) handleBstarAndroidSubtitle(ctx *fasthttp.RequestCtx) {
 	b.sugar.Debug("New url: ", url)
 
 	reqParams := &HttpRequestParams{
-		Method: []byte(fasthttp.MethodGet),
-		Url:    []byte(url),
+		Method:    []byte(fasthttp.MethodGet),
+		Url:       []byte(url),
 		UserAgent: ctx.UserAgent(),
 	}
 	data, err := b.doRequestJsonWithRetry(client, reqParams, 2)
 	if err != nil {
 		if errors.Is(err, ErrorHttpStatusLimited) {
-			data = []byte(`{"code":-412,"message":"请求被拦截","ttl":1}`)
+			data = []byte(`{"code":-412,"message":"请求被拦截"}`)
 		} else {
 			b.processError(ctx, err)
 			return

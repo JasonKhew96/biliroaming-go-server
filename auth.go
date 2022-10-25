@@ -185,35 +185,35 @@ func (b *BiliroamingGo) getMyInfo(ctx *fasthttp.RequestCtx, accessKey string) ([
 
 func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string, isForced bool) (bool, *userStatus) {
 	if len(accessKey) == 0 {
-		writeErrorJSON(ctx, -401, []byte("帐号未登录"))
+		writeErrorJSON(ctx, ERROR_CODE_AUTH_NOT_LOGIN, MSG_ERROR_AUTH_NOT_LOGIN)
 		return false, nil
 	}
 
 	if len(accessKey) != 32 {
-		writeErrorJSON(ctx, -403, []byte("Access Key错误"))
+		writeErrorJSON(ctx, ERROR_CODE_AUTH_ACCESS_KEY, MSG_ERROR_AUTH_ACCESS_KEY)
 		return false, nil
 	}
 
 	key, ok := b.getKey(accessKey)
 	if ok {
 		if !b.doCheckUidLimiter(ctx, key.uid) {
-			writeErrorJSON(ctx, -429, []byte("请求过快"))
+			writeErrorJSON(ctx, ERROR_CODE_TOO_MANY_REQUESTS, MSG_ERROR_TOO_MANY_REQUESTS)
 			return false, nil
 		}
 		switch b.config.BlockType {
 		case BlockTypeEnabled:
 			if key.isBlacklist {
-				writeErrorJSON(ctx, -403, []byte(fmt.Sprintf("黑名单\nUID: %d\n解除时间: %s", key.uid, key.banUntil.In(time.FixedZone("Asia/Shanghai", 8)).Format("2006-01-02 15:04:05"))))
+				writeErrorJSON(ctx, ERROR_CODE_AUTH_BLACKLIST, fmt.Sprintf(MSG_ERROR_AUTH_BLACKLIST, key.uid, key.banUntil.In(LOCATION_SHANGHAI).Format(TIME_FORMAT)))
 				return false, nil
 			}
 		case BlockTypeWhitelist:
 			if !key.isWhitelist {
-				writeErrorJSON(ctx, -403, []byte("抱歉，本解析服务器仅限白名单用户使用而已！"))
+				writeErrorJSON(ctx, ERROR_CODE_AUTH_WHITELIST, MSG_ERROR_AUTH_WHITELIST)
 				return false, nil
 			}
 		}
 		if !key.isLogin {
-			writeErrorJSON(ctx, -401, []byte("账号未登录"))
+			writeErrorJSON(ctx, ERROR_CODE_AUTH_NOT_LOGIN, MSG_ERROR_AUTH_NOT_LOGIN)
 			return false, nil
 		}
 		return key.isLogin, &userStatus{
@@ -232,7 +232,7 @@ func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string,
 		if status.isLogin {
 			return true, status
 		}
-		writeErrorJSON(ctx, -401, []byte("账号未登录"))
+		writeErrorJSON(ctx, ERROR_CODE_AUTH_NOT_LOGIN, MSG_ERROR_AUTH_NOT_LOGIN)
 		return false, nil
 	}
 
@@ -241,18 +241,18 @@ func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string,
 	switch b.config.BlockType {
 	case BlockTypeEnabled:
 		if status.isBlacklist {
-			writeErrorJSON(ctx, -403, []byte(fmt.Sprintf("黑名单\nUID: %d\n解除时间: %s", status.uid, status.banUntil.In(time.FixedZone("Asia/Shanghai", 8)).Format("2006-01-02 15:04:05"))))
+			writeErrorJSON(ctx, ERROR_CODE_AUTH_BLACKLIST, fmt.Sprintf(MSG_ERROR_AUTH_BLACKLIST, key.uid, key.banUntil.In(LOCATION_SHANGHAI).Format(TIME_FORMAT)))
 			return false, nil
 		}
 	case BlockTypeWhitelist:
 		if !status.isWhitelist {
-			writeErrorJSON(ctx, -403, []byte("抱歉，本解析服务器仅限白名单用户使用而已！"))
+			writeErrorJSON(ctx, ERROR_CODE_AUTH_WHITELIST, MSG_ERROR_AUTH_WHITELIST)
 			return false, nil
 		}
 	}
 
 	if !b.doCheckUidLimiter(ctx, status.uid) {
-		writeErrorJSON(ctx, -429, []byte("请求过快"))
+		writeErrorJSON(ctx, ERROR_CODE_TOO_MANY_REQUESTS, MSG_ERROR_TOO_MANY_REQUESTS)
 		return false, nil
 	}
 

@@ -222,11 +222,6 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		}
 	}
 
-	if b.config.VipOnly && !status.isVip {
-		writeErrorJSON(ctx, ERROR_CODE_VIP_ONLY, MSG_ERROR_VIP_ONLY)
-		return
-	}
-
 	if ok, isStatusVip, err := playUrlVipStatus(data, ClientTypeWeb); err != nil {
 		b.sugar.Error(err)
 	} else if ok && isStatusVip != status.isVip {
@@ -235,6 +230,11 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 			return
 		}
 		writeErrorJSON(ctx, ERROR_CODE_VIP_STATUS, MSG_ERROR_VIP_STATUS)
+		return
+	}
+
+	if b.config.VipOnly && !status.isVip {
+		writeErrorJSON(ctx, ERROR_CODE_VIP_ONLY, MSG_ERROR_VIP_ONLY)
 		return
 	}
 
@@ -427,11 +427,6 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		}
 	}
 
-	if b.config.VipOnly && !status.isVip {
-		writeErrorJSON(ctx, ERROR_CODE_VIP_ONLY, MSG_ERROR_VIP_ONLY)
-		return
-	}
-
 	if ok, isStatusVip, err := playUrlVipStatus(data, ClientTypeAndroid); err != nil {
 		b.sugar.Error(err)
 	} else if ok && isStatusVip != status.isVip {
@@ -440,6 +435,11 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 			return
 		}
 		writeErrorJSON(ctx, ERROR_CODE_VIP_STATUS, MSG_ERROR_VIP_STATUS)
+		return
+	}
+
+	if b.config.VipOnly && !status.isVip {
+		writeErrorJSON(ctx, ERROR_CODE_VIP_ONLY, MSG_ERROR_VIP_ONLY)
 		return
 	}
 

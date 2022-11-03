@@ -241,7 +241,7 @@ func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, area string,
 	switch b.config.BlockType {
 	case BlockTypeEnabled:
 		if status.isBlacklist {
-			writeErrorJSON(ctx, ERROR_CODE_AUTH_BLACKLIST, fmt.Sprintf(MSG_ERROR_AUTH_BLACKLIST, key.uid, key.banUntil.In(LOCATION_SHANGHAI).Format(TIME_FORMAT)))
+			writeErrorJSON(ctx, ERROR_CODE_AUTH_BLACKLIST, fmt.Sprintf(MSG_ERROR_AUTH_BLACKLIST, status.uid, status.banUntil.In(LOCATION_SHANGHAI).Format(TIME_FORMAT)))
 			return false, nil
 		}
 	case BlockTypeWhitelist:

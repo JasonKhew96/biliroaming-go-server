@@ -150,7 +150,7 @@ func getClientTypeFromAppkey(appkey string) ClientType {
 	case appkeyBstarA:
 		return ClientTypeBstarA
 	default:
-		return ClientTypeUnknown
+		return ClientTypeAndroid // TODO: ipcjs/bilibili-helper dead
 	}
 }
 

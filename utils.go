@@ -42,6 +42,7 @@ const (
 	ClientTypeBiliScan                             // biliScan
 	ClientTypeBstarA                               // bstar_a
 	ClientTypeWeb                                  // web
+	ClientTypeIphone                               // iphone
 )
 
 // appkey
@@ -59,6 +60,7 @@ const (
 	appkeyBiliLink           = "37207f2beaebf8d7"
 	appkeyBiliScan           = "9a75abf7de2d8947"
 	appkeyBstarA             = "7d089525d3611b1c"
+	appkeyIphone             = "27eb53fc9058f8c3"
 )
 
 // appsec
@@ -76,6 +78,7 @@ const (
 	appsecBiliLink           = "e988e794d4d4b6dd43bc0e89d6e90c43"
 	appsecBiliScan           = "35ca1c82be6c2c242ecc04d88c735f31"
 	appsecBstarA             = "acd495b248ec528c2eed1e862d393126"
+	appsecIphone             = "c2ed53a74eeefe3cf99fbd01d8c9c375"
 )
 
 // biliArgs query arguments struct
@@ -149,8 +152,10 @@ func getClientTypeFromAppkey(appkey string) ClientType {
 		return ClientTypeBiliScan
 	case appkeyBstarA:
 		return ClientTypeBstarA
+	case appkeyIphone:
+		fallthrough
 	default:
-		return ClientTypeAndroid // TODO: ipcjs/bilibili-helper dead
+		return ClientTypeIphone
 	}
 }
 
@@ -182,6 +187,8 @@ func getSecrets(clientType ClientType) (appkey, appsec string) {
 		return appkeyBiliScan, appsecBiliScan
 	case ClientTypeBstarA:
 		return appkeyBstarA, appsecBstarA
+	case ClientTypeIphone:
+		return appkeyIphone, appsecIphone
 	default:
 		return "", ""
 	}

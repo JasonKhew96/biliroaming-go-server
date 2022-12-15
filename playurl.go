@@ -104,7 +104,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	var status *userStatus
 	if b.getAuthByArea(args.area) {
 		var ok bool
-		ok, status = b.doAuth(ctx, args.accessKey, args.appkey, args.area, false)
+		ok, status = b.doAuth(ctx, args.accessKey, getClientPlatform(ctx, args.appkey), args.area, false)
 		if !ok {
 			return
 		}
@@ -226,7 +226,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		b.sugar.Error(err)
 	} else if ok && isStatusVip != status.isVip {
 		delete(b.accessKeys, args.accessKey)
-		if ok, _ := b.doAuth(ctx, args.accessKey, args.appkey, args.area, true); !ok {
+		if ok, _ := b.doAuth(ctx, args.accessKey, getClientPlatform(ctx, args.appkey), args.area, true); !ok {
 			return
 		}
 		writeErrorJSON(ctx, ERROR_CODE_VIP_STATUS, MSG_ERROR_VIP_STATUS)
@@ -302,7 +302,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	var status *userStatus
 	if b.getAuthByArea(args.area) {
 		var ok bool
-		ok, status = b.doAuth(ctx, args.accessKey, args.appkey, args.area, false)
+		ok, status = b.doAuth(ctx, args.accessKey, getClientPlatform(ctx, args.appkey), args.area, false)
 		if !ok {
 			return
 		}
@@ -431,7 +431,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		b.sugar.Error(err)
 	} else if ok && isStatusVip != status.isVip {
 		delete(b.accessKeys, args.accessKey)
-		if ok, _ := b.doAuth(ctx, args.accessKey, args.appkey, args.area, true); !ok {
+		if ok, _ := b.doAuth(ctx, args.accessKey, getClientPlatform(ctx, args.appkey), args.area, true); !ok {
 			return
 		}
 		writeErrorJSON(ctx, ERROR_CODE_VIP_STATUS, MSG_ERROR_VIP_STATUS)
@@ -509,7 +509,7 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	var status *userStatus
 	if b.getAuthByArea(args.area) {
 		var ok bool
-		ok, status = b.doAuth(ctx, args.accessKey, args.appkey, args.area, false)
+		ok, status = b.doAuth(ctx, args.accessKey, getClientPlatform(ctx, args.appkey), args.area, false)
 		if !ok {
 			return
 		} else {

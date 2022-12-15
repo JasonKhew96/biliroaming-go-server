@@ -22,28 +22,51 @@ import (
 var reMid = regexp.MustCompile(`(&|\\u0026)mid=\d+`)
 
 // ClientType ...
-type ClientType int
+type ClientType string
 
 // ClientType
 // taken from https://github.com/yujincheng08/BiliRoaming/wiki/%E8%87%AA%E5%BB%BA%E8%A7%A3%E6%9E%90%E6%9C%8D%E5%8A%A1%E5%99%A8#api-%E8%AF%B7%E6%B1%82%E7%AD%BE%E5%90%8D
 const (
-	ClientTypeUnknown            ClientType = iota // unknown
-	ClientTypeAi4cCreatorAndroid                   // ai4c_creator_android
-	ClientTypeAndroid                              // android
-	ClientTypeAndroidB                             // android_b
-	ClientTypeAndroidBiliThings                    // android_bilithings
-	ClientTypeAndroidHD                            // android_hd
-	ClientTypeAndroidI                             // android_i
-	ClientTypeAndroidMallTicket                    // android_mall_ticket
-	ClientTypeAndroidOttSdk                        // android_ott_sdk
-	ClientTypeAndroidTV                            // android_tv
-	ClientTypeAnguAndroid                          // angu_android
-	ClientTypeBiliLink                             // biliLink
-	ClientTypeBiliScan                             // biliScan
-	ClientTypeBstarA                               // bstar_a
-	ClientTypeWeb                                  // web
-	ClientTypeIphone                               // iphone
+	ClientTypeUnknown            ClientType = "unknown"
+	ClientTypeAi4cCreatorAndroid ClientType = "ai4c_creator_android"
+	ClientTypeAndroid            ClientType = "android"
+	ClientTypeAndroidB           ClientType = "android_b"
+	ClientTypeAndroidBiliThings  ClientType = "android_bilithings"
+	ClientTypeAndroidHD          ClientType = "android_hd"
+	ClientTypeAndroidI           ClientType = "android_i"
+	ClientTypeAndroidMallTicket  ClientType = "android_mall_ticket"
+	ClientTypeAndroidOttSdk      ClientType = "android_ott_sdk"
+	ClientTypeAndroidTV          ClientType = "android_tv"
+	ClientTypeAnguAndroid        ClientType = "angu_android"
+	ClientTypeBiliLink           ClientType = "biliLink"
+	ClientTypeBiliScan           ClientType = "biliScan"
+	ClientTypeBstarA             ClientType = "bstar_a"
+	ClientTypeWeb                ClientType = "web"
+	ClientTypeIphone             ClientType = "iphone"
 )
+
+func (c *ClientType) IsValid() bool {
+	switch *c {
+	case ClientTypeAi4cCreatorAndroid,
+		ClientTypeAndroid,
+		ClientTypeAndroidB,
+		ClientTypeAndroidBiliThings,
+		ClientTypeAndroidHD,
+		ClientTypeAndroidI,
+		ClientTypeAndroidMallTicket,
+		ClientTypeAndroidOttSdk,
+		ClientTypeAndroidTV,
+		ClientTypeAnguAndroid,
+		ClientTypeBiliLink,
+		ClientTypeBiliScan,
+		ClientTypeBstarA,
+		ClientTypeWeb,
+		ClientTypeIphone:
+		return true
+	default:
+		return false
+	}
+}
 
 // appkey
 const (

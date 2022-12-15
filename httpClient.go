@@ -168,6 +168,21 @@ func writeHealthJSON(ctx *fasthttp.RequestCtx, health *entity.Health) {
 	ctx.Write(respData)
 }
 
+func getClientPlatform(ctx *fasthttp.RequestCtx, appkey string) ClientType {
+	platform := string(ctx.Request.Header.PeekBytes([]byte("platform-from-biliroaming")))
+	if platform == "" && appkey == "" {
+		return ClientTypeUnknown
+	}
+	if appkey != "" {
+		return getClientTypeFromAppkey(appkey)
+	}
+	clientType := ClientType(platform)
+	if !clientType.IsValid() {
+		return ClientTypeUnknown
+	}
+	return clientType
+}
+
 func (b *BiliroamingGo) checkRoamingVer(ctx *fasthttp.RequestCtx) bool {
 	versionCode := ctx.Request.Header.PeekBytes([]byte("build"))
 	versionName := ctx.Request.Header.PeekBytes([]byte("x-from-biliroaming"))

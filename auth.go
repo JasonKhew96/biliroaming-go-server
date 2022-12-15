@@ -66,7 +66,7 @@ func (b *BiliroamingGo) checkBWlist(ctx *fasthttp.RequestCtx, uid int64) (*entit
 	return blackwhitelist, nil
 }
 
-func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey, appkey string, isForced bool) (*userStatus, error) {
+func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string, clientType ClientType, isForced bool) (*userStatus, error) {
 	userStatus := &userStatus{
 		uid: -1,
 	}
@@ -105,7 +105,7 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey, appkey strin
 		return userStatus, nil
 	}
 
-	body, err := b.getMyInfo(ctx, accessKey, appkey)
+	body, err := b.getMyInfo(ctx, accessKey, clientType)
 	if err != nil {
 		return userStatus, err
 	}
@@ -153,14 +153,18 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey, appkey strin
 	return userStatus, nil
 }
 
-func (b *BiliroamingGo) getMyInfo(ctx *fasthttp.RequestCtx, accessKey, appkey string) ([]byte, error) {
+func (b *BiliroamingGo) getMyInfo(ctx *fasthttp.RequestCtx, accessKey string, clientType ClientType) ([]byte, error) {
 	apiURL := "https://app.bilibili.com/x/v2/account/myinfo"
 
 	v := url.Values{}
 
 	v.Set("access_key", accessKey)
 
-	params, err := SignParams(v, getClientTypeFromAppkey(appkey))
+	if clientType == ClientTypeBstarA || clientType == ClientTypeUnknown {
+		clientType = ClientTypeIphone
+	}
+
+	params, err := SignParams(v, clientType)
 	if err != nil {
 		return nil, err
 	}
@@ -183,7 +187,7 @@ func (b *BiliroamingGo) getMyInfo(ctx *fasthttp.RequestCtx, accessKey, appkey st
 	return body, nil
 }
 
-func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, appkey, area string, isForced bool) (bool, *userStatus) {
+func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey string, clientType ClientType, area string, isForced bool) (bool, *userStatus) {
 	if len(accessKey) == 0 {
 		writeErrorJSON(ctx, ERROR_CODE_AUTH_NOT_LOGIN, MSG_ERROR_AUTH_NOT_LOGIN)
 		return false, nil
@@ -226,7 +230,7 @@ func (b *BiliroamingGo) doAuth(ctx *fasthttp.RequestCtx, accessKey, appkey, area
 		}
 	}
 
-	status, err := b.isAuth(ctx, accessKey, appkey, isForced)
+	status, err := b.isAuth(ctx, accessKey, clientType, isForced)
 	if err != nil {
 		b.setKey(accessKey, status)
 		if status.isLogin {

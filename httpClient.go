@@ -173,14 +173,14 @@ func getClientPlatform(ctx *fasthttp.RequestCtx, appkey string) ClientType {
 	if platform == "" && appkey == "" {
 		return ClientTypeUnknown
 	}
+	clientType := ClientType(platform)
+	if clientType.IsValid() {
+		return clientType
+	}
 	if appkey != "" {
 		return getClientTypeFromAppkey(appkey)
 	}
-	clientType := ClientType(platform)
-	if !clientType.IsValid() {
-		return ClientTypeUnknown
-	}
-	return clientType
+	return ClientTypeUnknown
 }
 
 func (b *BiliroamingGo) checkRoamingVer(ctx *fasthttp.RequestCtx) bool {

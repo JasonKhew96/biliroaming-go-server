@@ -20,6 +20,8 @@ type Config struct {
 
 	RoamingMinVer int `yaml:"roamingMinVer"`
 
+	DefaultArea string `yaml:"defaultArea"`
+
 	ThRedirect struct {
 		Aid int `yaml:"aid"`
 	} `yaml:"thRedirect"`

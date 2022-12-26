@@ -392,6 +392,10 @@ func replaceQn(data []byte, qn int, clientType ClientType) ([]byte, error) {
 }
 
 func (b *BiliroamingGo) processArgs(args *fasthttp.Args) *biliArgs {
+	area := string(args.Peek("area"))
+	if area == "" && b.config.DefaultArea != "" {
+		area = b.config.DefaultArea
+	}
 	cid, err := strconv.ParseInt(string(args.Peek("cid")), 10, 64)
 	if err != nil {
 		cid = 0
@@ -431,7 +435,7 @@ func (b *BiliroamingGo) processArgs(args *fasthttp.Args) *biliArgs {
 
 	queryArgs := &biliArgs{
 		accessKey: string(args.Peek("access_key")),
-		area:      strings.ToLower(string(args.Peek("area"))),
+		area:      strings.ToLower(area),
 		cid:       cid,
 		epId:      epId,
 		seasonId:  seasonId,

@@ -17,6 +17,9 @@ blockType: 1
 # 设置最低漫游版本，详情看哔哩漫游仓库 versionCode
 roamingMinVer: 0
 
+# 设置默认 area 参数
+defaultArea: hk
+
 # 替换泰区 aid (评论投币)
 thRedirect:
   aid: 0

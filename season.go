@@ -189,11 +189,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 	queryArgs := ctx.URI().QueryArgs()
 	args := b.processArgs(queryArgs)
 
-	if args.area == "" {
-		args.area = "th"
-		// writeErrorJSON(ctx, ERROR_CODE_GEO_RESTRICED, MSG_ERROR_GEO_RESTRICTED)
-		// return
-	}
+	args.area = "th"
 
 	client := b.getClientByArea(args.area)
 

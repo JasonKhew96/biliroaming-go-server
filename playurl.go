@@ -454,11 +454,7 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	queryArgs := ctx.URI().QueryArgs()
 	args := b.processArgs(queryArgs)
 
-	if args.area == "" {
-		args.area = "th"
-		// writeErrorJSON(ctx, ERROR_CODE_GEO_RESTRICED, MSG_ERROR_GEO_RESTRICTED)
-		// return
-	}
+	args.area = "th"
 
 	if ok := b.checkEpisodeAreaCache(args.epId, getAreaCode(args.area)); !ok {
 		writeErrorJSON(ctx, ERROR_CODE_GEO_RESTRICED, MSG_ERROR_GEO_RESTRICTED)

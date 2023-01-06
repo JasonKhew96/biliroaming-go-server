@@ -66,7 +66,7 @@ func (h *DbHelper) InsertOrUpdateKey(key string, uid int64, clientType string) e
 	var accessKeyTable models.AccessKey
 	accessKeyTable.Key = key
 	accessKeyTable.UID = uid
-	accessKeyTable.ClientType = null.StringFrom(clientType)
+	accessKeyTable.ClientType = clientType
 	return accessKeyTable.Upsert(h.ctx, h.db, true, []string{"key"}, boil.Whitelist("client_type", "updated_at"), boil.Infer())
 }
 

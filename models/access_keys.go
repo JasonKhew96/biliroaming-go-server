@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/friendsofgo/errors"
-	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -24,11 +23,11 @@ import (
 
 // AccessKey is an object representing the database table.
 type AccessKey struct {
-	Key        string      `boil:"key" json:"key" toml:"key" yaml:"key"`
-	UID        int64       `boil:"uid" json:"uid" toml:"uid" yaml:"uid"`
-	ClientType null.String `boil:"client_type" json:"client_type,omitempty" toml:"client_type" yaml:"client_type,omitempty"`
-	CreatedAt  time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	UpdatedAt  time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	Key        string    `boil:"key" json:"key" toml:"key" yaml:"key"`
+	UID        int64     `boil:"uid" json:"uid" toml:"uid" yaml:"uid"`
+	ClientType string    `boil:"client_type" json:"client_type" toml:"client_type" yaml:"client_type"`
+	CreatedAt  time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	UpdatedAt  time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
 
 	R *accessKeyR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L accessKeyL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -110,44 +109,6 @@ func (w whereHelperint64) NIN(slice []int64) qm.QueryMod {
 	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
 }
 
-type whereHelpernull_String struct{ field string }
-
-func (w whereHelpernull_String) EQ(x null.String) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, false, x)
-}
-func (w whereHelpernull_String) NEQ(x null.String) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, true, x)
-}
-func (w whereHelpernull_String) LT(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelpernull_String) LTE(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelpernull_String) GT(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelpernull_String) GTE(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
-func (w whereHelpernull_String) IN(slice []string) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
-}
-func (w whereHelpernull_String) NIN(slice []string) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
-}
-
-func (w whereHelpernull_String) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelpernull_String) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
-
 type whereHelpertime_Time struct{ field string }
 
 func (w whereHelpertime_Time) EQ(x time.Time) qm.QueryMod {
@@ -172,13 +133,13 @@ func (w whereHelpertime_Time) GTE(x time.Time) qm.QueryMod {
 var AccessKeyWhere = struct {
 	Key        whereHelperstring
 	UID        whereHelperint64
-	ClientType whereHelpernull_String
+	ClientType whereHelperstring
 	CreatedAt  whereHelpertime_Time
 	UpdatedAt  whereHelpertime_Time
 }{
 	Key:        whereHelperstring{field: "\"access_keys\".\"key\""},
 	UID:        whereHelperint64{field: "\"access_keys\".\"uid\""},
-	ClientType: whereHelpernull_String{field: "\"access_keys\".\"client_type\""},
+	ClientType: whereHelperstring{field: "\"access_keys\".\"client_type\""},
 	CreatedAt:  whereHelpertime_Time{field: "\"access_keys\".\"created_at\""},
 	UpdatedAt:  whereHelpertime_Time{field: "\"access_keys\".\"updated_at\""},
 }
@@ -212,8 +173,8 @@ type accessKeyL struct{}
 
 var (
 	accessKeyAllColumns            = []string{"key", "uid", "client_type", "created_at", "updated_at"}
-	accessKeyColumnsWithoutDefault = []string{"key", "uid", "created_at", "updated_at"}
-	accessKeyColumnsWithDefault    = []string{"client_type"}
+	accessKeyColumnsWithoutDefault = []string{"key", "uid", "client_type", "created_at", "updated_at"}
+	accessKeyColumnsWithDefault    = []string{}
 	accessKeyPrimaryKeyColumns     = []string{"key"}
 	accessKeyGeneratedColumns      = []string{}
 )

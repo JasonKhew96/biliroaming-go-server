@@ -89,6 +89,8 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	clientType := getClientPlatform(ctx, args.appkey)
+
 	v := url.Values{}
 	v.Set("access_key", args.accessKey)
 	v.Set("area", args.area)
@@ -96,11 +98,11 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 	v.Set("highlight", "1")
 	v.Set("keyword", args.keyword)
 	v.Set("type", strconv.Itoa(args.aType))
-	v.Set("mobi_app", "android")
+	v.Set("mobi_app", clientType.String())
 	v.Set("platform", "android")
 	v.Set("pn", strconv.Itoa(args.pn))
 
-	params, err := SignParams(v, getClientPlatform(ctx, args.appkey))
+	params, err := SignParams(v, clientType)
 	if err != nil {
 		b.sugar.Error(err)
 		ctx.Error(

@@ -228,7 +228,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		b.sugar.Error(err)
 	} else if ok && isStatusVip != status.isVip {
 		delete(b.accessKeys, args.accessKey)
-		if ok, _ := b.doAuth(ctx, args.accessKey, getClientPlatform(ctx, args.appkey), args.area, true); !ok {
+		if ok, _ := b.doAuth(ctx, args.accessKey, clientType, args.area, true); !ok {
 			return
 		}
 		writeErrorJSON(ctx, ERROR_CODE_VIP_STATUS, MSG_ERROR_VIP_STATUS)
@@ -301,10 +301,12 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		qn = 127
 	}
 
+	clientType := getClientPlatform(ctx, args.appkey)
+
 	var status *userStatus
 	if b.getAuthByArea(args.area) {
 		var ok bool
-		ok, status = b.doAuth(ctx, args.accessKey, getClientPlatform(ctx, args.appkey), args.area, false)
+		ok, status = b.doAuth(ctx, args.accessKey, clientType, args.area, false)
 		if !ok {
 			return
 		}
@@ -352,8 +354,6 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	v.Set("fourk", "1")
 	v.Set("platform", "android")
 	v.Set("qn", strconv.Itoa(qn))
-
-	clientType := getClientPlatform(ctx, args.appkey)
 
 	params, err := SignParams(v, clientType)
 	if err != nil {
@@ -435,7 +435,7 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 		b.sugar.Error(err)
 	} else if ok && isStatusVip != status.isVip {
 		delete(b.accessKeys, args.accessKey)
-		if ok, _ := b.doAuth(ctx, args.accessKey, getClientPlatform(ctx, args.appkey), args.area, true); !ok {
+		if ok, _ := b.doAuth(ctx, args.accessKey, clientType, args.area, true); !ok {
 			return
 		}
 		writeErrorJSON(ctx, ERROR_CODE_VIP_STATUS, MSG_ERROR_VIP_STATUS)

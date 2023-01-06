@@ -100,7 +100,7 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 	v.Set("platform", "android")
 	v.Set("pn", strconv.Itoa(args.pn))
 
-	params, err := SignParams(v, ClientTypeAndroid)
+	params, err := SignParams(v, getClientPlatform(ctx, args.appkey))
 	if err != nil {
 		b.sugar.Error(err)
 		ctx.Error(

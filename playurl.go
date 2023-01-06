@@ -101,10 +101,12 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		qn = 127
 	}
 
+	clientType := getClientPlatform(ctx, args.appkey)
+
 	var status *userStatus
 	if b.getAuthByArea(args.area) {
 		var ok bool
-		ok, status = b.doAuth(ctx, args.accessKey, getClientPlatform(ctx, args.appkey), args.area, false)
+		ok, status = b.doAuth(ctx, args.accessKey, clientType, args.area, false)
 		if !ok {
 			return
 		}
@@ -154,7 +156,7 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 	v.Set("fourk", "1")
 	v.Set("qn", strconv.Itoa(qn))
 
-	params, err := SignParams(v, ClientTypeAndroid)
+	params, err := SignParams(v, clientType)
 	if err != nil {
 		b.processError(ctx, err)
 		return
@@ -351,7 +353,9 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	v.Set("platform", "android")
 	v.Set("qn", strconv.Itoa(qn))
 
-	params, err := SignParams(v, ClientTypeAndroid)
+	clientType := getClientPlatform(ctx, args.appkey)
+
+	params, err := SignParams(v, clientType)
 	if err != nil {
 		b.sugar.Error(err)
 		ctx.Error(

@@ -171,7 +171,7 @@ func writeHealthJSON(ctx *fasthttp.RequestCtx, health *entity.Health) {
 func getClientPlatform(ctx *fasthttp.RequestCtx, appkey string) ClientType {
 	platform := string(ctx.Request.Header.PeekBytes([]byte("platform-from-biliroaming")))
 	if platform == "" && appkey == "" {
-		return ClientTypeUnknown
+		return ClientTypeIphone
 	}
 	clientType := ClientType(platform)
 	if clientType.IsValid() {

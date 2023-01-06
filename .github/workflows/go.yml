@@ -8,14 +8,13 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    if: ${{ !startsWith(github.event.head_commit.message, '[skip ci]') }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Set up Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v3
       with:
-        go-version: 1.16.4
+        go-version: '^1.19.4'
 
     - name: Build
       run: go build -v
@@ -24,9 +23,10 @@ jobs:
       # run: go test -v ./...
 
     - name: Upload Build Artifact
-      uses: actions/upload-artifact@v2.2.2
+      uses: actions/upload-artifact@v3
       with:
         name: biliroaming-go-server-${{ github.run_number }}
         path: |
           ./biliroaming-go-server
           ./config.yaml
+          ./sql/

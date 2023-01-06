@@ -62,11 +62,12 @@ func (h *DbHelper) GetKey(key string) (*models.AccessKey, error) {
 }
 
 // InsertOrUpdateKey insert or update access key data
-func (h *DbHelper) InsertOrUpdateKey(key string, uid int64) error {
+func (h *DbHelper) InsertOrUpdateKey(key string, uid int64, clientType string) error {
 	var accessKeyTable models.AccessKey
 	accessKeyTable.Key = key
 	accessKeyTable.UID = uid
-	return accessKeyTable.Upsert(h.ctx, h.db, true, []string{"key"}, boil.Whitelist("updated_at"), boil.Infer())
+	accessKeyTable.ClientType = null.StringFrom(clientType)
+	return accessKeyTable.Upsert(h.ctx, h.db, true, []string{"key"}, boil.Whitelist("client_type", "updated_at"), boil.Infer())
 }
 
 // CleanupAccessKeys cleanup access keys if exceeds duration

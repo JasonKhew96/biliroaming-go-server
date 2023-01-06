@@ -68,6 +68,10 @@ func (c *ClientType) IsValid() bool {
 	}
 }
 
+func (c ClientType) String() string {
+	return string(c)
+}
+
 // appkey
 const (
 	appkeyAi4cCreatorAndroid = "9d5889cf67e615cd"

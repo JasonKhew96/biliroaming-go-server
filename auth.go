@@ -128,7 +128,7 @@ func (b *BiliroamingGo) isAuth(ctx *fasthttp.RequestCtx, accessKey string, clien
 		return userStatus, err
 	}
 
-	err = b.db.InsertOrUpdateKey(accessKey, data.Data.Mid)
+	err = b.db.InsertOrUpdateKey(accessKey, data.Data.Mid, clientType.String())
 	if err != nil {
 		return userStatus, err
 	}

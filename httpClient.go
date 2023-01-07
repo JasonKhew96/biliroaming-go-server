@@ -50,7 +50,7 @@ func NewErrorHttpLimited(code int) *ErrorHttpStatus {
 }
 
 var (
-	ErrorHttpStatusLimited = NewErrorHttpLimited(412)
+	ErrorHttpStatusLimited = NewErrorHttpLimited(-412)
 )
 
 func (b *BiliroamingGo) initProxy(c *Config) {

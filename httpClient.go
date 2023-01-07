@@ -342,7 +342,7 @@ func (b *BiliroamingGo) doRequestJson(client *fasthttp.Client, params *HttpReque
 	if isLimited, err := isResponseLimited(bodyBytes); err != nil {
 		return nil, err
 	} else if isLimited {
-		return nil, NewErrorHttpLimited(-412)
+		return nil, ErrorHttpStatusLimited
 	}
 
 	body := string(bodyBytes)

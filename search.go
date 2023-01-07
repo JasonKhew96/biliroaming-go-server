@@ -104,11 +104,7 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 
 	params, err := SignParams(v, clientType)
 	if err != nil {
-		b.sugar.Error(err)
-		ctx.Error(
-			fasthttp.StatusMessage(fasthttp.StatusInternalServerError),
-			fasthttp.StatusInternalServerError,
-		)
+		b.processError(ctx, err)
 		return
 	}
 
@@ -118,11 +114,7 @@ func (b *BiliroamingGo) handleAndroidSearch(ctx *fasthttp.RequestCtx) {
 	}
 	domain, err := idna.New().ToASCII(reverseProxy)
 	if err != nil {
-		b.sugar.Error(err)
-		ctx.Error(
-			fasthttp.StatusMessage(fasthttp.StatusInternalServerError),
-			fasthttp.StatusInternalServerError,
-		)
+		b.processError(ctx, err)
 		return
 	}
 
@@ -202,11 +194,7 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 
 	params, err := SignParams(v, ClientTypeBstarA)
 	if err != nil {
-		b.sugar.Error(err)
-		ctx.Error(
-			fasthttp.StatusMessage(fasthttp.StatusInternalServerError),
-			fasthttp.StatusInternalServerError,
-		)
+		b.processError(ctx, err)
 		return
 	}
 
@@ -216,11 +204,7 @@ func (b *BiliroamingGo) handleBstarAndroidSearch(ctx *fasthttp.RequestCtx) {
 	}
 	domain, err := idna.New().ToASCII(reverseProxy)
 	if err != nil {
-		b.sugar.Error(err)
-		ctx.Error(
-			fasthttp.StatusMessage(fasthttp.StatusInternalServerError),
-			fasthttp.StatusInternalServerError,
-		)
+		b.processError(ctx, err)
 		return
 	}
 
@@ -299,11 +283,7 @@ func (b *BiliroamingGo) handleWebSearch(ctx *fasthttp.RequestCtx) {
 
 	params, err := SignParams(v, ClientTypeAndroid)
 	if err != nil {
-		b.sugar.Error(err)
-		ctx.Error(
-			fasthttp.StatusMessage(fasthttp.StatusInternalServerError),
-			fasthttp.StatusInternalServerError,
-		)
+		b.processError(ctx, err)
 		return
 	}
 
@@ -313,11 +293,7 @@ func (b *BiliroamingGo) handleWebSearch(ctx *fasthttp.RequestCtx) {
 	}
 	domain, err := idna.New().ToASCII(reverseProxy)
 	if err != nil {
-		b.sugar.Error(err)
-		ctx.Error(
-			fasthttp.StatusMessage(fasthttp.StatusInternalServerError),
-			fasthttp.StatusInternalServerError,
-		)
+		b.processError(ctx, err)
 		return
 	}
 

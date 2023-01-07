@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
 	"os"
 	"strconv"
@@ -288,9 +289,8 @@ func processNotFound(ctx *fasthttp.RequestCtx) {
 }
 
 func (b *BiliroamingGo) processError(ctx *fasthttp.RequestCtx, err error) {
-	b.sugar.Error(err)
-	ctx.Error(
-		fasthttp.StatusMessage(fasthttp.StatusInternalServerError),
-		fasthttp.StatusInternalServerError,
-	)
+	if !errors.Is(err, fasthttp.ErrTimeout) {
+		b.sugar.Error(err)
+	}
+	writeErrorJSON(ctx, ERROR_CODE_INTERNAL_SERVER, MSG_ERROR_INTERNAL_SERVER)
 }

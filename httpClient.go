@@ -363,7 +363,7 @@ func processNotFound(ctx *fasthttp.RequestCtx) {
 }
 
 func (b *BiliroamingGo) processError(ctx *fasthttp.RequestCtx, err error) {
-	if !errors.Is(err, fasthttp.ErrTimeout) {
+	if !errors.Is(err, fasthttp.ErrTimeout) && !errors.Is(err, fasthttp.ErrTLSHandshakeTimeout) && !errors.Is(err, fasthttp.ErrConnectionClosed) {
 		b.sugar.Error(err)
 	}
 	writeErrorJSON(ctx, ERROR_CODE_INTERNAL_SERVER, MSG_ERROR_INTERNAL_SERVER)

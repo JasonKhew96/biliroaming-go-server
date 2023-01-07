@@ -204,7 +204,7 @@ func initHttpServer(c *Config, b *BiliroamingGo) {
 			fsHandler(ctx)
 			// ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
 		}
-	}, 10*time.Second, fasthttp.StatusMessage(fasthttp.StatusRequestTimeout))
+	}, 15*time.Second, fasthttp.StatusMessage(fasthttp.StatusRequestTimeout))
 
 	b.sugar.Infof("Listening on :%d ...", c.Port)
 	err := fasthttp.ListenAndServe(":"+strconv.Itoa(c.Port), mux)

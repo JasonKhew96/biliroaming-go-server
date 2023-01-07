@@ -266,7 +266,7 @@ func (b *BiliroamingGo) doRequest(client *fasthttp.Client, params *HttpRequestPa
 	if isLimited, err := isResponseLimited(bodyBytes); err != nil {
 		return nil, err
 	} else if isLimited {
-		return nil, NewErrorHttpLimited(-412)
+		return nil, ErrorHttpStatusLimited
 	}
 
 	b.sugar.Debug("Content: ", string(bodyBytes))

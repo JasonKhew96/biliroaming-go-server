@@ -73,7 +73,7 @@ func (b *BiliroamingGo) handleBstarEpisode(ctx *fasthttp.RequestCtx) {
 		Url:       []byte(url),
 		UserAgent: ctx.UserAgent(),
 	}
-	data, err := b.doRequestJsonWithRetry(client, reqParams, 2)
+	data, err := b.doRequestJson(client, reqParams)
 	if err != nil {
 		if errors.Is(err, ErrorHttpStatusLimited) {
 			data = []byte(`{"code":-412,"message":"请求被拦截"}`)

@@ -125,7 +125,7 @@ func (b *BiliroamingGo) replaceSeason(ctx *fasthttp.RequestCtx, seasonResult []b
 		Url:       []byte(requestUrl),
 		UserAgent: []byte(DEFAULT_NAME),
 	}
-	customSubData, err := b.doRequestJsonWithRetry(b.defaultClient, reqParams, 2)
+	customSubData, err := b.doRequestJson(b.defaultClient, reqParams)
 	if err != nil {
 		return nil, errors.Wrap(err, "custom subtitle api")
 	}
@@ -281,7 +281,7 @@ func (b *BiliroamingGo) handleBstarAndroidSeason(ctx *fasthttp.RequestCtx) {
 		Url:       []byte(url),
 		UserAgent: ctx.UserAgent(),
 	}
-	data, err := b.doRequestJsonWithRetry(client, reqParams, 2)
+	data, err := b.doRequestJson(client, reqParams)
 	if err != nil {
 		if errors.Is(err, ErrorHttpStatusLimited) {
 			data = []byte(`{"code":-412,"message":"请求被拦截"}`)

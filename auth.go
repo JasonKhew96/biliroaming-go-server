@@ -54,7 +54,7 @@ func (b *BiliroamingGo) checkBWlist(ctx *fasthttp.RequestCtx, uid int64) (*entit
 		Url:       []byte(apiUrl),
 		UserAgent: []byte(DEFAULT_NAME),
 	}
-	data, err := b.doRequestJsonWithRetry(b.defaultClient, reqParams, 2)
+	data, err := b.doRequestJson(b.defaultClient, reqParams)
 	if err != nil {
 		return nil, err
 	}
@@ -177,7 +177,7 @@ func (b *BiliroamingGo) getMyInfo(ctx *fasthttp.RequestCtx, accessKey string, cl
 		Url:       []byte(apiURL),
 		UserAgent: ctx.UserAgent(),
 	}
-	body, err := b.doRequestJsonWithRetry(b.defaultClient, reqParams, 2)
+	body, err := b.doRequestJson(b.defaultClient, reqParams)
 	if err != nil {
 		return nil, err
 	}

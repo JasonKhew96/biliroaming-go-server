@@ -274,22 +274,6 @@ func (b *BiliroamingGo) doRequest(client *fasthttp.Client, params *HttpRequestPa
 	return bodyBytes, nil
 }
 
-func (b *BiliroamingGo) doRequestJsonWithRetry(client *fasthttp.Client, params *HttpRequestParams, retry int) ([]byte, error) {
-	var err error
-	var bodyBytes []byte
-	for i := 0; i < retry; i++ {
-		bodyBytes, err = b.doRequestJson(client, params)
-		if err == nil {
-			return bodyBytes, nil
-		}
-		if errors.Is(err, ErrorHttpStatusLimited) {
-			return nil, err
-		}
-		b.sugar.Errorf("doRequestJsonWithRetry: %s", err)
-	}
-	return nil, err
-}
-
 func (b *BiliroamingGo) doRequestJson(client *fasthttp.Client, params *HttpRequestParams) ([]byte, error) {
 	if params == nil {
 		return nil, errors.New("params is nil")

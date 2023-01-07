@@ -357,3 +357,14 @@ func (b *BiliroamingGo) doRequestJson(client *fasthttp.Client, params *HttpReque
 
 	return []byte(body), nil
 }
+
+func processNotFound(ctx *fasthttp.RequestCtx) {
+	ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
+}
+
+func (b *BiliroamingGo) processError(ctx *fasthttp.RequestCtx, err error) {
+	if !errors.Is(err, fasthttp.ErrTimeout) {
+		b.sugar.Error(err)
+	}
+	writeErrorJSON(ctx, ERROR_CODE_INTERNAL_SERVER, MSG_ERROR_INTERNAL_SERVER)
+}

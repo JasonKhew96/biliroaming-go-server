@@ -224,7 +224,7 @@ func (b *BiliroamingGo) doRequest(client *fasthttp.Client, params *HttpRequestPa
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
 	req.SetRequestURIBytes(params.Url)
-	req.Header.SetBytesKV([]byte("Accept-Encoding"), []byte("br, gzip"))
+	req.Header.SetBytesKV([]byte("Accept-Encoding"), []byte("br, gzip, deflate"))
 	req.Header.SetUserAgentBytes(params.UserAgent)
 	req.Header.SetMethodBytes(params.Method)
 	if params.Cookie != nil {
@@ -255,6 +255,8 @@ func (b *BiliroamingGo) doRequest(client *fasthttp.Client, params *HttpRequestPa
 		bodyBytes, err = resp.BodyGunzip()
 	} else if bytes.EqualFold(contentEncoding, []byte("br")) {
 		bodyBytes, err = resp.BodyUnbrotli()
+	} else if bytes.EqualFold(contentEncoding, []byte("deflate")) {
+		bodyBytes, err = resp.BodyInflate()
 	} else {
 		bodyBytes = resp.Body()
 	}
@@ -290,7 +292,7 @@ func (b *BiliroamingGo) doRequestJson(client *fasthttp.Client, params *HttpReque
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
 	req.SetRequestURIBytes(params.Url)
-	req.Header.SetBytesKV([]byte("Accept-Encoding"), []byte("br, gzip"))
+	req.Header.SetBytesKV([]byte("Accept-Encoding"), []byte("br, gzip, deflate"))
 	req.Header.SetUserAgentBytes(params.UserAgent)
 	req.Header.SetMethodBytes(params.Method)
 	if params.Cookie != nil {
@@ -327,6 +329,8 @@ func (b *BiliroamingGo) doRequestJson(client *fasthttp.Client, params *HttpReque
 		bodyBytes, err = resp.BodyGunzip()
 	} else if bytes.EqualFold(contentEncoding, []byte("br")) {
 		bodyBytes, err = resp.BodyUnbrotli()
+	} else if bytes.EqualFold(contentEncoding, []byte("deflate")) {
+		bodyBytes, err = resp.BodyInflate()
 	} else {
 		bodyBytes = resp.Body()
 	}

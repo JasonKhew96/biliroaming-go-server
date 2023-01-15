@@ -115,6 +115,8 @@ func (b *BiliroamingGo) getReverseSearchProxyByArea(area string) string {
 		return b.config.ReverseSearch.HK
 	case "tw":
 		return b.config.ReverseSearch.TW
+	case "th":
+		return b.config.ReverseSearch.TH
 	default:
 		return ""
 	}

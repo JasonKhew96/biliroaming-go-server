@@ -10,4 +10,5 @@ type Health struct {
 
 type HealthData struct {
 	LastCheck time.Time `json:"last_check"`
+	Counter   int64     `json:"counter"`
 }

@@ -24,8 +24,16 @@ func (b *BiliroamingGo) updateHealth(health *entity.Health, code int, message st
 		return
 	}
 	health.Data.LastCheck = time.Now()
-	health.Code = code
 	health.Message = message
+	if code == 0 {
+		health.Data.Counter = 0
+		health.Code = 0
+		return
+	}
+	health.Data.Counter++
+	if health.Data.Counter > 3 {
+		health.Code = code
+	}
 }
 
 func (b *BiliroamingGo) getPlayUrlHealth(area string) *entity.Health {

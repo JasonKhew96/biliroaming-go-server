@@ -61,6 +61,12 @@ func (b *BiliroamingGo) handleWebPlayURL(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	// 验证 epId
+	if args.epId == 0 {
+		writeErrorJSON(ctx, ERROR_CODE_PARAMETERS, MSG_ERROR_PARAMETERS)
+		return
+	}
+
 	if ok := b.checkEpisodeAreaCache(args.epId, getAreaCode(args.area)); !ok {
 		writeErrorJSON(ctx, ERROR_CODE_GEO_RESTRICED, MSG_ERROR_GEO_RESTRICTED)
 		return
@@ -253,6 +259,12 @@ func (b *BiliroamingGo) handleAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 
 	if args.area == "" {
 		writeErrorJSON(ctx, ERROR_CODE_GEO_RESTRICED, MSG_ERROR_GEO_RESTRICTED)
+		return
+	}
+
+	// 验证 epId
+	if args.epId == 0 {
+		writeErrorJSON(ctx, ERROR_CODE_PARAMETERS, MSG_ERROR_PARAMETERS)
 		return
 	}
 
@@ -451,6 +463,12 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	args := b.processArgs(queryArgs)
 
 	args.area = "th"
+
+	// 验证 epId
+	if args.epId == 0 {
+		writeErrorJSON(ctx, ERROR_CODE_PARAMETERS, MSG_ERROR_PARAMETERS)
+		return
+	}
 
 	if ok := b.checkEpisodeAreaCache(args.epId, getAreaCode(args.area)); !ok {
 		writeErrorJSON(ctx, ERROR_CODE_GEO_RESTRICED, MSG_ERROR_GEO_RESTRICTED)

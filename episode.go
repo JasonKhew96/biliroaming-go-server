@@ -21,6 +21,12 @@ func (b *BiliroamingGo) handleBstarEpisode(ctx *fasthttp.RequestCtx) {
 
 	args.area = "th"
 
+	// 验证 epId
+	if args.epId == 0 {
+		writeErrorJSON(ctx, ERROR_CODE_PARAMETERS, MSG_ERROR_PARAMETERS)
+		return
+	}
+
 	client := b.getClientByArea(args.area)
 
 	if b.getAuthByArea(args.area) {

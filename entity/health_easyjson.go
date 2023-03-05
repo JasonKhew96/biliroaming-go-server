@@ -40,6 +40,8 @@ func easyjson53c2c5caDecodeGithubComJasonKhew96BiliroamingGoServerEntity(in *jle
 			if data := in.Raw(); in.Ok() {
 				in.AddError((out.LastCheck).UnmarshalJSON(data))
 			}
+		case "counter":
+			out.Counter = int64(in.Int64())
 		default:
 			in.SkipRecursive()
 		}
@@ -58,6 +60,11 @@ func easyjson53c2c5caEncodeGithubComJasonKhew96BiliroamingGoServerEntity(out *jw
 		const prefix string = ",\"last_check\":"
 		out.RawString(prefix[1:])
 		out.Raw((in.LastCheck).MarshalJSON())
+	}
+	{
+		const prefix string = ",\"counter\":"
+		out.RawString(prefix)
+		out.Int64(int64(in.Counter))
 	}
 	out.RawByte('}')
 }

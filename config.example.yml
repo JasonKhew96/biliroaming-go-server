@@ -7,7 +7,7 @@ port: 80
 vipOnly: false
 
 # 黑名单接口
-blacklistApiUrl: "https://example.com/api/users/%d"
+blacklistApiUrl: "https://black.qimo.ink/api/users/%d"
 # 黑白名单模式
 # 0 - 禁用
 # 1 - 黑白名单

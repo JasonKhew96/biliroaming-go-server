@@ -64,7 +64,7 @@ func (b *BiliroamingGo) initProxy(c *Config) {
 func (b *BiliroamingGo) newClient(proxy string) *fasthttp.Client {
 	var dialFunc fasthttp.DialFunc
 	switch {
-	case strings.HasPrefix(proxy, "socks5://"):
+	case strings.HasPrefix(proxy, "socks5://"), strings.HasPrefix(proxy, "socks5h://"):
 		b.sugar.Debug("New socks proxy client: ", proxy)
 		dialFunc = fasthttpproxy.FasthttpSocksDialer(proxy)
 	case proxy != "":

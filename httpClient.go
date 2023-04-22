@@ -62,18 +62,23 @@ func (b *BiliroamingGo) initProxy(c *Config) {
 }
 
 func (b *BiliroamingGo) newClient(proxy string) *fasthttp.Client {
-	if proxy != "" {
+	var dialFunc fasthttp.DialFunc
+	switch {
+	case strings.HasPrefix(proxy, "socks5://"):
 		b.sugar.Debug("New socks proxy client: ", proxy)
-		return &fasthttp.Client{
-			ReadTimeout:  10 * time.Second,
-			WriteTimeout: 10 * time.Second,
-			Dial:         fasthttpproxy.FasthttpSocksDialer(proxy),
-		}
+		dialFunc = fasthttpproxy.FasthttpSocksDialer(proxy)
+	case proxy != "":
+		b.sugar.Debug("New http proxy client: ", proxy)
+		dialFunc = fasthttpproxy.FasthttpHTTPDialer(proxy)
+	case proxy == "":
+		b.sugar.Debug("New normal client")
+		dialFunc = nil
 	}
-	b.sugar.Debug("New normal client")
+
 	return &fasthttp.Client{
 		ReadTimeout:   10 * time.Second,
 		WriteTimeout:  10 * time.Second,
+		Dial:          dialFunc,
 		DialDualStack: b.config.IPV6,
 	}
 }

@@ -67,6 +67,9 @@ cache:
   thSubtitle: 15m
 
 # 代理
+# 实例
+#   socks5://localhost:9050
+#   username:password@localhost:9050
 proxy:
   cn: socks5://127.0.0.1:7890
   hk: socks5://127.0.0.1:7891

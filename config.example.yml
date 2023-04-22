@@ -2,6 +2,8 @@
 debug: false
 # 监听端口
 port: 80
+# 启用 ipv6 (仅连接反代使用)
+ipv6: false
 
 # 仅限大会员用户使用
 vipOnly: false

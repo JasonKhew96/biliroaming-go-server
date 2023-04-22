@@ -72,8 +72,9 @@ func (b *BiliroamingGo) newClient(proxy string) *fasthttp.Client {
 	}
 	b.sugar.Debug("New normal client")
 	return &fasthttp.Client{
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 10 * time.Second,
+		ReadTimeout:   10 * time.Second,
+		WriteTimeout:  10 * time.Second,
+		DialDualStack: b.config.IPV6,
 	}
 }
 

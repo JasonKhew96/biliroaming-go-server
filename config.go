@@ -12,6 +12,7 @@ import (
 type Config struct {
 	Debug bool `yaml:"debug"`
 	Port  int  `yaml:"port"`
+	IPV6  bool `yaml:"ipv6"`
 
 	VipOnly bool `yaml:"vipOnly"`
 

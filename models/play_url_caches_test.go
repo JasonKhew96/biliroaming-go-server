@@ -568,7 +568,7 @@ func testPlayURLCachesSelect(t *testing.T) {
 }
 
 var (
-	playURLCachDBTypes = map[string]string{`ID`: `integer`, `EpisodeID`: `bigint`, `IsVip`: `boolean`, `Area`: `smallint`, `DeviceType`: `smallint`, `FormatType`: `smallint`, `Quality`: `smallint`, `Data`: `json`, `CreatedAt`: `timestamp without time zone`, `UpdatedAt`: `timestamp without time zone`}
+	playURLCachDBTypes = map[string]string{`ID`: `integer`, `EpisodeID`: `bigint`, `IsVip`: `boolean`, `Area`: `smallint`, `DeviceType`: `smallint`, `FormatType`: `smallint`, `Quality`: `smallint`, `Data`: `json`, `CreatedAt`: `timestamp without time zone`, `UpdatedAt`: `timestamp without time zone`, `PreferCodeType`: `boolean`}
 	_                  = bytes.MinRead
 )
 

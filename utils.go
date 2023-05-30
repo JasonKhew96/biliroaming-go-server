@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"crypto/md5"
 	"fmt"
 	"net/url"
@@ -110,20 +111,21 @@ const (
 
 // biliArgs query arguments struct
 type biliArgs struct {
-	accessKey string
-	area      string
-	cid       int64
-	epId      int64
-	seasonId  int64
-	keyword   string
-	pn        int
-	page      int
-	qn        int
-	aType     int
-	fnval     int
-	appkey    string
-	ts        int64
-	sign      string
+	accessKey      string
+	area           string
+	cid            int64
+	epId           int64
+	seasonId       int64
+	keyword        string
+	pn             int
+	page           int
+	qn             int
+	aType          int
+	fnval          int
+	appkey         string
+	ts             int64
+	sign           string
+	preferCodeType bool
 }
 
 // SignParams sign params according to client type
@@ -436,22 +438,24 @@ func (b *BiliroamingGo) processArgs(args *fasthttp.Args) *biliArgs {
 	if err != nil {
 		ts = 0
 	}
+	preferCodeType := bytes.EqualFold(args.Peek("prefer_code_type"), []byte("1"))
 
 	queryArgs := &biliArgs{
-		accessKey: string(args.Peek("access_key")),
-		area:      strings.ToLower(area),
-		cid:       cid,
-		epId:      epId,
-		seasonId:  seasonId,
-		keyword:   string(args.Peek("keyword")),
-		pn:        pn,
-		page:      page,
-		qn:        qn,
-		aType:     aType,
-		fnval:     fnval,
-		appkey:    string(args.Peek("appkey")),
-		ts:        ts,
-		sign:      string(args.Peek("sign")),
+		accessKey:      string(args.Peek("access_key")),
+		area:           strings.ToLower(area),
+		cid:            cid,
+		epId:           epId,
+		seasonId:       seasonId,
+		keyword:        string(args.Peek("keyword")),
+		pn:             pn,
+		page:           page,
+		qn:             qn,
+		aType:          aType,
+		fnval:          fnval,
+		appkey:         string(args.Peek("appkey")),
+		ts:             ts,
+		sign:           string(args.Peek("sign")),
+		preferCodeType: preferCodeType,
 	}
 
 	b.sugar.Debug("Request args ", args.String())

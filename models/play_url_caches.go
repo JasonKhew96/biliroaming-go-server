@@ -24,67 +24,72 @@ import (
 
 // PlayURLCach is an object representing the database table.
 type PlayURLCach struct {
-	ID         int        `boil:"id" json:"id" toml:"id" yaml:"id"`
-	EpisodeID  int64      `boil:"episode_id" json:"episode_id" toml:"episode_id" yaml:"episode_id"`
-	IsVip      bool       `boil:"is_vip" json:"is_vip" toml:"is_vip" yaml:"is_vip"`
-	Area       int16      `boil:"area" json:"area" toml:"area" yaml:"area"`
-	DeviceType int16      `boil:"device_type" json:"device_type" toml:"device_type" yaml:"device_type"`
-	FormatType int16      `boil:"format_type" json:"format_type" toml:"format_type" yaml:"format_type"`
-	Quality    int16      `boil:"quality" json:"quality" toml:"quality" yaml:"quality"`
-	Data       types.JSON `boil:"data" json:"data" toml:"data" yaml:"data"`
-	CreatedAt  time.Time  `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	UpdatedAt  time.Time  `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	ID             int        `boil:"id" json:"id" toml:"id" yaml:"id"`
+	EpisodeID      int64      `boil:"episode_id" json:"episode_id" toml:"episode_id" yaml:"episode_id"`
+	IsVip          bool       `boil:"is_vip" json:"is_vip" toml:"is_vip" yaml:"is_vip"`
+	Area           int16      `boil:"area" json:"area" toml:"area" yaml:"area"`
+	DeviceType     int16      `boil:"device_type" json:"device_type" toml:"device_type" yaml:"device_type"`
+	FormatType     int16      `boil:"format_type" json:"format_type" toml:"format_type" yaml:"format_type"`
+	Quality        int16      `boil:"quality" json:"quality" toml:"quality" yaml:"quality"`
+	Data           types.JSON `boil:"data" json:"data" toml:"data" yaml:"data"`
+	CreatedAt      time.Time  `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	UpdatedAt      time.Time  `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	PreferCodeType bool       `boil:"prefer_code_type" json:"prefer_code_type" toml:"prefer_code_type" yaml:"prefer_code_type"`
 
 	R *playURLCachR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L playURLCachL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var PlayURLCachColumns = struct {
-	ID         string
-	EpisodeID  string
-	IsVip      string
-	Area       string
-	DeviceType string
-	FormatType string
-	Quality    string
-	Data       string
-	CreatedAt  string
-	UpdatedAt  string
+	ID             string
+	EpisodeID      string
+	IsVip          string
+	Area           string
+	DeviceType     string
+	FormatType     string
+	Quality        string
+	Data           string
+	CreatedAt      string
+	UpdatedAt      string
+	PreferCodeType string
 }{
-	ID:         "id",
-	EpisodeID:  "episode_id",
-	IsVip:      "is_vip",
-	Area:       "area",
-	DeviceType: "device_type",
-	FormatType: "format_type",
-	Quality:    "quality",
-	Data:       "data",
-	CreatedAt:  "created_at",
-	UpdatedAt:  "updated_at",
+	ID:             "id",
+	EpisodeID:      "episode_id",
+	IsVip:          "is_vip",
+	Area:           "area",
+	DeviceType:     "device_type",
+	FormatType:     "format_type",
+	Quality:        "quality",
+	Data:           "data",
+	CreatedAt:      "created_at",
+	UpdatedAt:      "updated_at",
+	PreferCodeType: "prefer_code_type",
 }
 
 var PlayURLCachTableColumns = struct {
-	ID         string
-	EpisodeID  string
-	IsVip      string
-	Area       string
-	DeviceType string
-	FormatType string
-	Quality    string
-	Data       string
-	CreatedAt  string
-	UpdatedAt  string
+	ID             string
+	EpisodeID      string
+	IsVip          string
+	Area           string
+	DeviceType     string
+	FormatType     string
+	Quality        string
+	Data           string
+	CreatedAt      string
+	UpdatedAt      string
+	PreferCodeType string
 }{
-	ID:         "play_url_caches.id",
-	EpisodeID:  "play_url_caches.episode_id",
-	IsVip:      "play_url_caches.is_vip",
-	Area:       "play_url_caches.area",
-	DeviceType: "play_url_caches.device_type",
-	FormatType: "play_url_caches.format_type",
-	Quality:    "play_url_caches.quality",
-	Data:       "play_url_caches.data",
-	CreatedAt:  "play_url_caches.created_at",
-	UpdatedAt:  "play_url_caches.updated_at",
+	ID:             "play_url_caches.id",
+	EpisodeID:      "play_url_caches.episode_id",
+	IsVip:          "play_url_caches.is_vip",
+	Area:           "play_url_caches.area",
+	DeviceType:     "play_url_caches.device_type",
+	FormatType:     "play_url_caches.format_type",
+	Quality:        "play_url_caches.quality",
+	Data:           "play_url_caches.data",
+	CreatedAt:      "play_url_caches.created_at",
+	UpdatedAt:      "play_url_caches.updated_at",
+	PreferCodeType: "play_url_caches.prefer_code_type",
 }
 
 // Generated where
@@ -166,27 +171,29 @@ func (w whereHelpertypes_JSON) GTE(x types.JSON) qm.QueryMod {
 }
 
 var PlayURLCachWhere = struct {
-	ID         whereHelperint
-	EpisodeID  whereHelperint64
-	IsVip      whereHelperbool
-	Area       whereHelperint16
-	DeviceType whereHelperint16
-	FormatType whereHelperint16
-	Quality    whereHelperint16
-	Data       whereHelpertypes_JSON
-	CreatedAt  whereHelpertime_Time
-	UpdatedAt  whereHelpertime_Time
+	ID             whereHelperint
+	EpisodeID      whereHelperint64
+	IsVip          whereHelperbool
+	Area           whereHelperint16
+	DeviceType     whereHelperint16
+	FormatType     whereHelperint16
+	Quality        whereHelperint16
+	Data           whereHelpertypes_JSON
+	CreatedAt      whereHelpertime_Time
+	UpdatedAt      whereHelpertime_Time
+	PreferCodeType whereHelperbool
 }{
-	ID:         whereHelperint{field: "\"play_url_caches\".\"id\""},
-	EpisodeID:  whereHelperint64{field: "\"play_url_caches\".\"episode_id\""},
-	IsVip:      whereHelperbool{field: "\"play_url_caches\".\"is_vip\""},
-	Area:       whereHelperint16{field: "\"play_url_caches\".\"area\""},
-	DeviceType: whereHelperint16{field: "\"play_url_caches\".\"device_type\""},
-	FormatType: whereHelperint16{field: "\"play_url_caches\".\"format_type\""},
-	Quality:    whereHelperint16{field: "\"play_url_caches\".\"quality\""},
-	Data:       whereHelpertypes_JSON{field: "\"play_url_caches\".\"data\""},
-	CreatedAt:  whereHelpertime_Time{field: "\"play_url_caches\".\"created_at\""},
-	UpdatedAt:  whereHelpertime_Time{field: "\"play_url_caches\".\"updated_at\""},
+	ID:             whereHelperint{field: "\"play_url_caches\".\"id\""},
+	EpisodeID:      whereHelperint64{field: "\"play_url_caches\".\"episode_id\""},
+	IsVip:          whereHelperbool{field: "\"play_url_caches\".\"is_vip\""},
+	Area:           whereHelperint16{field: "\"play_url_caches\".\"area\""},
+	DeviceType:     whereHelperint16{field: "\"play_url_caches\".\"device_type\""},
+	FormatType:     whereHelperint16{field: "\"play_url_caches\".\"format_type\""},
+	Quality:        whereHelperint16{field: "\"play_url_caches\".\"quality\""},
+	Data:           whereHelpertypes_JSON{field: "\"play_url_caches\".\"data\""},
+	CreatedAt:      whereHelpertime_Time{field: "\"play_url_caches\".\"created_at\""},
+	UpdatedAt:      whereHelpertime_Time{field: "\"play_url_caches\".\"updated_at\""},
+	PreferCodeType: whereHelperbool{field: "\"play_url_caches\".\"prefer_code_type\""},
 }
 
 // PlayURLCachRels is where relationship names are stored.
@@ -206,8 +213,8 @@ func (*playURLCachR) NewStruct() *playURLCachR {
 type playURLCachL struct{}
 
 var (
-	playURLCachAllColumns            = []string{"id", "episode_id", "is_vip", "area", "device_type", "format_type", "quality", "data", "created_at", "updated_at"}
-	playURLCachColumnsWithoutDefault = []string{"episode_id", "is_vip", "area", "device_type", "format_type", "quality", "data", "created_at", "updated_at"}
+	playURLCachAllColumns            = []string{"id", "episode_id", "is_vip", "area", "device_type", "format_type", "quality", "data", "created_at", "updated_at", "prefer_code_type"}
+	playURLCachColumnsWithoutDefault = []string{"episode_id", "is_vip", "area", "device_type", "format_type", "quality", "data", "created_at", "updated_at", "prefer_code_type"}
 	playURLCachColumnsWithDefault    = []string{"id"}
 	playURLCachPrimaryKeyColumns     = []string{"id"}
 	playURLCachGeneratedColumns      = []string{}

@@ -20,6 +20,7 @@ CREATE TABLE play_url_caches(
     device_type SMALLINT NOT NULL,
     format_type SMALLINT NOT NULL,
     quality SMALLINT NOT NULL,
+    prefer_code_type BOOLEAN NOT NULL,
     data JSON NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL

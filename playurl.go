@@ -569,6 +569,9 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	v.Set("platform", "android")
 	v.Set("s_locale", "zh_SG")
 	v.Set("qn", strconv.Itoa(qn))
+	if args.preferCodeType {
+		v.Set("prefer_code_type", "1")
+	}
 
 	params, err := SignParams(v, ClientTypeBstarA)
 	if err != nil {

@@ -633,7 +633,7 @@ func (b *BiliroamingGo) handleBstarAndroidPlayURL(ctx *fasthttp.RequestCtx) {
 	}
 
 	if b.getAuthByArea(args.area) {
-		if err := b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeAndroid, formatType, int16(qn), getAreaCode(args.area), isVIP, false, args.epId, data); err != nil {
+		if err := b.db.InsertOrUpdatePlayURLCache(database.DeviceTypeAndroid, formatType, int16(qn), getAreaCode(args.area), isVIP, args.preferCodeType, args.epId, data); err != nil {
 			b.sugar.Error(err)
 		}
 	}

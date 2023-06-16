@@ -440,8 +440,13 @@ func (b *BiliroamingGo) processArgs(args *fasthttp.Args) *biliArgs {
 	}
 	preferCodeType := bytes.EqualFold(args.Peek("prefer_code_type"), []byte("1"))
 
+	accessKey := string(args.Peek("access_key"))
+	if len(accessKey) > 32 {
+		accessKey = accessKey[:32]
+	}
+
 	queryArgs := &biliArgs{
-		accessKey:      string(args.Peek("access_key")),
+		accessKey:      accessKey,
 		area:           strings.ToLower(area),
 		cid:            cid,
 		epId:           epId,
